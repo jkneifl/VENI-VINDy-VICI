@@ -1,5 +1,7 @@
 # VENI-VINDy-VICI
-A variational reduced-order modeling framework with uncertainty quantification [1]
+A variational reduced-order modeling framework with uncertainty quantification [1].
+
+![overview](doc/figures/overview.png)
 
 ## Framework
 The framework discovers probablistic governing equations from high-dimensional data in a low-dimensional latent space. It consists of three steps:
@@ -12,8 +14,6 @@ On the time series data expressed in the new set of latent coordinates, a probab
 
 #### VICI (Variational Inference with Certainty Intervals) 
 The resulting ROM allows to evolve the temporal system solution by variational inference on both the latent variable distribution and the dynamic model, given new parameter/force values and initial conditions. This, naturally, provides an estimate of the reliability of the prediction through certainty intervals.
-
-![overview](doc/figures/overview.png)
 
 ## Features
 This repository implements the classic SINDy autoencoders [3] as well as its variational extension: the newly proposed VENI, VINDy, VICI framework [1].
