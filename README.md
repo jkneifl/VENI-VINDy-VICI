@@ -38,6 +38,17 @@ The individual contributions can be used standalone (plain SINDy or VINDy) or ar
 
 ## Installation
 
+Clone this repository and install it to your local environment as package using pip:
+
+```bash
+git clone git@github.com:jkneifl/VENI-VINDy-VICI.git
+cd VENI-VINDy-VICI
+pip install -e .
+```
+
+You can run the jupyter notebook for the Roessler system to check if the installation was successful. 
+It is in the `examples` folder. Please note that you'll need to have jupyter installed in order to run the notebook.
+
 
 
 ## References
