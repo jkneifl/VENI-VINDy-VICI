@@ -1,3 +1,5 @@
+> :warning: **Code will be available soon**
+
 # VENI-VINDy-VICI
 A variational reduced-order modeling framework with uncertainty quantification [1].
 
