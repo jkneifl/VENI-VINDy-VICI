@@ -2,7 +2,7 @@
 A variational reduced-order modeling framework with uncertainty quantification [1]
 
 ## Framework
-The framework discovers probablistic governing equations from high-dimensional data in a low-dimensional latent space. It consists of three steps:
+The framework discovers probabilistic governing equations from high-dimensional data in a low-dimensional latent space. It consists of three steps:
 
 #### VENI (Variational Encoding of Noisy Inputs)
 A generative model utilizing variational autoencoders (VAEs) is applied to transform high-dimensional, noisy data into a low-dimensional latent space representation that is suitable to describe the dynamics of the system.

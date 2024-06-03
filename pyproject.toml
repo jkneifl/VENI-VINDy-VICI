@@ -1,0 +1,56 @@
+[build-system]
+requires = ["setuptools >= 61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "vindy"
+version = "0.1.4"
+authors = [
+  { name="Jonas Kneifl", email="jonas.kneifl@itm.uni-stuttgart.com" },
+  { name="Paolo Conti", email="paolo.conti@polimi.it" },
+]
+description = "AESINDy is a Python package for automated system identification of low-dimensional systems combining autoencoders and SINDy."
+readme = "README.md"
+requires-python = ">=3.8"
+dependencies = [
+    "matplotlib>=3.7",
+    "numpy>=1.21.4",
+    "scikit_learn>=1.2",
+    "scipy>=1.10",
+    "sympy>=1.12",
+    "pysindy>=1.7",
+    "tensorflow>=2.15",
+    "tensorflow_probability>=0.24",
+    "tensorflow_model_optimization>=0.7",
+    "tf-keras>=2.16",
+]
+keywords = [
+    "model order reduction",
+    "system identification",
+    "surrogate modeling",
+    "reduced order models",
+    "variational",
+    "uncertainty quantification",
+    "generative modeling",
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+
+[project.optional-dependencies]
+gui = [
+    "inspector3D",
+    "imageio",
+]
+interfaces = [
+]
+
+[tool.setuptools]
+packages = ["vindy"]
+py-modules = []
+
+[project.urls]
+Homepage = "https://github.com/jkneifl/VENI-VINDy-VICI"
+Issues = "https://github.com/jkneifl/VENI-VINDy-VICIissues"
