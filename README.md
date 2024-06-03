@@ -3,6 +3,9 @@ A variational reduced-order modeling framework with uncertainty quantification [
 
 ![overview](doc/figures/overview.png)
 
+## Reference
+The preprint is available on [arXiv](https://arxiv.org/abs/2405.20905).
+
 ## Framework
 The framework discovers probablistic governing equations from high-dimensional data in a low-dimensional latent space. It consists of three steps:
 
