@@ -41,6 +41,15 @@ The individual contributions can be used standalone (plain SINDy or VINDy) or ar
 
 ## Installation
 
+You can either clone the repository and install the package locally or install it directly from PyPI.
+
+### PyPI
+
+```bash
+pip install vindy
+```
+
+### Local
 Clone this repository and install it to your local environment as package using pip:
 
 ```bash
