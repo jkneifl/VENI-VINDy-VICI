@@ -54,10 +54,15 @@ pip install vindy
 Clone this repository and install it to your local environment as package using pip:
 
 ```bash
-git clone git@github.com:jkneifl/VENI-VINDy-VICI.git
+git clone https://github.com/jkneifl/VENI-VINDy-VICI.git
 cd VENI-VINDy-VICI
+```
+Then you can activate the environment in which you want to install the package, and use pip to perform the installation.
+```bash
 pip install -e .
 ```
+
+> :warning: **Please note that you need pip version 24.0 to install the repository in editable mode. Either upgrade pip to the latest version or install it without the ```-e``` argument**
 
 You can run the jupyter notebook for the Roessler system to check if the installation was successful. 
 It is in the `examples` folder. Please note that you'll need to have jupyter installed in order to run the notebook.
