@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import tensorflow as tf
 import tensorflow_probability as tfp
-from vindy.layers.distributions.base_distribution import BaseDistribution
+from .base_distribution import BaseDistribution
 
 class Laplace(BaseDistribution):
     """

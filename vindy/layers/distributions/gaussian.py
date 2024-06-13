@@ -1,6 +1,6 @@
 import numpy as np
 import tensorflow as tf
-from vindy.layers.distributions.base_distribution import BaseDistribution
+from .base_distribution import BaseDistribution
 
 
 class Gaussian(BaseDistribution):
