@@ -1,6 +1,5 @@
-from . import sindy_callback, threshold_prune_callback, spotify_callback, save_coefficients_callback, pdf_threshold_callback
-from sindy_callback import SindyCallback
-from threshold_prune_callback import ThresholdPruneCallback
-from spotify_callback import SpotifyCallback
-from save_coefficients_callback import SaveCoefficientsCallback
-from pdf_threshold_callback import PDFThresholdCallback
+from .sindy_callback import SindyCallback
+from .threshold_prune_callback import ThresholdPruneCallback
+from .spotify_callback import SpotifyCallback
+from .save_coefficients_callback import SaveCoefficientsCallback
+from .pdf_threshold_callback import PDFThresholdCallback
