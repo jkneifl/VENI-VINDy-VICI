@@ -1,7 +1,7 @@
 import numpy as np
 import tensorflow as tf
 import pysindy as ps
-from vindy.layers.vindy_layer import VindyLayer
+from ..layers.vindy_layer import VindyLayer
 
 
 class SindyCallback(tf.keras.callbacks.Callback):

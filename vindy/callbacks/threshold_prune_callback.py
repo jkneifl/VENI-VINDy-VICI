@@ -1,5 +1,5 @@
 import tensorflow as tf
-from vindy.layers import SindyLayer
+from ..layers import SindyLayer
 
 class ThresholdPruneCallback(tf.keras.callbacks.Callback):
 
