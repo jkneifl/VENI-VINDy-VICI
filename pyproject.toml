@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "vindy"
-version = "0.1.5"
+version = "0.1.6"
 authors = [
   { name="Jonas Kneifl", email="jonas.kneifl@itm.uni-stuttgart.com" },
   { name="Paolo Conti", email="paolo.conti@polimi.it" },
