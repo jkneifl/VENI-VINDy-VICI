@@ -3,7 +3,8 @@
 # VENI-VINDy-VICI
 A variational reduced-order modeling framework with uncertainty quantification [1].
 
-![overview](doc/figures/overview.png)
+![graphical_abstract_gif](https://github.com/jkneifl/VENI-VINDy-VICI/assets/51111500/15ee2081-65e1-4e96-b182-91b52ff7271c)
+
 
 ## Reference
 The preprint is available on [arXiv](https://arxiv.org/abs/2405.20905).
