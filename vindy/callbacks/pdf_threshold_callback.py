@@ -1,5 +1,5 @@
 import tensorflow as tf
-from ..layers.vindy_layer import VindyLayer
+from vindy.layers.vindy_layer import VindyLayer
 
 
 class PDFThresholdCallback(tf.keras.callbacks.Callback):

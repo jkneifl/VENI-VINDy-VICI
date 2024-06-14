@@ -7,7 +7,7 @@ import datetime
 import pickle
 import tensorflow as tf
 import keras
-from ..layers import SindyLayer
+from vindy.layers import SindyLayer
 import matplotlib.pyplot as plt
 
 logging.basicConfig()

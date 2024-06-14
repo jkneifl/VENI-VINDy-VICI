@@ -1,7 +1,7 @@
 import tensorflow as tf
 import numpy as np
 import inspect
-from ..libraries import PolynomialLibrary, BaseLibrary
+from vindy.libraries import PolynomialLibrary, BaseLibrary
 from sympy import symbols
 
 

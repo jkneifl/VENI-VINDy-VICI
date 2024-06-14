@@ -1,7 +1,7 @@
 import logging
 import tensorflow as tf
 import numpy as np
-from ..layers.distributions import Gaussian
+from vindy.layers.distributions import Gaussian
 from .autoencoder_sindy import AutoencoderSindy
 
 logging.basicConfig()
