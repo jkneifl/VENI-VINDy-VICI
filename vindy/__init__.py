@@ -1,1 +1,1 @@
-# from vindy.networks import AutoencoderSindy, VAESindy, SindyNetwork
+from .networks import AutoencoderSindy, VAESindy, SindyNetwork

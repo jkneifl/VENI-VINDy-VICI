@@ -3,7 +3,7 @@ import logging
 import tensorflow as tf
 import matplotlib.pyplot as plt
 from .sindy_layer import SindyLayer
-from vindy.layers.distributions import Gaussian, BaseDistribution
+from vindy.distributions import Gaussian, BaseDistribution
 
 logging.basicConfig()
 logging.getLogger().setLevel(logging.INFO)

@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools >= 61.0"]
+requires = ["setuptools >= 61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -48,8 +48,9 @@ interfaces = [
 ]
 
 [tool.setuptools]
-packages = ["vindy"]
-py-modules = []
+# If there are data files included in your packages that need to be
+# installed, specify them here.
+#package-data = {"sample" = ["*.dat"]}
 
 [project.urls]
 Homepage = "https://github.com/jkneifl/VENI-VINDy-VICI"

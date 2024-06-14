@@ -1,6 +1,6 @@
 import logging
 import tensorflow as tf
-from vindy.networks import BaseModel
+from .base_model import BaseModel
 
 logging.basicConfig()
 logging.getLogger().setLevel(logging.INFO)
