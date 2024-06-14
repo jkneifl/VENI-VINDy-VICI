@@ -47,12 +47,13 @@ gui = [
 interfaces = [
 ]
 
+[tool.setuptools]
+packages = ["vindy"]
+#py-modules = ["callbacks", "layers", "libraries", "networks", "utils"]
+
 [tool.setuptools.packages.find]
 where = ["vindy"]
 
-[tool.setuptools]
-packages = ["vindy"]
-py-modules = ["callbacks", "layers", "libraries", "networks", "utils"]
 
 [project.urls]
 Homepage = "https://github.com/jkneifl/VENI-VINDy-VICI"
