@@ -47,8 +47,8 @@ gui = [
 interfaces = [
 ]
 
-[tool.setuptools]
-packages = ["vindy"]
+#[tool.setuptools]
+#packages = ["vindy"]
 #py-modules = ["callbacks", "layers", "libraries", "networks", "utils"]
 
 [tool.setuptools.packages.find]
