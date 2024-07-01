@@ -7,7 +7,7 @@ A variational reduced-order modeling framework with uncertainty quantification [
 
 ## Tutorial Notebook 
 Run the Roessler example on Colab 
-[Tutorial Roessler](https://drive.google.com/file/d/1Tvk93iU5kh7i7ffkOwfMUPwxT1rhhoW0/view?usp=drive_link)
+[Tutorial Roessler](https://colab.research.google.com/drive/1Tvk93iU5kh7i7ffkOwfMUPwxT1rhhoW0)
 
 ## Reference
 The preprint is available on [arXiv](https://arxiv.org/abs/2405.20905).
