@@ -241,10 +241,11 @@ class SindyLayer(tf.keras.layers.Layer):
         return [self.kernel]
 
     def prune_weights(self, threshold=0.01, training=False):
-        mask = tf.greater(
-            tf.math.abs(self.kernel), threshold * tf.ones_like(self.kernel)
-        )
-        self.kernel = tf.multiply(self.kernel, mask)
+        mask = tf.greater(tf.math.abs(self.kernel), threshold * tf.ones_like(self.kernel, dtype=self.kernel.dtype))
+        mask = tf.cast(mask, dtype=self.kernel.dtype)
+        self.kernel.assign(tf.multiply(self.kernel, mask)) # using this instead of
+        # self.kernel = tf.multiply(self.kernel, mask)
+        # because otherwise ThresholdPruneCallback causes an error
 
     def fill_coefficient_matrix(self, trainable_coeffs):
         """
