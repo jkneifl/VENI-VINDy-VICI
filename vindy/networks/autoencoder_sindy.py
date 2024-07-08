@@ -250,7 +250,7 @@ class AutoencoderSindy(BaseModel):
         build a fully connected encoder with layers of size layer_sizes
         :param x: input to the autoencoder
         """
-        x_input = tf.keras.Input(shape=(x.shape[1]), dtype=self.dtype_)
+        x_input = tf.keras.Input(shape=(x.shape[1],), dtype=self.dtype_)
         z = x_input
         for n_neurons in self.layer_sizes:
             z = tf.keras.layers.Dense(

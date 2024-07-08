@@ -242,8 +242,9 @@ class SindyLayer(tf.keras.layers.Layer):
 
     def prune_weights(self, threshold=0.01, training=False):
         mask = tf.greater(
-            tf.math.abs(self.kernel), threshold * tf.ones_like(self.kernel)
+            tf.math.abs(self.kernel), threshold * tf.ones_like(self.kernel, dtype=self.kernel.dtype)
         )
+        mask = tf.cast(mask, dtype=self.kernel.dtype)
         self.kernel = tf.multiply(self.kernel, mask)
 
     def fill_coefficient_matrix(self, trainable_coeffs):
