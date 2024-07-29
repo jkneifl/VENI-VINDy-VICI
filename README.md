@@ -12,6 +12,8 @@ Run the Roessler example on Colab
 ## Reference
 The preprint is available on [arXiv](https://arxiv.org/abs/2405.20905).
 
+If you want to cite this code, use [![DOI](https://zenodo.org/badge/804234432.svg)](https://zenodo.org/doi/10.5281/zenodo.13120248).
+
 ## Framework
 The framework discovers probabilistic governing equations from high-dimensional data in a low-dimensional latent space. It consists of three steps:
 
