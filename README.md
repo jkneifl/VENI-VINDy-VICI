@@ -1,3 +1,9 @@
+<!-- PROJECT SHIELDS -->
+[![arXiv][arxiv-shield]][arxiv-url]
+[![DOI][doi-shield]][doi-url]
+[![MIT License][license-shield]][license-url]
+
+
 > :warning: **More examples will be available soon**
 
 # VENI-VINDy-VICI
@@ -12,7 +18,7 @@ Run the Roessler example on Colab
 ## Reference
 The preprint is available on [arXiv](https://arxiv.org/abs/2405.20905).
 
-If you want to cite this code, use [![DOI](https://zenodo.org/badge/804234432.svg)](https://zenodo.org/doi/10.5281/zenodo.13120248).
+If you want to cite this code, use [Zenodo](https://zenodo.org/doi/10.5281/zenodo.13120248).
 
 ## Framework
 The framework discovers probabilistic governing equations from high-dimensional data in a low-dimensional latent space. It consists of three steps:
@@ -81,4 +87,10 @@ It is in the `examples` folder. Please note that you'll need to have jupyter ins
 [2] S. L. Brunton, J. L. Proctor, J. N. Kutz, Discovering governing equations from data by sparse identifi cation of nonlinear dynamical systems, Proceedings of the national academy of sciences 113 (15) (2016) 3932–3937. [doi:10.1073/pnas.1517384113](https://doi.org/10.1073/pnas.1517384113).
 
 [3] Champion, K., Lusch, B., Kutz, J. N., & Brunton, S. L. (2019). Data-driven discovery of coordinates and governing equations. Proceedings of the National Academy of Sciences, 116(45), 22445-22451. [doi:10.1073/pnas.1906995116](https://doi.org/10.1073/pnas.1906995116). 
-  
+
+[license-shield]: https://img.shields.io/github/license/jkneifl/VENI-VINDy-VICI.svg
+[license-url]: https://github.com/jkneifl/VENI-VINDy-VICI/blob/main/LICENSE
+[doi-shield]: https://zenodo.org/badge/DOI/10.5281/zenodo.13120249.svg
+[doi-url]: https://doi.org/10.5281/zenodo.13120249
+[arxiv-shield]: https://img.shields.io/badge/arXiv-2405.20905-b31b1b.svg
+[arxiv-url]: https://doi.org/10.48550/arXiv.2405.20905
