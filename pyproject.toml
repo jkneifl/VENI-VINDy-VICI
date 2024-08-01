@@ -41,7 +41,7 @@ classifiers = [
 
 [project.optional-dependencies]
 gui = [
-    "inspector3D",
+    "visualizer-3d",
     "imageio",
 ]
 interfaces = [

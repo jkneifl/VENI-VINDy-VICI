@@ -6,6 +6,8 @@ class FourierLibrary(BaseLibrary):
 
     def __init__(self, freqs=[1]):
         self.freqs = freqs
+        self.fcn = [tf.sin, tf.cos, tf.math.sigmoid]
+        self.fcn_names = ["sin", "cos", "sigmoid"]
 
     @tf.function
     def __call__(self, x):
@@ -16,7 +18,8 @@ class FourierLibrary(BaseLibrary):
         """
         x_fourier = []
         for f in self.freqs:
-            x_fourier += [tf.sin(f * x), tf.cos(f * x), tf.math.sigmoid(f * x)]
+            for fcn in self.fcn:
+                x_fourier += [fcn(f * x)]
         x_fourier = tf.concat(x_fourier, axis=1)
         return x_fourier
 
@@ -30,8 +33,9 @@ class FourierLibrary(BaseLibrary):
         if not isinstance(x, list):
             x = [x]
         x_fourier = []
-        for x_ in x:
-            for f in self.freqs:
-                x_fourier += [f'sin({f} * {x_})', f'cos({f} * {x_})', f'sigmoid({f} * {x_})']
+        for f in self.freqs:
+            for fcn in self.fcn_names:
+                for x_ in x:
+                    x_fourier += [f'{fcn}({f} * {x_})']
         return x_fourier
 
