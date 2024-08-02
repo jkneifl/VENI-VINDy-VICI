@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VENI-VINDy-VICI &mdash; VENI, VINDy, VICI 0.1.7 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=ca7ad2ea"></script>
+        <script src="_static/doctools.js?v=9a2dae69"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="vindy" href="vindy.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="#" class="icon icon-home">
+            VENI, VINDy, VICI
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="vindy.html">vindy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contact.html">Contact</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="#">VENI, VINDy, VICI</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="#" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">VENI-VINDy-VICI</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/index.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <!-- PROJECT SHIELDS -->
+<p><a class="reference external" href="https://doi.org/10.48550/arXiv.2405.20905"><img alt="arXiv" src="https://img.shields.io/badge/arXiv-2405.20905-b31b1b.svg" /></a>
+<a class="reference external" href="https://doi.org/10.5281/zenodo.13120249"><img alt="DOI" src="https://zenodo.org/badge/DOI/10.5281/zenodo.13120249.svg" /></a>
+<a class="reference external" href="https://github.com/jkneifl/VENI-VINDy-VICI/blob/main/LICENSE"><img alt="MIT License" src="https://img.shields.io/github/license/jkneifl/VENI-VINDy-VICI.svg" /></a></p>
+<blockquote>
+<div><p>:warning: <strong>More examples will be available soon</strong></p>
+</div></blockquote>
+<section id="veni-vindy-vici">
+<h1>VENI-VINDy-VICI<a class="headerlink" href="#veni-vindy-vici" title="Link to this heading"></a></h1>
+<p>A variational reduced-order modeling framework with uncertainty quantification [1].</p>
+<p><img alt="graphical_abstract_gif" src="https://github.com/jkneifl/VENI-VINDy-VICI/assets/51111500/15ee2081-65e1-4e96-b182-91b52ff7271c" /></p>
+<section id="tutorial-notebook">
+<h2>Tutorial Notebook<a class="headerlink" href="#tutorial-notebook" title="Link to this heading"></a></h2>
+<p>Run the Roessler example on Colab
+<a class="reference external" href="https://colab.research.google.com/drive/1Tvk93iU5kh7i7ffkOwfMUPwxT1rhhoW0">Tutorial Roessler</a></p>
+</section>
+<section id="reference">
+<h2>Reference<a class="headerlink" href="#reference" title="Link to this heading"></a></h2>
+<p>The preprint is available on <a class="reference external" href="https://arxiv.org/abs/2405.20905">arXiv</a>.</p>
+<p>If you want to cite this code, use <a class="reference external" href="https://zenodo.org/doi/10.5281/zenodo.13120248">Zenodo</a>.</p>
+</section>
+<section id="framework">
+<h2>Framework<a class="headerlink" href="#framework" title="Link to this heading"></a></h2>
+<p>The framework discovers probabilistic governing equations from high-dimensional data in a low-dimensional latent space. It consists of three steps:</p>
+<section id="veni-variational-encoding-of-noisy-inputs">
+<h3>VENI (Variational Encoding of Noisy Inputs)<a class="headerlink" href="#veni-variational-encoding-of-noisy-inputs" title="Link to this heading"></a></h3>
+<p>A generative model utilizing variational autoencoders (VAEs) is applied to transform high-dimensional, noisy data into a low-dimensional latent space representation that is suitable to describe the dynamics of the system.</p>
+</section>
+<section id="vindy-variational-identification-of-nonlinear-dynamics">
+<h3>VINDy (Variational Identification of Nonlinear Dynamics)<a class="headerlink" href="#vindy-variational-identification-of-nonlinear-dynamics" title="Link to this heading"></a></h3>
+<p>On the time series data expressed in the new set of latent coordinates, a probabilistic dynamical model of the system is learned by a variational version of SINDy (Sparse Identification of Nonlinear Dynamics) [2].</p>
+</section>
+<section id="vici-variational-inference-with-certainty-intervals">
+<h3>VICI (Variational Inference with Certainty Intervals)<a class="headerlink" href="#vici-variational-inference-with-certainty-intervals" title="Link to this heading"></a></h3>
+<p>The resulting ROM allows to evolve the temporal system solution by variational inference on both the latent variable distribution and the dynamic model, given new parameter/force values and initial conditions. This, naturally, provides an estimate of the reliability of the prediction through certainty intervals.</p>
+</section>
+</section>
+<section id="features">
+<h2>Features<a class="headerlink" href="#features" title="Link to this heading"></a></h2>
+<p>This repository implements the classic SINDy autoencoders [3] as well as its variational extension: the newly proposed VENI, VINDy, VICI framework [1].</p>
+<ul class="simple">
+<li><p>Autoencoders (AEs) for dimensionality reduction</p></li>
+<li><p>Variational autoencoders (VAEs) for probabilistic latent representations</p></li>
+<li><p>SINDy layer to identify interpretable governing equations from data using standard backpropagation algorithms</p></li>
+<li><p>VINDy layer to identify interpretable probabalistic governing equations, where coefficients are represented as distributions.</p>
+<ul>
+<li><p>Direct uncertainty quantification on modeling terms</p></li>
+<li><p>Sampling-based uncertainty quantification for time evolution of system states</p></li>
+</ul>
+</li>
+<li><p>Infuse preknowledge</p>
+<ul>
+<li><p>Select priors</p></li>
+<li><p>Fix certain weights</p></li>
+<li><p>Model your system as second order system dx/ddt = f(x, xdt, mu)</p></li>
+</ul>
+</li>
+<li><p>Several callbacks</p>
+<ul>
+<li><p>Update governing equation coefficients with separate SINDy optimization schemes (using pysindy)</p></li>
+<li><p>Thresholding coefficents w.r.t their magnitude or their probability density function around zero</p></li>
+<li><p>Log the coefficients during training to monitor convergence</p></li>
+</ul>
+</li>
+</ul>
+<p>The individual contributions can be used standalone (plain SINDy or VINDy) or arbitrarily be combined with dimensionality reducition schemes (e.g. VAEs with SINDy, AE with VINDy, VAE with VINDy, …)</p>
+</section>
+<section id="installation">
+<h2>Installation<a class="headerlink" href="#installation" title="Link to this heading"></a></h2>
+<p>You can either clone the repository and install the package locally or install it directly from PyPI.</p>
+<section id="pypi">
+<h3>PyPI<a class="headerlink" href="#pypi" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>vindy
+</pre></div>
+</div>
+</section>
+<section id="local">
+<h3>Local<a class="headerlink" href="#local" title="Link to this heading"></a></h3>
+<p>Clone this repository and install it to your local environment as package using pip:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/jkneifl/VENI-VINDy-VICI.git
+<span class="nb">cd</span><span class="w"> </span>VENI-VINDy-VICI
+</pre></div>
+</div>
+<p>Then you can activate the environment in which you want to install the package, and use pip to perform the installation.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span>.
+</pre></div>
+</div>
+<blockquote>
+<div><p>:warning: <strong>Please note that you need pip version 24.0 to install the repository in editable mode. Either upgrade pip to the latest version or install it without the <code class="docutils literal notranslate"><span class="pre">-e</span></code> argument</strong></p>
+</div></blockquote>
+<p>You can run the jupyter notebook for the Roessler system to check if the installation was successful.
+It is in the <code class="docutils literal notranslate"><span class="pre">examples</span></code> folder. Please note that you’ll need to have jupyter installed in order to run the notebook.</p>
+</section>
+</section>
+<section id="references">
+<h2>References<a class="headerlink" href="#references" title="Link to this heading"></a></h2>
+<p>[1] Paolo Conti, Jonas Kneifl, Andrea Manzoni, Attilio Frangi, Jörg Fehr, Steven L. Brunton, J. Nathan Kutz. VENI, VINDy, VICI – a variational reduced-order modeling framework with uncertainty quantification. Arxiv preprint: 2405.20905. <a class="reference external" href="https://doi.org/10.48550/ARXIV.2405.20905">doi:10.48550/ARXIV.2405.20905</a>.</p>
+<p>[2] S. L. Brunton, J. L. Proctor, J. N. Kutz, Discovering governing equations from data by sparse identifi cation of nonlinear dynamical systems, Proceedings of the national academy of sciences 113 (15) (2016) 3932–3937. <a class="reference external" href="https://doi.org/10.1073/pnas.1517384113">doi:10.1073/pnas.1517384113</a>.</p>
+<p>[3] Champion, K., Lusch, B., Kutz, J. N., &amp; Brunton, S. L. (2019). Data-driven discovery of coordinates and governing equations. Proceedings of the National Academy of Sciences, 116(45), 22445-22451. <a class="reference external" href="https://doi.org/10.1073/pnas.1906995116">doi:10.1073/pnas.1906995116</a>.</p>
+</section>
+</section>
+<div class="toctree-wrapper compound">
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="vindy.html">vindy</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="vindy.callbacks.html">vindy.callbacks package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="vindy.distributions.html">vindy.distributions package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="vindy.layers.html">vindy.layers package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="vindy.libraries.html">vindy.libraries package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="vindy.networks.html">vindy.networks package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="vindy.utils.html">vindy.utils package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="vindy.html#module-vindy">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="contact.html">Contact</a></li>
+</ul>
+</div>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="vindy.html" class="btn btn-neutral float-right" title="vindy" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Jonas Kneifl, Paolo Conti.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

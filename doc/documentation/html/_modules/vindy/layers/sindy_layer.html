@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>vindy.layers.sindy_layer &mdash; VENI, VINDy, VICI 0.1.7 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../../_static/documentation_options.js?v=ca7ad2ea"></script>
+        <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            VENI, VINDy, VICI
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../vindy.html">vindy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contact.html">Contact</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">VENI, VINDy, VICI</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">vindy.layers.sindy_layer</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for vindy.layers.sindy_layer</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">inspect</span>
+<span class="kn">from</span> <span class="nn">vindy.libraries</span> <span class="kn">import</span> <span class="n">PolynomialLibrary</span><span class="p">,</span> <span class="n">BaseLibrary</span>
+<span class="kn">from</span> <span class="nn">sympy</span> <span class="kn">import</span> <span class="n">symbols</span>
+
+
+<div class="viewcode-block" id="SindyLayer">
+<a class="viewcode-back" href="../../../vindy.layers.html#vindy.layers.sindy_layer.SindyLayer">[docs]</a>
+<span class="k">class</span> <span class="nc">SindyLayer</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Layer</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">state_dim</span><span class="p">,</span>
+        <span class="n">param_dim</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+        <span class="n">feature_libraries</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="p">[],</span>
+        <span class="n">param_feature_libraries</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="p">[],</span>
+        <span class="n">second_order</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">kernel_regularizer</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">regularizers</span><span class="o">.</span><span class="n">L1L2</span><span class="p">(</span><span class="n">l1</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">,</span> <span class="n">l2</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span>
+        <span class="n">x_mu_interaction</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">mask</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">fixed_coeffs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;float32&quot;</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Layer for SINDy approximation of the time derivative of the latent variable</span>
+<span class="sd">        feature libraries are applied to the latent variable and its time derivative and a sparse regression is performed</span>
+<span class="sd">        :param state_dim: (int) number of latent variables</span>
+<span class="sd">        :param param_dim: (int) number of parameters</span>
+<span class="sd">        :param feature_libraries: (list) list of feature libraries for the latent variables</span>
+<span class="sd">        :param param_feature_libraries: (list) list of feature libraries for the parameters</span>
+<span class="sd">        :param second_order: (bool) if True, enforce 2nd order structure,</span>
+<span class="sd">                    i.e. d/dt [z, z_d] = [z_dot, Theta(z, z_dot)@Xi] where Theta(z, z_dot) is a feature library and</span>
+<span class="sd">                    Xi are the coefficients to be identified</span>
+<span class="sd">        :param kernel_regularizer: (tf.keras.regularizers.Regularizer) regularizer for the kernel</span>
+<span class="sd">        :param x_mu_interaction: (bool) if True, interaction between latent variables and parameters</span>
+<span class="sd">        :param mask: (array-like) If required certain coefficients of the latent governing equations can be fixed</span>
+<span class="sd">                    and are consequently masked out for training</span>
+<span class="sd">        :param fixed_coeffs: (array-like) values for the coefficients that are masked out during training</span>
+<span class="sd">        :param dtype: (str) data type of the layer</span>
+<span class="sd">        :param kwargs: additional arguments for the tensorflow layer class</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">SindyLayer</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="c1"># assert that input arguments are valid</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assert_arguments</span><span class="p">(</span><span class="nb">locals</span><span class="p">())</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">dtype_</span> <span class="o">=</span> <span class="n">dtype</span>
+        <span class="c1"># default library</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">feature_libraries</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">feature_libraries</span> <span class="o">=</span> <span class="p">[</span><span class="n">PolynomialLibrary</span><span class="p">(</span><span class="n">degree</span><span class="o">=</span><span class="mi">3</span><span class="p">)]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">feature_libraries</span> <span class="o">=</span> <span class="n">feature_libraries</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">param_feature_libraries</span> <span class="o">=</span> <span class="n">param_feature_libraries</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">state_dim</span> <span class="o">=</span> <span class="n">state_dim</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">param_dim</span> <span class="o">=</span> <span class="n">param_dim</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">x_mu_interaction</span> <span class="o">=</span> <span class="n">x_mu_interaction</span>
+
+        <span class="c1"># get feature dimension</span>
+        <span class="k">if</span> <span class="n">second_order</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">output_dim</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">state_dim</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">output_dim</span> <span class="o">=</span> <span class="n">state_dim</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_bases_functions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tfFeat</span><span class="p">(</span>
+            <span class="n">tf</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_dim</span> <span class="o">+</span> <span class="n">param_dim</span><span class="p">))</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="c1"># set certain values of kernel</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mask</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">fixed_coeffs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_mask</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="n">fixed_coeffs</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">second_order</span> <span class="o">=</span> <span class="n">second_order</span>
+        <span class="k">if</span> <span class="n">second_order</span><span class="p">:</span>
+            <span class="c1"># enforcing the structure of the 2nd order model</span>
+            <span class="c1">#   the feature library will look like this [1, z1, ..., zn, z1_dot, ..., zn_dot, ...]</span>
+            <span class="c1">#   consequently we enforce 2nd order structure [0_(n x n+1) I_(n x n) 0_(n x ...)]</span>
+            <span class="n">zero_matrix</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span>
+                <span class="n">shape</span><span class="o">=</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">state_dim</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">state_dim</span> <span class="o">+</span> <span class="mi">1</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dtype_</span>
+            <span class="p">)</span>
+            <span class="n">eye_matrix</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">state_dim</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dtype_</span><span class="p">)</span>
+            <span class="n">zero_matrix2</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span>
+                <span class="n">shape</span><span class="o">=</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">state_dim</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_bases_functions</span> <span class="o">-</span> <span class="nb">int</span><span class="p">(</span><span class="n">state_dim</span> <span class="o">*</span> <span class="mi">2</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">],</span>
+                <span class="n">dtype</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dtype_</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="c1"># apply the structure of the 2nd order model</span>
+            <span class="n">fixed_kernel</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">zero_matrix</span><span class="p">,</span> <span class="n">eye_matrix</span><span class="p">,</span> <span class="n">zero_matrix2</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mask</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span>
+                <span class="p">[</span><span class="n">tf</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">fixed_kernel</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dtype_</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">mask</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">fixed_coeffs</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">fixed_kernel</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">fixed_coeffs</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="c1"># initialize sindy coefficients</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">init_weigths</span><span class="p">(</span><span class="n">kernel_regularizer</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">loss_trackers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the loss trackers of the layer if any. The standard sindy layer has no loss trackers.</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">dict</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_init_to_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">init_locals</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        In order to save the model, we save the parameters with which the model was initialized except for the data itself</span>
+<span class="sd">        :param init_locals: local variables from the __init__ function</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">sig</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">signature</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="fm">__init__</span><span class="p">)</span>
+        <span class="n">keys</span> <span class="o">=</span> <span class="p">[</span><span class="n">param</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">sig</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">values</span><span class="p">()]</span>
+        <span class="n">values</span> <span class="o">=</span> <span class="p">[</span><span class="n">init_locals</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">]</span>
+        <span class="n">init_dict</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">keys</span><span class="p">,</span> <span class="n">values</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">init_dict</span>
+
+<div class="viewcode-block" id="SindyLayer.assert_arguments">
+<a class="viewcode-back" href="../../../vindy.layers.html#vindy.layers.sindy_layer.SindyLayer.assert_arguments">[docs]</a>
+    <span class="k">def</span> <span class="nf">assert_arguments</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arguments</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Asserts that the arguments passed to the layer are valid</span>
+<span class="sd">        :param arguments:</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="n">arguments</span><span class="p">[</span><span class="s2">&quot;dtype&quot;</span><span class="p">]</span> <span class="ow">in</span> <span class="p">[</span>
+            <span class="s2">&quot;float32&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;float64&quot;</span><span class="p">,</span>
+            <span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span>
+            <span class="n">tf</span><span class="o">.</span><span class="n">float64</span><span class="p">,</span>
+        <span class="p">],</span> <span class="s2">&quot;dtype must be either float32 or float64&quot;</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">arguments</span><span class="p">[</span><span class="s2">&quot;state_dim&quot;</span><span class="p">],</span> <span class="nb">int</span><span class="p">),</span> <span class="s2">&quot;state_dim must be an integer&quot;</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">arguments</span><span class="p">[</span><span class="s2">&quot;param_dim&quot;</span><span class="p">],</span> <span class="nb">int</span><span class="p">),</span> <span class="s2">&quot;param_dim must be an integer&quot;</span>
+        <span class="c1"># assert that mask and fixed_coeffs have the right shape</span>
+        <span class="k">assert</span> <span class="p">(</span>
+            <span class="nb">isinstance</span><span class="p">(</span><span class="n">arguments</span><span class="p">[</span><span class="s2">&quot;mask&quot;</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span>
+            <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">arguments</span><span class="p">[</span><span class="s2">&quot;mask&quot;</span><span class="p">],</span> <span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span>
+            <span class="ow">or</span> <span class="n">arguments</span><span class="p">[</span><span class="s2">&quot;mask&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span>
+        <span class="p">),</span> <span class="s2">&quot;mask must be either None, a numpy array or a tensorflow tensor&quot;</span>
+        <span class="k">assert</span> <span class="p">(</span>
+            <span class="nb">isinstance</span><span class="p">(</span><span class="n">arguments</span><span class="p">[</span><span class="s2">&quot;fixed_coeffs&quot;</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span>
+            <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">arguments</span><span class="p">[</span><span class="s2">&quot;fixed_coeffs&quot;</span><span class="p">],</span> <span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span>
+            <span class="ow">or</span> <span class="n">arguments</span><span class="p">[</span><span class="s2">&quot;fixed_coeffs&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span>
+        <span class="p">),</span> <span class="s2">&quot;fixed_coeffs must be either None, a numpy array or a tensorflow tensor&quot;</span>
+        <span class="k">if</span> <span class="n">arguments</span><span class="p">[</span><span class="s2">&quot;mask&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="p">(</span>
+                <span class="n">arguments</span><span class="p">[</span><span class="s2">&quot;mask&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">arguments</span><span class="p">[</span><span class="s2">&quot;state_dim&quot;</span><span class="p">]</span>
+            <span class="p">),</span> <span class="s2">&quot;mask must have shape (state_dim, x)&quot;</span>
+        <span class="k">if</span> <span class="n">arguments</span><span class="p">[</span><span class="s2">&quot;fixed_coeffs&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="p">(</span>
+                <span class="n">arguments</span><span class="p">[</span><span class="s2">&quot;fixed_coeffs&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">arguments</span><span class="p">[</span><span class="s2">&quot;state_dim&quot;</span><span class="p">]</span>
+            <span class="p">),</span> <span class="s2">&quot;fixed_coeffs must have shape (state_dim, x)&quot;</span>
+        <span class="c1"># assert that feature_libraries is a list of aesindy.libraries objects</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span>
+            <span class="n">arguments</span><span class="p">[</span><span class="s2">&quot;feature_libraries&quot;</span><span class="p">],</span> <span class="nb">list</span>
+        <span class="p">),</span> <span class="s2">&quot;feature_libraries must be a list&quot;</span>
+        <span class="k">for</span> <span class="n">lib</span> <span class="ow">in</span> <span class="n">arguments</span><span class="p">[</span><span class="s2">&quot;feature_libraries&quot;</span><span class="p">]:</span>
+            <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span>
+                <span class="n">lib</span><span class="p">,</span> <span class="n">BaseLibrary</span>
+            <span class="p">),</span> <span class="s2">&quot;feature_libraries must be a list of aesindy.libraries objects&quot;</span>
+        <span class="c1"># assert that param_feature_libraries is a list of aesindy.libraries objects</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span>
+            <span class="n">arguments</span><span class="p">[</span><span class="s2">&quot;param_feature_libraries&quot;</span><span class="p">],</span> <span class="nb">list</span>
+        <span class="p">),</span> <span class="s2">&quot;param_feature_libraries must be a list&quot;</span>
+        <span class="k">for</span> <span class="n">lib</span> <span class="ow">in</span> <span class="n">arguments</span><span class="p">[</span><span class="s2">&quot;param_feature_libraries&quot;</span><span class="p">]:</span>
+            <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span>
+                <span class="n">lib</span><span class="p">,</span> <span class="n">BaseLibrary</span>
+            <span class="p">),</span> <span class="s2">&quot;param_feature_libraries must be a list of aesindy.libraries objects&quot;</span>
+        <span class="c1"># assert that second_order and x_mu_interaction are booleans</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span>
+            <span class="n">arguments</span><span class="p">[</span><span class="s2">&quot;second_order&quot;</span><span class="p">],</span> <span class="nb">bool</span>
+        <span class="p">),</span> <span class="s2">&quot;second_order must be a boolean&quot;</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span>
+            <span class="n">arguments</span><span class="p">[</span><span class="s2">&quot;x_mu_interaction&quot;</span><span class="p">],</span> <span class="nb">bool</span>
+        <span class="p">),</span> <span class="s2">&quot;x_mu_interaction must be a boolean&quot;</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span>
+            <span class="n">arguments</span><span class="p">[</span><span class="s2">&quot;kernel_regularizer&quot;</span><span class="p">],</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">regularizers</span><span class="o">.</span><span class="n">Regularizer</span>
+        <span class="p">),</span> <span class="s2">&quot;kernel_regularizer must be a tf.keras.regularizers.Regularizer object&quot;</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">coefficient_matrix_shape</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_dim</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_bases_functions</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">kernel_shape</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the dimension of the kernel (weights) of the SINDy layer</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_dofs</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+<div class="viewcode-block" id="SindyLayer.init_weigths">
+<a class="viewcode-back" href="../../../vindy.layers.html#vindy.layers.sindy_layer.SindyLayer.init_weigths">[docs]</a>
+    <span class="k">def</span> <span class="nf">init_weigths</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">kernel_regularizer</span><span class="p">):</span>
+
+        <span class="c1"># get amount of dofs (equals the number of ones in the mask)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_dofs</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mask</span><span class="p">))</span>
+        <span class="c1"># get ids of dofs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dof_ids</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">equal</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mask</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+
+        <span class="n">init</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">random_uniform_initializer</span><span class="p">(</span><span class="n">minval</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">maxval</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">kernel</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">add_weight</span><span class="p">(</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;SINDy_coefficents&quot;</span><span class="p">,</span>
+            <span class="n">initializer</span><span class="o">=</span><span class="n">init</span><span class="p">,</span>
+            <span class="n">shape</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">kernel_shape</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dtype_</span><span class="p">,</span>
+            <span class="n">regularizer</span><span class="o">=</span><span class="n">kernel_regularizer</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SindyLayer.set_mask">
+<a class="viewcode-back" href="../../../vindy.layers.html#vindy.layers.sindy_layer.SindyLayer.set_mask">[docs]</a>
+    <span class="k">def</span> <span class="nf">set_mask</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mask</span><span class="p">,</span> <span class="n">fixed_coeffs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">mask</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">mask</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">ones</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">state_dim</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_bases_functions</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">fixed_coeffs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">fixed_coeffs</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">state_dim</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_bases_functions</span><span class="p">])</span>
+
+        <span class="n">mask</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dtype_</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">mask</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">coefficient_matrix_shape</span><span class="p">:</span>
+            <span class="c1"># bring mask to the right shape by padding ones</span>
+            <span class="n">mask</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">pad</span><span class="p">(</span>
+                <span class="n">mask</span><span class="p">,</span>
+                <span class="p">[[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">coefficient_matrix_shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">mask</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]]],</span>
+                <span class="n">constant_values</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="n">fixed_coeffs</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">fixed_coeffs</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dtype_</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">fixed_coeffs</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">coefficient_matrix_shape</span><span class="p">:</span>
+            <span class="c1"># bring mask to the right shape by padding zeros</span>
+            <span class="n">fixed_coeffs</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">pad</span><span class="p">(</span>
+                <span class="n">fixed_coeffs</span><span class="p">,</span>
+                <span class="p">[[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">coefficient_matrix_shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">fixed_coeffs</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]]],</span>
+                <span class="n">constant_values</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">mask</span><span class="p">,</span> <span class="n">fixed_coeffs</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">_coeffs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the coefficients of the SINDy layer as a matrix</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># fill the coefficient matrix with the trainable coefficients</span>
+        <span class="n">coeffs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fill_coefficient_matrix</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">kernel</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">coeffs</span>
+
+<div class="viewcode-block" id="SindyLayer.get_sindy_coeffs">
+<a class="viewcode-back" href="../../../vindy.layers.html#vindy.layers.sindy_layer.SindyLayer.get_sindy_coeffs">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_sindy_coeffs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_coeffs</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="SindyLayer.get_prunable_weights">
+<a class="viewcode-back" href="../../../vindy.layers.html#vindy.layers.sindy_layer.SindyLayer.get_prunable_weights">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_prunable_weights</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># Prune bias also, though that usually harms model accuracy too much.</span>
+        <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">kernel</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="SindyLayer.prune_weights">
+<a class="viewcode-back" href="../../../vindy.layers.html#vindy.layers.sindy_layer.SindyLayer.prune_weights">[docs]</a>
+    <span class="k">def</span> <span class="nf">prune_weights</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="n">mask</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">greater</span><span class="p">(</span>
+            <span class="n">tf</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">kernel</span><span class="p">),</span> <span class="n">threshold</span> <span class="o">*</span> <span class="n">tf</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">kernel</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">kernel</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">kernel</span><span class="p">,</span> <span class="n">mask</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SindyLayer.fill_coefficient_matrix">
+<a class="viewcode-back" href="../../../vindy.layers.html#vindy.layers.sindy_layer.SindyLayer.fill_coefficient_matrix">[docs]</a>
+    <span class="k">def</span> <span class="nf">fill_coefficient_matrix</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">trainable_coeffs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        fill the coefficient matrix with the trainable coefficients</span>
+<span class="sd">        :param trainable_coeffs: (array-like) trainable coefficients</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># create a zero matrix for the coefficients with the correct shape</span>
+        <span class="n">coeffs</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">coefficient_matrix_shape</span><span class="p">)</span>
+        <span class="c1"># put the coefficients into the coefficient matrix Xi at the correct positions</span>
+        <span class="n">coeffs</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">tensor_scatter_nd_update</span><span class="p">(</span>
+            <span class="n">coeffs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dof_ids</span><span class="p">,</span> <span class="n">trainable_coeffs</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span>
+        <span class="p">)</span>
+
+        <span class="c1"># apply the mask7</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">fixed_coeffs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">coeffs</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fixed_coeffs</span>
+
+        <span class="k">return</span> <span class="n">coeffs</span></div>
+
+
+<div class="viewcode-block" id="SindyLayer.call">
+<a class="viewcode-back" href="../../../vindy.layers.html#vindy.layers.sindy_layer.SindyLayer.call">[docs]</a>
+    <span class="nd">@tf</span><span class="o">.</span><span class="n">function</span>
+    <span class="k">def</span> <span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="n">z_features</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tfFeat</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>
+        <span class="n">z_dot</span> <span class="o">=</span> <span class="n">z_features</span> <span class="o">@</span> <span class="n">tf</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_coeffs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">z_dot</span></div>
+
+
+<div class="viewcode-block" id="SindyLayer.tfFeat">
+<a class="viewcode-back" href="../../../vindy.layers.html#vindy.layers.sindy_layer.SindyLayer.tfFeat">[docs]</a>
+    <span class="nd">@tf</span><span class="o">.</span><span class="n">function</span>
+    <span class="k">def</span> <span class="nf">tfFeat</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        combine all features</span>
+<span class="sd">        :param inputs:</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># in case we want interaction between parameters and states</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">x_mu_interaction</span><span class="p">:</span>
+            <span class="n">z_feat</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">concat_features</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">feature_libraries</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">z_feat</span>
+        <span class="c1"># if we want to apply separate features to parameter and states</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">z_feat</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">concat_features</span><span class="p">(</span>
+                <span class="n">inputs</span><span class="p">[:,</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_dim</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">feature_libraries</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">param_feature_libraries</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">param_feat</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">concat_features</span><span class="p">(</span>
+                    <span class="n">inputs</span><span class="p">[:,</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_dim</span> <span class="p">:],</span> <span class="bp">self</span><span class="o">.</span><span class="n">param_feature_libraries</span>
+                <span class="p">)</span>
+                <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">z_feat</span><span class="p">,</span> <span class="n">param_feat</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">z_feat</span></div>
+
+
+<div class="viewcode-block" id="SindyLayer.concat_features">
+<a class="viewcode-back" href="../../../vindy.layers.html#vindy.layers.sindy_layer.SindyLayer.concat_features">[docs]</a>
+    <span class="nd">@tf</span><span class="o">.</span><span class="n">function</span>
+    <span class="k">def</span> <span class="nf">concat_features</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">libraries</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        concatenate features from different libraries</span>
+<span class="sd">        :param z: input</span>
+<span class="sd">        :param libraries: list of libraries</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">features</span> <span class="o">=</span> <span class="p">[</span><span class="n">library</span><span class="p">(</span><span class="n">z</span><span class="p">)</span> <span class="k">for</span> <span class="n">library</span> <span class="ow">in</span> <span class="n">libraries</span><span class="p">]</span>
+        <span class="n">z_feat</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">features</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">z_feat</span></div>
+
+
+<div class="viewcode-block" id="SindyLayer.get_feature_names">
+<a class="viewcode-back" href="../../../vindy.layers.html#vindy.layers.sindy_layer.SindyLayer.get_feature_names">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_feature_names</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">z</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mu</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        construct features names for states and parameters</span>
+<span class="sd">        :param z: (list of strings) names of the states, e.g. [&#39;z1&#39;, &#39;z2&#39;, ...]</span>
+<span class="sd">        :param mu: (list of strings) names of the parameters, e.g. [&#39;mu1&#39;, &#39;mu2&#39;, ...]</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">z</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">z</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;z_</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_dim</span><span class="p">)]</span>
+        <span class="k">if</span> <span class="n">mu</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">mu</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\u03BC</span><span class="s2">_</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">param_dim</span><span class="p">)]</span>
+
+        <span class="n">z</span> <span class="o">=</span> <span class="p">[</span><span class="n">symbols</span><span class="p">(</span><span class="n">z_</span><span class="p">)</span> <span class="k">for</span> <span class="n">z_</span> <span class="ow">in</span> <span class="n">z</span><span class="p">]</span>
+        <span class="n">mu</span> <span class="o">=</span> <span class="p">[</span><span class="n">symbols</span><span class="p">(</span><span class="n">mu_</span><span class="p">)</span> <span class="k">for</span> <span class="n">mu_</span> <span class="ow">in</span> <span class="n">mu</span><span class="p">]</span>
+
+        <span class="c1"># in case we want interaction between parameters and states</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">x_mu_interaction</span><span class="p">:</span>
+            <span class="n">features</span> <span class="o">=</span> <span class="p">[</span><span class="n">library</span><span class="o">.</span><span class="n">get_names</span><span class="p">(</span><span class="n">z</span> <span class="o">+</span> <span class="n">mu</span><span class="p">)</span> <span class="k">for</span> <span class="n">library</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">feature_libraries</span><span class="p">]</span>
+            <span class="c1"># combine lists to one list</span>
+            <span class="n">features</span> <span class="o">=</span> <span class="p">[</span><span class="n">item</span> <span class="k">for</span> <span class="n">sublist</span> <span class="ow">in</span> <span class="n">features</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">sublist</span><span class="p">]</span>
+        <span class="c1"># if we want to apply separate features to parameter and states</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">z_feat</span> <span class="o">=</span> <span class="p">[</span><span class="n">library</span><span class="o">.</span><span class="n">get_names</span><span class="p">(</span><span class="n">z</span><span class="p">)</span> <span class="k">for</span> <span class="n">library</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">feature_libraries</span><span class="p">]</span>
+            <span class="c1"># combine lists to one list</span>
+            <span class="n">z_feat</span> <span class="o">=</span> <span class="p">[</span><span class="n">item</span> <span class="k">for</span> <span class="n">sublist</span> <span class="ow">in</span> <span class="n">z_feat</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">sublist</span><span class="p">]</span>
+            <span class="n">param_feat</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">library</span><span class="o">.</span><span class="n">get_names</span><span class="p">(</span><span class="n">mu</span><span class="p">)</span> <span class="k">for</span> <span class="n">library</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">param_feature_libraries</span>
+            <span class="p">]</span>
+            <span class="c1"># combine lists to one list</span>
+            <span class="n">param_feat</span> <span class="o">=</span> <span class="p">[</span><span class="n">item</span> <span class="k">for</span> <span class="n">sublist</span> <span class="ow">in</span> <span class="n">param_feat</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">sublist</span><span class="p">]</span>
+            <span class="n">features</span> <span class="o">=</span> <span class="n">z_feat</span> <span class="o">+</span> <span class="n">param_feat</span>
+
+        <span class="k">return</span> <span class="n">features</span></div>
+
+
+<div class="viewcode-block" id="SindyLayer.print">
+<a class="viewcode-back" href="../../../vindy.layers.html#vindy.layers.sindy_layer.SindyLayer.print">[docs]</a>
+    <span class="k">def</span> <span class="nf">print</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">z</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mu</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">precision</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">3</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        print the model equation</span>
+<span class="sd">        :param z: (list of strings) names of the states, e.g. [&#39;z1&#39;, &#39;z2&#39;, ...]</span>
+<span class="sd">        :param mu: (list of strings) names of the parameters, e.g. [&#39;mu1&#39;, &#39;mu2&#39;, ...]</span>
+<span class="sd">        :param precision: (int) number of decimal places</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_equation_to_str</span><span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">precision</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="SindyLayer.model_equation_to_str">
+<a class="viewcode-back" href="../../../vindy.layers.html#vindy.layers.sindy_layer.SindyLayer.model_equation_to_str">[docs]</a>
+    <span class="k">def</span> <span class="nf">model_equation_to_str</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">z</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mu</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">precision</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">3</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        convert coefficients and feature names into a readble equation</span>
+<span class="sd">        :param z:  (list of strings) names of the states, e.g. [&#39;z1&#39;, &#39;z2&#39;, ...]</span>
+<span class="sd">        :param mu: (list of strings) names of the parameters, e.g. [&#39;mu1&#39;, &#39;mu2&#39;, ...]</span>
+<span class="sd">        :param precision: (int) number of decimal places</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">z</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">z</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;z</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_dim</span><span class="p">)]</span>
+        <span class="k">if</span> <span class="n">mu</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">mu</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\u03BC</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">param_dim</span><span class="p">)]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">z</span><span class="p">)</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_dim</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;arguments should have length </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">output_dim</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">mu</span><span class="p">)</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">param_dim</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;mu should have length </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">param_dim</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="c1"># in case we want interaction between parameters and states</span>
+        <span class="n">features</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_feature_names</span><span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="n">mu</span><span class="p">)</span>
+
+        <span class="n">coeffs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_sindy_coeffs</span><span class="p">()</span>
+        <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">c_</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">coeffs</span><span class="p">):</span>
+            <span class="nb">str</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;d</span><span class="si">{</span><span class="n">z</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="si">}</span><span class="s2"> = &quot;</span>
+            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">c_</span><span class="p">)):</span>
+                <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">c_</span><span class="p">[</span><span class="n">j</span><span class="p">],</span> <span class="n">precision</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">c_</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="nb">str</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;+ </span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">c_</span><span class="p">[</span><span class="n">j</span><span class="p">])</span><span class="si">:</span><span class="s2">.</span><span class="si">{</span><span class="n">precision</span><span class="si">}</span><span class="s2">f</span><span class="si">}</span><span class="s2">*</span><span class="si">{</span><span class="n">features</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="si">}</span><span class="s2"> &quot;</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="nb">str</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;- </span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">c_</span><span class="p">[</span><span class="n">j</span><span class="p">])</span><span class="si">:</span><span class="s2">.</span><span class="si">{</span><span class="n">precision</span><span class="si">}</span><span class="s2">f</span><span class="si">}</span><span class="s2">*</span><span class="si">{</span><span class="n">features</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="si">}</span><span class="s2"> &quot;</span>
+                    <span class="c1"># if j &lt; len(c_) - 1:</span>
+                    <span class="c1">#     print(&#39; + &#39;, end=&#39;&#39;)</span>
+            <span class="nb">str</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="k">return</span> <span class="nb">str</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Jonas Kneifl, Paolo Conti.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

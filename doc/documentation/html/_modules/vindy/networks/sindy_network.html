@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>vindy.networks.sindy_network &mdash; VENI, VINDy, VICI 0.1.7 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../../_static/documentation_options.js?v=ca7ad2ea"></script>
+        <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            VENI, VINDy, VICI
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../vindy.html">vindy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contact.html">Contact</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">VENI, VINDy, VICI</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">vindy.networks.sindy_network</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for vindy.networks.sindy_network</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
+<span class="kn">from</span> <span class="nn">vindy.networks</span> <span class="kn">import</span> <span class="n">BaseModel</span>
+
+<span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">()</span>
+<span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">()</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="SindyNetwork">
+<a class="viewcode-back" href="../../../vindy.networks.html#vindy.networks.sindy_network.SindyNetwork">[docs]</a>
+<span class="k">class</span> <span class="nc">SindyNetwork</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">sindy_layer</span><span class="p">,</span>
+        <span class="n">x</span><span class="p">,</span>
+        <span class="n">mu</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">second_order</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">l_dz</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="n">l_int</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="n">dt</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+        <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;float32&quot;</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Model to discover low-dimensional dynamics of a system using SINDy or VINDy</span>
+<span class="sd">        :param sindy_layer: Layer to identify the governing equatinos of the latent dynamics, must be a class inheriting</span>
+<span class="sd">            from SindyLayer</span>
+<span class="sd">        :param x: Input data</span>
+<span class="sd">        :param mu: parameter data</span>
+<span class="sd">        :param l_dz: Weight of the derivative loss</span>
+<span class="sd">        :param l_int: Weight of the integration loss</span>
+<span class="sd">        :param kwargs:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># assert that input arguments are valid</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assert_arguments</span><span class="p">(</span><span class="nb">locals</span><span class="p">())</span>
+
+        <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">set_floatx</span><span class="p">(</span><span class="n">dtype</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dtype_</span> <span class="o">=</span> <span class="n">dtype</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">SindyNetwork</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;config&quot;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_init_to_config</span><span class="p">(</span><span class="nb">locals</span><span class="p">())</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">sindy_layer</span> <span class="o">=</span> <span class="n">sindy_layer</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">second_order</span> <span class="o">=</span> <span class="n">second_order</span>
+        <span class="c1"># weighting of the different losses</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">l_dz</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">l_int</span> <span class="o">=</span> <span class="n">l_dz</span><span class="p">,</span> <span class="n">l_int</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dt</span> <span class="o">=</span> <span class="n">dt</span>
+
+        <span class="c1"># create the model</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">x_shape</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x_shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">flatten</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">unflatten</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">flatten_dummy</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">flatten_dummy</span>
+        <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x_shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">flatten</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">unflatten</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">flatten3d</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">unflatten3d</span>
+
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">flatten</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="c1"># some subclasses initialize weights before building the model</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;init_weights&quot;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">init_weights</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">build_model</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">mu</span><span class="p">)</span>
+
+        <span class="c1"># create loss tracker</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">create_loss_trackers</span><span class="p">()</span>
+
+<div class="viewcode-block" id="SindyNetwork.create_loss_trackers">
+<a class="viewcode-back" href="../../../vindy.networks.html#vindy.networks.sindy_network.SindyNetwork.create_loss_trackers">[docs]</a>
+    <span class="k">def</span> <span class="nf">create_loss_trackers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">loss_trackers</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">loss_trackers</span><span class="p">[</span><span class="s2">&quot;loss&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">Mean</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;loss&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">loss_trackers</span><span class="p">[</span><span class="s2">&quot;dz&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">Mean</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;dz&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">l_int</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">loss_trackers</span><span class="p">[</span><span class="s2">&quot;int&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">Mean</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;int&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">loss_trackers</span><span class="p">[</span><span class="s2">&quot;reg&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">Mean</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;reg&quot;</span><span class="p">)</span>
+        <span class="c1"># update dict with sindy layer loss trackers</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">loss_trackers</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sindy_layer</span><span class="o">.</span><span class="n">loss_trackers</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SindyNetwork.get_trainable_weights">
+<a class="viewcode-back" href="../../../vindy.networks.html#vindy.networks.sindy_network.SindyNetwork.get_trainable_weights">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_trainable_weights</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the trainable weights of the model</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">sindy</span><span class="o">.</span><span class="n">trainable_weights</span></div>
+
+
+<div class="viewcode-block" id="SindyNetwork.build_model">
+<a class="viewcode-back" href="../../../vindy.networks.html#vindy.networks.sindy_network.SindyNetwork.build_model">[docs]</a>
+    <span class="k">def</span> <span class="nf">build_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">mu</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        build the model</span>
+<span class="sd">        :param x: array-like of shape (n_samples, n_features), full state</span>
+<span class="sd">        :param mu: array-like of shape (n_samples, n_params), parameters</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">z</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">Input</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">z</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],),</span> <span class="n">dtype</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dtype_</span><span class="p">)</span>
+        <span class="c1"># sindy</span>
+        <span class="n">z_sindy</span><span class="p">,</span> <span class="n">z_dot</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">build_sindy</span><span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="n">mu</span><span class="p">)</span>
+
+        <span class="c1"># build the models</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sindy</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="n">inputs</span><span class="o">=</span><span class="n">z_sindy</span><span class="p">,</span> <span class="n">outputs</span><span class="o">=</span><span class="n">z_dot</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;sindy&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SindyNetwork.build_loss">
+<a class="viewcode-back" href="../../../vindy.networks.html#vindy.networks.sindy_network.SindyNetwork.build_loss">[docs]</a>
+    <span class="nd">@tf</span><span class="o">.</span><span class="n">function</span>
+    <span class="k">def</span> <span class="nf">build_loss</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        split input into state, its derivative and the parameters, perform the forward pass, calculate the loss,</span>
+<span class="sd">        and update the weights</span>
+<span class="sd">        :param inputs: list of array-like objects</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># second order systems dx_ddt = f(x, dx_dt, mu)</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">dx_dt</span><span class="p">,</span> <span class="n">dx_ddt</span><span class="p">,</span> <span class="n">x_int</span><span class="p">,</span> <span class="n">dx_int</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">mu_int</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">split_inputs</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>
+
+        <span class="c1"># forward pass</span>
+        <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">GradientTape</span><span class="p">()</span> <span class="k">as</span> <span class="n">tape</span><span class="p">:</span>
+            <span class="c1"># calculate loss for second order systems (includes two time derivatives)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">second_order</span><span class="p">:</span>
+                <span class="n">losses</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_loss_2nd</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">dx_dt</span><span class="p">,</span> <span class="n">dx_ddt</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">x_int</span><span class="p">,</span> <span class="n">dx_int</span><span class="p">,</span> <span class="n">mu_int</span><span class="p">)</span>
+            <span class="c1"># calculate loss for first order systems</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">losses</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_loss</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">dx_dt</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">x_int</span><span class="p">,</span> <span class="n">mu_int</span><span class="p">)</span>
+
+            <span class="c1"># split trainable variables for autoencoder and dynamics so that you can use separate optimizers</span>
+            <span class="n">trainable_weights</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_trainable_weights</span><span class="p">()</span>
+            <span class="n">grads</span> <span class="o">=</span> <span class="n">tape</span><span class="o">.</span><span class="n">gradient</span><span class="p">(</span><span class="n">losses</span><span class="p">[</span><span class="s2">&quot;loss&quot;</span><span class="p">],</span> <span class="n">trainable_weights</span><span class="p">)</span>
+
+            <span class="c1"># adjust weights for autoencoder</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">optimizer</span><span class="o">.</span><span class="n">apply_gradients</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">grads</span><span class="p">,</span> <span class="n">trainable_weights</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">losses</span></div>
+
+
+<div class="viewcode-block" id="SindyNetwork.get_loss">
+<a class="viewcode-back" href="../../../vindy.networks.html#vindy.networks.sindy_network.SindyNetwork.get_loss">[docs]</a>
+    <span class="nd">@tf</span><span class="o">.</span><span class="n">function</span>
+    <span class="k">def</span> <span class="nf">get_loss</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">dz_dt</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">z_int</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mu_int</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        calculate loss for first order system</span>
+<span class="sd">        :param z: array-like of shape (n_samples, n_features), full state</span>
+<span class="sd">        :param dz_dt: array-like of shape (n_samples, n_features), time derivative of state</span>
+<span class="sd">        :param mu: array-like of shape (n_samples, n_features), control input</span>
+<span class="sd">        :param z_int: array-like of shape (n_samples, n_features, n_integrationsteps), full state at {t+1,...,t+n_integrationsteps}</span>
+<span class="sd">        :param mu_int: array-like of shape (n_samples, n_param, n_integrationsteps), control input at {t+1,...,t+n_integrationsteps}</span>
+<span class="sd">        :return: dz_loss, int_loss, losses: individual losses</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">losses</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">loss</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="n">z</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dtype_</span><span class="p">)</span>
+        <span class="n">dz_dt</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">dz_dt</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dtype_</span><span class="p">),</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="c1"># sindy approximation of the time derivative of the latent variable</span>
+        <span class="n">sindy_pred</span><span class="p">,</span> <span class="n">sindy_mean</span><span class="p">,</span> <span class="n">sindy_log_var</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">evaluate_sindy_layer</span><span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">mu</span><span class="p">)</span>
+        <span class="n">dz_dt_sindy</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">sindy_pred</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="c1"># SINDy consistency loss</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">l_int</span><span class="p">:</span>
+            <span class="n">int_loss</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_int_loss</span><span class="p">([</span><span class="n">z_int</span><span class="p">,</span> <span class="n">mu_int</span><span class="p">])</span>
+            <span class="n">losses</span><span class="p">[</span><span class="s2">&quot;int&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">int_loss</span>
+            <span class="n">losses</span><span class="p">[</span><span class="s2">&quot;loss&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">int_loss</span>
+
+        <span class="c1"># calculate losses</span>
+        <span class="n">reg_loss</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">losses</span><span class="p">)</span>
+        <span class="n">dz_loss</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">l_dz</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">compiled_loss</span><span class="p">(</span>
+            <span class="n">tf</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">dz_dt</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span> <span class="n">tf</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">dz_dt_sindy</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">losses</span><span class="p">[</span><span class="s2">&quot;reg&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">reg_loss</span>
+        <span class="n">losses</span><span class="p">[</span><span class="s2">&quot;dz&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">dz_loss</span>
+        <span class="n">losses</span><span class="p">[</span><span class="s2">&quot;loss&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">dz_loss</span> <span class="o">+</span> <span class="n">reg_loss</span>
+
+        <span class="c1"># calculate kl divergence for variational sindy</span>
+        <span class="k">if</span> <span class="n">sindy_mean</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">kl_loss_sindy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sindy_layer</span><span class="o">.</span><span class="n">kl_loss</span><span class="p">(</span><span class="n">sindy_mean</span><span class="p">,</span> <span class="n">sindy_log_var</span><span class="p">)</span>
+            <span class="n">losses</span><span class="p">[</span><span class="s2">&quot;kl_sindy&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">kl_loss_sindy</span>
+            <span class="n">losses</span><span class="p">[</span><span class="s2">&quot;loss&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">kl_loss_sindy</span>
+
+        <span class="k">return</span> <span class="n">losses</span></div>
+
+
+<div class="viewcode-block" id="SindyNetwork.get_loss_2nd">
+<a class="viewcode-back" href="../../../vindy.networks.html#vindy.networks.sindy_network.SindyNetwork.get_loss_2nd">[docs]</a>
+    <span class="nd">@tf</span><span class="o">.</span><span class="n">function</span>
+    <span class="k">def</span> <span class="nf">get_loss_2nd</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">dz_dt</span><span class="p">,</span> <span class="n">dz_ddt</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">z_int</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dz_dt_int</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mu_int</span><span class="o">=</span><span class="kc">None</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        calculate loss for second order system</span>
+<span class="sd">        :param x: array-like of shape (n_samples, n_features), full state</span>
+<span class="sd">        :param dz_dt: array-like of shape (n_samples, n_features), time derivative of state</span>
+<span class="sd">        :param dz_ddt: array-like of shape (n_samples, n_features), second time derivative of state</span>
+<span class="sd">        :param mu: array-like of shape (n_samples, n_param), control input</span>
+<span class="sd">        :param z_int: array-like of shape (n_samples, n_features, n_integrationsteps), full state at {t+1,...,t+n_integrationsteps}</span>
+<span class="sd">        :param dz_dt_int: array-like of shape (n_samples, n_features, n_integrationsteps), time derivative of state at {t+1,...,t+n_integrationsteps}</span>
+<span class="sd">        :param mu_int: array-like of shape (n_samples, n_param, n_integrationsteps), control input at {t+1,...,t+n_integrationsteps}</span>
+<span class="sd">        :return: rec_loss, dz_loss, dx_loss, int_loss, loss: individual losses</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">losses</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">loss</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="n">z</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dtype_</span><span class="p">)</span>
+        <span class="n">dz_dt</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">dz_dt</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dtype_</span><span class="p">),</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">dz_ddt</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">dz_ddt</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dtype_</span><span class="p">),</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">dz_dt_int</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">dz_dt_int</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">dz_dt_int</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">dz_dt_int</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span>
+            <span class="n">dz_dt_int</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">dz_dt_int</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dtype_</span><span class="p">),</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="c1"># sindy approximation of the time derivative of the latent variable</span>
+        <span class="n">sindy_pred</span><span class="p">,</span> <span class="n">sindy_mean</span><span class="p">,</span> <span class="n">sindy_log_var</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">evaluate_sindy_layer</span><span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="n">dz_dt</span><span class="p">,</span> <span class="n">mu</span><span class="p">)</span>
+        <span class="n">dz_dt_sindy</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">sindy_pred</span><span class="p">[:,</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">reduced_order</span><span class="p">],</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">dz_ddt_sindy</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">sindy_pred</span><span class="p">[:,</span> <span class="bp">self</span><span class="o">.</span><span class="n">reduced_order</span> <span class="p">:],</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="c1"># SINDy consistency loss</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">l_int</span><span class="p">:</span>
+            <span class="n">int_loss</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_int_loss</span><span class="p">([</span><span class="n">z_int</span><span class="p">,</span> <span class="n">dz_dt_int</span><span class="p">,</span> <span class="n">dz_dt_int</span><span class="p">,</span> <span class="n">mu_int</span><span class="p">])</span>
+            <span class="n">losses</span><span class="p">[</span><span class="s2">&quot;int&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">int_loss</span>
+            <span class="n">losses</span><span class="p">[</span><span class="s2">&quot;loss&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">int_loss</span>
+
+        <span class="c1"># calculate kl divergence for variational sindy</span>
+        <span class="k">if</span> <span class="n">sindy_mean</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">kl_loss_sindy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sindy_layer</span><span class="o">.</span><span class="n">kl_loss</span><span class="p">(</span><span class="n">sindy_mean</span><span class="p">,</span> <span class="n">sindy_log_var</span><span class="p">)</span>
+            <span class="n">losses</span><span class="p">[</span><span class="s2">&quot;kl_sindy&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">kl_loss_sindy</span>
+            <span class="n">losses</span><span class="p">[</span><span class="s2">&quot;loss&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">kl_loss_sindy</span>
+
+        <span class="c1"># calculate losses</span>
+        <span class="n">reg_loss</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">losses</span><span class="p">)</span>
+        <span class="n">dz_loss</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">l_dz</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">compiled_loss</span><span class="p">(</span>
+            <span class="n">tf</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">dz_dt</span><span class="p">,</span> <span class="n">dz_ddt</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+            <span class="n">tf</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">dz_dt_sindy</span><span class="p">,</span> <span class="n">dz_ddt_sindy</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+        <span class="p">)</span>
+
+        <span class="n">losses</span><span class="p">[</span><span class="s2">&quot;loss&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">dz_loss</span> <span class="o">+</span> <span class="n">reg_loss</span>
+        <span class="n">losses</span><span class="p">[</span><span class="s2">&quot;reg&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">reg_loss</span>
+        <span class="n">losses</span><span class="p">[</span><span class="s2">&quot;dz&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">dz_loss</span>
+
+        <span class="k">return</span> <span class="n">losses</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Jonas Kneifl, Paolo Conti.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

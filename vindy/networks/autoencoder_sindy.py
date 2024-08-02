@@ -339,11 +339,13 @@ class AutoencoderSindy(BaseModel):
         """
         Calculate time derivatives of latent variables given the time derivatives of the input variables
             (used for comparison with SINDy)
+
         :param x: array-like of shape (n_samples, n_features), full state
         :param dx_dt: array-like of shape (n_samples, n_features), time derivative of state
         :param dx_ddt: array-like of shape (n_samples, n_features), second time derivative of state
-        :return: z, dz_dt, dz_ddt: array-like of shape (n_samples, n_latent), latent variables and their time derivatives
+        :return: z, dz_dt, dz_ddt array-like of shape (n_samples, n_latent), latent variables and their time derivatives
         """
+
         # in case the variables are not vectorized but in their physical geometrical description flatten them
         if len(x.shape) > 2:
             if dx_ddt is not None:

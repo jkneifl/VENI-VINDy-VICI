@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>vindy.layers.vindy_layer &mdash; VENI, VINDy, VICI 0.1.7 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../../_static/documentation_options.js?v=ca7ad2ea"></script>
+        <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            VENI, VINDy, VICI
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../vindy.html">vindy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contact.html">Contact</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">VENI, VINDy, VICI</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">vindy.layers.vindy_layer</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for vindy.layers.vindy_layer</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">from</span> <span class="nn">.sindy_layer</span> <span class="kn">import</span> <span class="n">SindyLayer</span>
+<span class="kn">from</span> <span class="nn">vindy.layers.distributions</span> <span class="kn">import</span> <span class="n">Gaussian</span><span class="p">,</span> <span class="n">BaseDistribution</span>
+
+<span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">()</span>
+<span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">()</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="VindyLayer">
+<a class="viewcode-back" href="../../../vindy.layers.html#vindy.layers.vindy_layer.VindyLayer">[docs]</a>
+<span class="k">class</span> <span class="nc">VindyLayer</span><span class="p">(</span><span class="n">SindyLayer</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">beta</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">priors</span><span class="o">=</span><span class="n">Gaussian</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Layer for variational identification of nonlinear dynamics (VINDy) approximation of the</span>
+<span class="sd">        time derivative of the latent variable. Feature libraries are applied to the latent variables and a</span>
+<span class="sd">        (sparse) variational inference is performed to obtain the coefficients</span>
+<span class="sd">        :param beta: scaling factor for the KL divergence</span>
+<span class="sd">        :param priors: prior distribution for the coefficients</span>
+<span class="sd">        :param kwargs: see SindyLayer</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">VindyLayer</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assert_additional_args</span><span class="p">(</span><span class="n">beta</span><span class="p">,</span> <span class="n">priors</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">priors</span> <span class="o">=</span> <span class="n">priors</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">beta</span> <span class="o">=</span> <span class="n">beta</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">kl_loss_tracker</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">Mean</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;kl_sindy&quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="VindyLayer.assert_additional_args">
+<a class="viewcode-back" href="../../../vindy.layers.html#vindy.layers.vindy_layer.VindyLayer.assert_additional_args">[docs]</a>
+    <span class="k">def</span> <span class="nf">assert_additional_args</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">beta</span><span class="p">,</span> <span class="n">priors</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Asserts that the additional arguments are valid</span>
+<span class="sd">        :param beta:</span>
+<span class="sd">        :param priors:</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># assert that input arguments are valid that are not checked in the super class</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">beta</span><span class="p">,</span> <span class="nb">float</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">beta</span><span class="p">,</span> <span class="nb">int</span><span class="p">),</span> <span class="s2">&quot;beta must be a float&quot;</span>
+        <span class="c1"># priors</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">priors</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="k">assert</span> <span class="p">(</span>
+                <span class="nb">len</span><span class="p">(</span><span class="n">priors</span><span class="p">)</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_dofs</span>
+            <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;Number of priors must match the number of dofs (</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">n_dofs</span><span class="si">}</span><span class="s2">)&quot;</span>
+            <span class="k">for</span> <span class="n">prior</span> <span class="ow">in</span> <span class="n">priors</span><span class="p">:</span>
+                <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">prior</span><span class="p">,</span> <span class="n">BaseDistribution</span><span class="p">),</span> <span class="p">(</span>
+                    <span class="s2">&quot;All priors must be an instance inheriting from &quot;</span> <span class="s2">&quot;BaseDistribution&quot;</span>
+                <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span>
+                <span class="n">priors</span><span class="p">,</span> <span class="n">BaseDistribution</span>
+            <span class="p">),</span> <span class="s2">&quot;priors must be a class inheriting from BaseDistribution&quot;</span></div>
+
+
+<div class="viewcode-block" id="VindyLayer.init_weigths">
+<a class="viewcode-back" href="../../../vindy.layers.html#vindy.layers.vindy_layer.VindyLayer.init_weigths">[docs]</a>
+    <span class="k">def</span> <span class="nf">init_weigths</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">kernel_regularizer</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">VindyLayer</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">init_weigths</span><span class="p">(</span><span class="n">kernel_regularizer</span><span class="p">)</span>
+
+        <span class="c1"># initialize the log variance of the coefficients</span>
+        <span class="n">init</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">random_uniform_initializer</span><span class="p">(</span><span class="n">minval</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">maxval</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">l1</span><span class="p">,</span> <span class="n">l2</span> <span class="o">=</span> <span class="n">kernel_regularizer</span><span class="o">.</span><span class="n">l1</span><span class="p">,</span> <span class="n">kernel_regularizer</span><span class="o">.</span><span class="n">l2</span>
+        <span class="n">scale_regularizer</span> <span class="o">=</span> <span class="n">LogVarL1L2Regularizer</span><span class="p">(</span><span class="n">l1</span><span class="o">=</span><span class="n">l1</span><span class="p">,</span> <span class="n">l2</span><span class="o">=</span><span class="n">l2</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">kernel_scale</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">add_weight</span><span class="p">(</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;SINDy_log_scale&quot;</span><span class="p">,</span>
+            <span class="n">initializer</span><span class="o">=</span><span class="n">init</span><span class="p">,</span>
+            <span class="n">shape</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">kernel_shape</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dtype_</span><span class="p">,</span>
+            <span class="n">regularizer</span><span class="o">=</span><span class="n">scale_regularizer</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">loss_trackers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="n">kl_sindy</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">kl_loss_tracker</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">_coeffs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the coefficients of the SINDy layer which are sampled from a normal distribution parametrized by the</span>
+<span class="sd">        layer&#39;s kernel (weights)</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># split the kernel into mean and log variance</span>
+        <span class="n">coeffs_mean</span><span class="p">,</span> <span class="n">coeffs_log_scale</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">kernel</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">kernel_scale</span>
+        <span class="c1"># draw samples from the normal distribution</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">priors</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="n">trainable_coeffs</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">prior</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">priors</span><span class="p">):</span>
+                <span class="n">trainable_coeffs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="n">prior</span><span class="p">([</span><span class="n">coeffs_mean</span><span class="p">[</span><span class="n">i</span> <span class="p">:</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">],</span> <span class="n">coeffs_log_scale</span><span class="p">[</span><span class="n">i</span> <span class="p">:</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]])</span>
+                <span class="p">)</span>
+            <span class="n">trainable_coeffs</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">trainable_coeffs</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">trainable_coeffs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">priors</span><span class="p">([</span><span class="n">coeffs_mean</span><span class="p">,</span> <span class="n">coeffs_log_scale</span><span class="p">])</span>
+
+        <span class="c1"># fill the coefficient matrix with the trainable coefficients</span>
+        <span class="n">coeffs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fill_coefficient_matrix</span><span class="p">(</span><span class="n">trainable_coeffs</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">coeffs</span><span class="p">,</span> <span class="n">coeffs_mean</span><span class="p">,</span> <span class="n">coeffs_log_scale</span>
+
+<div class="viewcode-block" id="VindyLayer.kl_loss">
+<a class="viewcode-back" href="../../../vindy.layers.html#vindy.layers.vindy_layer.VindyLayer.kl_loss">[docs]</a>
+    <span class="k">def</span> <span class="nf">kl_loss</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mean</span><span class="p">,</span> <span class="n">scale</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Computes the KL divergence between the priors and the coefficient distributions of the VINDy layer</span>
+<span class="sd">        :param mean:</span>
+<span class="sd">        :param scale:</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">priors</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="n">kl_loss</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">for</span> <span class="n">prior</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">priors</span><span class="p">:</span>
+                <span class="n">kl_loss</span> <span class="o">+=</span> <span class="n">prior</span><span class="o">.</span><span class="n">KL_divergence</span><span class="p">(</span><span class="n">mean</span><span class="p">,</span> <span class="n">scale</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">kl_loss</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">priors</span><span class="o">.</span><span class="n">KL_divergence</span><span class="p">(</span><span class="n">mean</span><span class="p">,</span> <span class="n">scale</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">beta</span> <span class="o">*</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">(</span><span class="n">kl_loss</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="VindyLayer.get_sindy_coeffs">
+<a class="viewcode-back" href="../../../vindy.layers.html#vindy.layers.vindy_layer.VindyLayer.get_sindy_coeffs">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_sindy_coeffs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">_</span><span class="p">,</span> <span class="n">coeffs_mean</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_coeffs</span>
+        <span class="n">coeffs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fill_coefficient_matrix</span><span class="p">(</span><span class="n">coeffs_mean</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">coeffs</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span></div>
+
+
+    <span class="c1"># @tf.function</span>
+<div class="viewcode-block" id="VindyLayer.call">
+<a class="viewcode-back" href="../../../vindy.layers.html#vindy.layers.vindy_layer.VindyLayer.call">[docs]</a>
+    <span class="k">def</span> <span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Applies the VINDy layer to the arguments, i.e. applies the feature libraries to the arguments,</span>
+<span class="sd">        samples the coefficients from a normal distribution parametrized by the layer&#39;s kernel (weights) and</span>
+<span class="sd">        computes the dot product of the features and the coefficients</span>
+<span class="sd">        :param inputs:</span>
+<span class="sd">        :param training:</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># todo: think about whether we want to have deterministic coefficients during inference (after training) or not</span>
+        <span class="n">z_features</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tfFeat</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>
+        <span class="n">coeffs</span><span class="p">,</span> <span class="n">coeffs_mean</span><span class="p">,</span> <span class="n">coeffs_log_var</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_coeffs</span>
+        <span class="k">if</span> <span class="n">training</span><span class="p">:</span>
+            <span class="n">z_dot</span> <span class="o">=</span> <span class="n">z_features</span> <span class="o">@</span> <span class="n">tf</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">coeffs</span><span class="p">)</span>
+            <span class="k">return</span> <span class="p">[</span><span class="n">z_dot</span><span class="p">,</span> <span class="n">coeffs_mean</span><span class="p">,</span> <span class="n">coeffs_log_var</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># in case of evaluation, we use the mean of the coefficients</span>
+            <span class="n">z_dot</span> <span class="o">=</span> <span class="n">z_features</span> <span class="o">@</span> <span class="n">tf</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fill_coefficient_matrix</span><span class="p">(</span><span class="n">coeffs_mean</span><span class="p">))</span>
+            <span class="k">return</span> <span class="n">z_dot</span></div>
+
+
+<div class="viewcode-block" id="VindyLayer.visualize_coefficients">
+<a class="viewcode-back" href="../../../vindy.layers.html#vindy.layers.vindy_layer.VindyLayer.visualize_coefficients">[docs]</a>
+    <span class="k">def</span> <span class="nf">visualize_coefficients</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x_range</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">z</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mu</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Visualizes the coefficients of the SINDy layer as distributions</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># get coefficient parameterization</span>
+        <span class="n">_</span><span class="p">,</span> <span class="n">mean</span><span class="p">,</span> <span class="n">log_scale</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_coeffs</span>
+        <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_visualize_coefficients</span><span class="p">(</span>
+            <span class="n">mean</span><span class="o">.</span><span class="n">numpy</span><span class="p">(),</span> <span class="n">log_scale</span><span class="o">.</span><span class="n">numpy</span><span class="p">(),</span> <span class="n">x_range</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">mu</span>
+        <span class="p">)</span></div>
+
+
+    <span class="k">def</span> <span class="nf">_visualize_coefficients</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mean</span><span class="p">,</span> <span class="n">log_scale</span><span class="p">,</span> <span class="n">x_range</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">z</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mu</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+        <span class="c1"># get name of the corresponding features</span>
+        <span class="n">feature_names</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_feature_names</span><span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="n">mu</span><span class="p">)</span>
+        <span class="n">n_variables</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">state_dim</span>
+        <span class="n">n_plots</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_dofs</span> <span class="o">/</span> <span class="n">n_variables</span><span class="p">)</span>
+        <span class="n">mean</span> <span class="o">=</span> <span class="n">mean</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">n_variables</span><span class="p">,</span> <span class="n">n_plots</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
+        <span class="n">log_scale</span> <span class="o">=</span> <span class="n">log_scale</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">n_variables</span><span class="p">,</span> <span class="n">n_plots</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
+        <span class="c1"># create a plot with one subplot for each (trainablie) coefficient</span>
+        <span class="c1"># for j in range(n_figures):</span>
+        <span class="n">fig</span><span class="p">,</span> <span class="n">axs</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span>
+            <span class="n">n_plots</span><span class="p">,</span> <span class="n">n_variables</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="n">n_variables</span> <span class="o">*</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">),</span> <span class="n">sharex</span><span class="o">=</span><span class="kc">True</span>
+        <span class="p">)</span>
+        <span class="c1"># in case of a one-dimensional system, we append a dimension to axs</span>
+        <span class="k">if</span> <span class="n">n_variables</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">axs</span> <span class="o">=</span> <span class="n">axs</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_variables</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_plots</span><span class="p">):</span>
+                <span class="c1"># draw a vertical line at 0</span>
+                <span class="n">axs</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">)</span>
+                <span class="c1"># plot the distribution of the coefficients</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">priors</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+                    <span class="n">distribution</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">priors</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">distribution</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">priors</span>
+                <span class="n">scale</span> <span class="o">=</span> <span class="n">distribution</span><span class="o">.</span><span class="n">reverse_log</span><span class="p">(</span><span class="n">log_scale</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">])</span>
+                <span class="n">distribution</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">mean</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">],</span> <span class="n">scale</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">axs</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">])</span>
+                <span class="c1"># put feature name as ylabel</span>
+                <span class="n">axs</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;$</span><span class="si">{</span><span class="n">feature_names</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="si">}</span><span class="s2">$&quot;</span><span class="p">,</span> <span class="n">rotation</span><span class="o">=</span><span class="mi">90</span><span class="p">,</span> <span class="n">labelpad</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+                <span class="c1"># set x range</span>
+                <span class="k">if</span> <span class="n">x_range</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">axs</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="n">x_range</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+        <span class="c1"># ensure that ylabel don&#39;t overlap with axis ticks</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">subplots_adjust</span><span class="p">(</span><span class="n">left</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">fig</span>
+
+<div class="viewcode-block" id="VindyLayer.pdf_thresholding">
+<a class="viewcode-back" href="../../../vindy.layers.html#vindy.layers.vindy_layer.VindyLayer.pdf_thresholding">[docs]</a>
+    <span class="k">def</span> <span class="nf">pdf_thresholding</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">threshold</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Cancel the coefficients of the SINDy layer if their corresponding probability density function at zero is above</span>
+<span class="sd">        the threshold, i.e. if pdf(0) &gt; threshold</span>
+<span class="sd">        :param threshold:</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># get current</span>
+        <span class="n">_</span><span class="p">,</span> <span class="n">loc</span><span class="p">,</span> <span class="n">log_scale</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_coeffs</span>
+        <span class="n">feature_names</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">get_feature_names</span><span class="p">()]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">state_dim</span><span class="p">)</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+        <span class="c1"># cancel coefficients</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">loc_</span><span class="p">,</span> <span class="n">log_scale_</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">loc</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">log_scale</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])):</span>
+            <span class="c1"># plot the distribution of the coefficients</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">priors</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+                <span class="n">distribution</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">priors</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">distribution</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">priors</span>
+            <span class="n">scale</span> <span class="o">=</span> <span class="n">distribution</span><span class="o">.</span><span class="n">reverse_log</span><span class="p">(</span><span class="n">log_scale_</span><span class="p">)</span>
+            <span class="n">zero_density</span> <span class="o">=</span> <span class="n">distribution</span><span class="o">.</span><span class="n">prob_density_fcn</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="n">loc_</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="n">scale</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">zero_density</span> <span class="o">&gt;</span> <span class="n">threshold</span><span class="p">:</span>
+                <span class="c1"># cancel the coefficient</span>
+                <span class="n">loc</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+                <span class="n">log_scale</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="o">-</span><span class="mi">10</span><span class="p">)</span>
+                <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Canceling coefficient </span><span class="si">{</span><span class="n">feature_names</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">print</span><span class="p">()</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="LogVarL1L2Regularizer">
+<a class="viewcode-back" href="../../../vindy.layers.html#vindy.layers.vindy_layer.LogVarL1L2Regularizer">[docs]</a>
+<span class="k">class</span> <span class="nc">LogVarL1L2Regularizer</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">regularizers</span><span class="o">.</span><span class="n">Regularizer</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Regularizer for the log variance of the coefficients in the VINDy layer</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">l1</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">l2</span><span class="o">=</span><span class="mf">0.0</span><span class="p">):</span>
+        <span class="c1"># The default value for l1 and l2 are different from the value in l1_l2</span>
+        <span class="c1"># for backward compatibility reason. Eg, L1L2(l2=0.1) will only have l2</span>
+        <span class="c1"># and no l1 penalty.</span>
+        <span class="n">l1</span> <span class="o">=</span> <span class="mf">0.0</span> <span class="k">if</span> <span class="n">l1</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">l1</span>
+        <span class="n">l2</span> <span class="o">=</span> <span class="mf">0.0</span> <span class="k">if</span> <span class="n">l2</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">l2</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">l1</span> <span class="o">=</span> <span class="n">l1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">l2</span> <span class="o">=</span> <span class="n">l2</span>
+
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="n">regularization</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">l1</span><span class="p">:</span>
+            <span class="n">regularization</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">l1</span> <span class="o">*</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="mf">0.5</span> <span class="o">*</span> <span class="n">x</span><span class="p">)))</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">l2</span><span class="p">:</span>
+            <span class="c1"># equivalent to &quot;self.l2 * tf.reduce_sum(tf.square(x))&quot;</span>
+            <span class="n">regularization</span> <span class="o">+=</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">l2</span> <span class="o">*</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">l2_loss</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="mf">0.5</span> <span class="o">*</span> <span class="n">x</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">regularization</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Jonas Kneifl, Paolo Conti.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
