@@ -1,5 +1,8 @@
-vindy
+vindy package
 =============
+
+Subpackages
+-----------
 
 .. toctree::
    :maxdepth: 4

@@ -5,6 +5,9 @@ from vindy.layers.vindy_layer import VindyLayer
 
 
 class SindyCallback(tf.keras.callbacks.Callback):
+    """
+    Callback for the SINDy layer. This callback is used to update the identified coefficients of the SINDy layer.
+    """
 
     def __init__(
         self,
@@ -26,21 +29,42 @@ class SindyCallback(tf.keras.callbacks.Callback):
         **kwargs,
     ):
         """
-        Callback for the SINDy layer. This callback is used to update the identified coefficients of the SINDy layer
-        :param x: training data
-        :param dxdt: time derivative of training data
-        :param dxddt: second order time derivative of training data
-        :param mu: parameter of the system
-        :param t: time
-        :param freq: frequency of the update
-        :param threshold: threshold for the update
-        :param threshholder: Regularization function to use. Currently implemented options are
-                ‘l0’ (l0 norm), ‘l1’ (l1 norm), ‘l2’ (l2 norm), ‘cad’ (clipped absolute deviation),
-                ‘weighted_l0’ (weighted l0 norm), ‘weighted_l1’ (weighted l1 norm), and ‘weighted_l2’ (weighted l2 norm).
-        :param z_names: names of the latent variables
-        :param mu_names: names of the parameters
-        :param print_precision: precision of the printed model equation
-        :param kwargs:
+        Initialize the SINDy callback.
+
+        Parameters
+        ----------
+        x : array-like
+            Training data.
+        dxdt : array-like
+            Time derivative of training data.
+        dxddt : array-like
+            Second order time derivative of training data.
+        mu : array-like
+            Parameter of the system.
+        t : array-like
+            Time.
+        freq : int, optional
+            Frequency of the update (default is 100).
+        train_end : bool, optional
+            Whether to perform update at the end of training (default is False).
+        ensemble : bool, optional
+            Whether to use ensemble method for SINDy (default is False).
+        subset_size : float, optional
+            Size of the subset for ensemble method (default is 0.5).
+        n_subsets : int, optional
+            Number of subsets for ensemble method (default is 100).
+        threshold : float, optional
+            Threshold for the update (default is 0.1).
+        thresholder : str, optional
+            Regularization function to use (default is "l0").
+        z_names : list of str, optional
+            Names of the latent variables (default is None).
+        mu_names : list of str, optional
+            Names of the parameters (default is None).
+        print_precision : int, optional
+            Precision of the printed model equation (default is 3).
+        kwargs : dict
+            Additional arguments.
         """
         assert (
             isinstance(subset_size, float) and subset_size > 0 and subset_size <= 1
@@ -68,12 +92,23 @@ class SindyCallback(tf.keras.callbacks.Callback):
 
     def prepare_data_for_pysindy(self, t, z_feat, dzdt, dzddt=None):
         """
-        prepare training data for the seperate sindy sindy_model
-        :param z_feat:
-        :param dzdt:
-        :param dzddt:
-        :param t:
-        :return:
+        Prepare training data for the separate SINDy model.
+
+        Parameters
+        ----------
+        t : array-like
+            Time.
+        z_feat : array-like
+            Latent variables and their features.
+        dzdt : array-like
+            Time derivative of latent variables.
+        dzddt : array-like, optional
+            Second time derivative of latent variables (default is None).
+
+        Returns
+        -------
+        tuple
+            Prepared latent variables, their time derivatives, and time.
         """
         n_samples = z_feat.shape[0]
         n_timesteps = t.shape[0]
@@ -90,6 +125,14 @@ class SindyCallback(tf.keras.callbacks.Callback):
         return z_feat, z_dot, t
 
     def process_data_for_sindy(self):
+        """
+        Process data for SINDy optimization.
+
+        Returns
+        -------
+        tuple
+            Processed latent variables, their time derivatives, time, fixed coefficients, feature IDs, and mask.
+        """
         # concatenate the input for the sindy layer
         mu = self.mu
         # calculate the time derivatives of the latent variable given the training data
@@ -133,6 +176,9 @@ class SindyCallback(tf.keras.callbacks.Callback):
         return z_feat, z_dot, times_train, fixed_coeffs, feat_ids, mask
 
     def perform_update(self):
+        """
+        Perform the SINDy update.
+        """
         z_feat, z_dot, times_train, fixed_coeffs, feat_ids, mask = (
             self.process_data_for_sindy()
         )
@@ -169,6 +215,16 @@ class SindyCallback(tf.keras.callbacks.Callback):
         self.update_weights(coeffs, variance)
 
     def update_weights(self, weights, variance=None):
+        """
+        Update the weights of the SINDy layer.
+
+        Parameters
+        ----------
+        weights : array-like
+            Weights to update.
+        variance : array-like, optional
+            Variance of the weights (default is None).
+        """
         # %% set the weights of the original sindy_model to the weights of the seperate sindy sindy_model
         # check if weights contain nan or inf values
 
@@ -206,6 +262,29 @@ class SindyCallback(tf.keras.callbacks.Callback):
                         self.sindylayer.kernel_scale[weight_id].assign(s)
 
     def call_pySINDy(self, z_feat, z_dot, times_train, fixed_coeffs, feat_ids, mask):
+        """
+        Fit a separate SINDy model using the provided data and constraints.
+
+        Parameters
+        ----------
+        z_feat : list of array-like
+            Latent variables and their features.
+        z_dot : list of array-like
+            Time derivatives of latent variables.
+        times_train : array-like
+            Time.
+        fixed_coeffs : array-like
+            Fixed coefficients for the SINDy model.
+        feat_ids : array-like
+            IDs of the selected features.
+        mask : array-like
+            Mask specifying which features are used in the SINDy model.
+
+        Returns
+        -------
+        pysindy.SINDy
+            Fitted SINDy model.
+        """
         # %% Define the constraints for the optimization of the seperate sindy sindy_model
         # we want to apply the same mask and fixed coefficients as in the original sindy_model
         # -> rewrite the constraints for pysindy
@@ -243,11 +322,29 @@ class SindyCallback(tf.keras.callbacks.Callback):
         return sindy_model
 
     def on_train_end(self, logs=None):
+        """
+        Perform SINDy update at the end of training if specified.
+
+        Parameters
+        ----------
+        logs : dict, optional
+            Dictionary of logs (default is None).
+        """
         if self.train_end:
             self.sindylayer = self.model.sindy_layer
             self.perform_update()
 
     def on_epoch_end(self, epoch, logs=None):
+        """
+        Perform SINDy update at the end of every specified number of epochs.
+
+        Parameters
+        ----------
+        epoch : int
+            Current epoch number.
+        logs : dict, optional
+            Dictionary of logs (default is None).
+        """
         # only perform sindy update every freq epochs
         if (epoch + 1) % self.freq == 0:
             self.sindylayer = self.model.sindy_layer

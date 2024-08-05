@@ -43,7 +43,7 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../vindy.html">vindy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../vindy.html">vindy package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../contact.html">Contact</a></li>
 </ul>
 
@@ -77,7 +77,7 @@
 <span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
 <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
 <span class="kn">from</span> <span class="nn">.sindy_layer</span> <span class="kn">import</span> <span class="n">SindyLayer</span>
-<span class="kn">from</span> <span class="nn">vindy.layers.distributions</span> <span class="kn">import</span> <span class="n">Gaussian</span><span class="p">,</span> <span class="n">BaseDistribution</span>
+<span class="kn">from</span> <span class="nn">vindy.distributions</span> <span class="kn">import</span> <span class="n">Gaussian</span><span class="p">,</span> <span class="n">BaseDistribution</span>
 
 <span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">()</span>
 <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">()</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">)</span>
@@ -86,16 +86,31 @@
 <div class="viewcode-block" id="VindyLayer">
 <a class="viewcode-back" href="../../../vindy.layers.html#vindy.layers.vindy_layer.VindyLayer">[docs]</a>
 <span class="k">class</span> <span class="nc">VindyLayer</span><span class="p">(</span><span class="n">SindyLayer</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Layer for variational identification of nonlinear dynamics (VINDy) approximation of the</span>
+<span class="sd">    time derivative of the latent variable. Feature libraries are applied to the latent variables and a</span>
+<span class="sd">    (sparse) variational inference is performed to obtain the coefficients.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    beta : float</span>
+<span class="sd">        Scaling factor for the KL divergence.</span>
+<span class="sd">    priors : BaseDistribution or list of BaseDistribution</span>
+<span class="sd">        Prior distribution(s) for the coefficients.</span>
+<span class="sd">    kwargs : dict</span>
+<span class="sd">        Additional keyword arguments.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    priors : BaseDistribution or list of BaseDistribution</span>
+<span class="sd">        Prior distribution(s) for the coefficients.</span>
+<span class="sd">    beta : float</span>
+<span class="sd">        Scaling factor for the KL divergence.</span>
+<span class="sd">    kl_loss_tracker : tf.keras.metrics.Mean</span>
+<span class="sd">        Tracker for the KL divergence loss.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">beta</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">priors</span><span class="o">=</span><span class="n">Gaussian</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Layer for variational identification of nonlinear dynamics (VINDy) approximation of the</span>
-<span class="sd">        time derivative of the latent variable. Feature libraries are applied to the latent variables and a</span>
-<span class="sd">        (sparse) variational inference is performed to obtain the coefficients</span>
-<span class="sd">        :param beta: scaling factor for the KL divergence</span>
-<span class="sd">        :param priors: prior distribution for the coefficients</span>
-<span class="sd">        :param kwargs: see SindyLayer</span>
-<span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">VindyLayer</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assert_additional_args</span><span class="p">(</span><span class="n">beta</span><span class="p">,</span> <span class="n">priors</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">priors</span> <span class="o">=</span> <span class="n">priors</span>
@@ -106,34 +121,44 @@
 <a class="viewcode-back" href="../../../vindy.layers.html#vindy.layers.vindy_layer.VindyLayer.assert_additional_args">[docs]</a>
     <span class="k">def</span> <span class="nf">assert_additional_args</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">beta</span><span class="p">,</span> <span class="n">priors</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Asserts that the additional arguments are valid</span>
-<span class="sd">        :param beta:</span>
-<span class="sd">        :param priors:</span>
-<span class="sd">        :return:</span>
+<span class="sd">        Assert that the additional arguments are valid.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        beta : float or int</span>
+<span class="sd">            Scaling factor for the KL divergence.</span>
+<span class="sd">        priors : BaseDistribution or list of BaseDistribution</span>
+<span class="sd">            Prior distribution(s) for the coefficients.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        None</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># assert that input arguments are valid that are not checked in the super class</span>
         <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">beta</span><span class="p">,</span> <span class="nb">float</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">beta</span><span class="p">,</span> <span class="nb">int</span><span class="p">),</span> <span class="s2">&quot;beta must be a float&quot;</span>
-        <span class="c1"># priors</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">priors</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
-            <span class="k">assert</span> <span class="p">(</span>
-                <span class="nb">len</span><span class="p">(</span><span class="n">priors</span><span class="p">)</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_dofs</span>
-            <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;Number of priors must match the number of dofs (</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">n_dofs</span><span class="si">}</span><span class="s2">)&quot;</span>
+            <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">priors</span><span class="p">)</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_dofs</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Number of priors must match the number of dofs (</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">n_dofs</span><span class="si">}</span><span class="s2">)&quot;</span>
             <span class="k">for</span> <span class="n">prior</span> <span class="ow">in</span> <span class="n">priors</span><span class="p">:</span>
-                <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">prior</span><span class="p">,</span> <span class="n">BaseDistribution</span><span class="p">),</span> <span class="p">(</span>
-                    <span class="s2">&quot;All priors must be an instance inheriting from &quot;</span> <span class="s2">&quot;BaseDistribution&quot;</span>
-                <span class="p">)</span>
+                <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">prior</span><span class="p">,</span> <span class="n">BaseDistribution</span><span class="p">),</span> <span class="s2">&quot;All priors must be an instance inheriting from BaseDistribution&quot;</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span>
-                <span class="n">priors</span><span class="p">,</span> <span class="n">BaseDistribution</span>
-            <span class="p">),</span> <span class="s2">&quot;priors must be a class inheriting from BaseDistribution&quot;</span></div>
+            <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">priors</span><span class="p">,</span> <span class="n">BaseDistribution</span><span class="p">),</span> <span class="s2">&quot;priors must be a class inheriting from BaseDistribution&quot;</span></div>
 
 
 <div class="viewcode-block" id="VindyLayer.init_weigths">
 <a class="viewcode-back" href="../../../vindy.layers.html#vindy.layers.vindy_layer.VindyLayer.init_weigths">[docs]</a>
     <span class="k">def</span> <span class="nf">init_weigths</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">kernel_regularizer</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">VindyLayer</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">init_weigths</span><span class="p">(</span><span class="n">kernel_regularizer</span><span class="p">)</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize the weights of the VINDy layer.</span>
 
-        <span class="c1"># initialize the log variance of the coefficients</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        kernel_regularizer : tf.keras.regularizers.Regularizer</span>
+<span class="sd">            Regularizer for the kernel weights.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">VindyLayer</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">init_weigths</span><span class="p">(</span><span class="n">kernel_regularizer</span><span class="p">)</span>
         <span class="n">init</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">random_uniform_initializer</span><span class="p">(</span><span class="n">minval</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">maxval</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
         <span class="n">l1</span><span class="p">,</span> <span class="n">l2</span> <span class="o">=</span> <span class="n">kernel_regularizer</span><span class="o">.</span><span class="n">l1</span><span class="p">,</span> <span class="n">kernel_regularizer</span><span class="o">.</span><span class="n">l2</span>
         <span class="n">scale_regularizer</span> <span class="o">=</span> <span class="n">LogVarL1L2Regularizer</span><span class="p">(</span><span class="n">l1</span><span class="o">=</span><span class="n">l1</span><span class="p">,</span> <span class="n">l2</span><span class="o">=</span><span class="n">l2</span><span class="p">)</span>
@@ -148,18 +173,28 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">loss_trackers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the loss trackers.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        dict</span>
+<span class="sd">            Dictionary of loss trackers.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="n">kl_sindy</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">kl_loss_tracker</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">_coeffs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Returns the coefficients of the SINDy layer which are sampled from a normal distribution parametrized by the</span>
-<span class="sd">        layer&#39;s kernel (weights)</span>
-<span class="sd">        :return:</span>
+<span class="sd">        Get the coefficients of the SINDy layer which are sampled from a normal distribution parametrized by the</span>
+<span class="sd">        layer&#39;s kernel (weights).</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        tuple</span>
+<span class="sd">            A tuple containing the coefficients, mean, and log scale.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># split the kernel into mean and log variance</span>
         <span class="n">coeffs_mean</span><span class="p">,</span> <span class="n">coeffs_log_scale</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">kernel</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">kernel_scale</span>
-        <span class="c1"># draw samples from the normal distribution</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">priors</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
             <span class="n">trainable_coeffs</span> <span class="o">=</span> <span class="p">[]</span>
             <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">prior</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">priors</span><span class="p">):</span>
@@ -169,20 +204,26 @@
             <span class="n">trainable_coeffs</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">trainable_coeffs</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">trainable_coeffs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">priors</span><span class="p">([</span><span class="n">coeffs_mean</span><span class="p">,</span> <span class="n">coeffs_log_scale</span><span class="p">])</span>
-
-        <span class="c1"># fill the coefficient matrix with the trainable coefficients</span>
         <span class="n">coeffs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fill_coefficient_matrix</span><span class="p">(</span><span class="n">trainable_coeffs</span><span class="p">)</span>
-
         <span class="k">return</span> <span class="n">coeffs</span><span class="p">,</span> <span class="n">coeffs_mean</span><span class="p">,</span> <span class="n">coeffs_log_scale</span>
 
 <div class="viewcode-block" id="VindyLayer.kl_loss">
 <a class="viewcode-back" href="../../../vindy.layers.html#vindy.layers.vindy_layer.VindyLayer.kl_loss">[docs]</a>
     <span class="k">def</span> <span class="nf">kl_loss</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mean</span><span class="p">,</span> <span class="n">scale</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Computes the KL divergence between the priors and the coefficient distributions of the VINDy layer</span>
-<span class="sd">        :param mean:</span>
-<span class="sd">        :param scale:</span>
-<span class="sd">        :return:</span>
+<span class="sd">        Compute the KL divergence between the priors and the coefficient distributions of the VINDy layer.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        mean : tf.Tensor</span>
+<span class="sd">            Mean of the coefficient distributions.</span>
+<span class="sd">        scale : tf.Tensor</span>
+<span class="sd">            Scale of the coefficient distributions.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        tf.Tensor</span>
+<span class="sd">            KL divergence loss.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">priors</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
             <span class="n">kl_loss</span> <span class="o">=</span> <span class="mi">0</span>
@@ -190,38 +231,50 @@
                 <span class="n">kl_loss</span> <span class="o">+=</span> <span class="n">prior</span><span class="o">.</span><span class="n">KL_divergence</span><span class="p">(</span><span class="n">mean</span><span class="p">,</span> <span class="n">scale</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">kl_loss</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">priors</span><span class="o">.</span><span class="n">KL_divergence</span><span class="p">(</span><span class="n">mean</span><span class="p">,</span> <span class="n">scale</span><span class="p">)</span>
-
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">beta</span> <span class="o">*</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">(</span><span class="n">kl_loss</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="VindyLayer.get_sindy_coeffs">
 <a class="viewcode-back" href="../../../vindy.layers.html#vindy.layers.vindy_layer.VindyLayer.get_sindy_coeffs">[docs]</a>
     <span class="k">def</span> <span class="nf">get_sindy_coeffs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the SINDy coefficients as a numpy array.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        np.ndarray</span>
+<span class="sd">            SINDy coefficients.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">_</span><span class="p">,</span> <span class="n">coeffs_mean</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_coeffs</span>
         <span class="n">coeffs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fill_coefficient_matrix</span><span class="p">(</span><span class="n">coeffs_mean</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">coeffs</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span></div>
 
 
-    <span class="c1"># @tf.function</span>
 <div class="viewcode-block" id="VindyLayer.call">
 <a class="viewcode-back" href="../../../vindy.layers.html#vindy.layers.vindy_layer.VindyLayer.call">[docs]</a>
     <span class="k">def</span> <span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Applies the VINDy layer to the arguments, i.e. applies the feature libraries to the arguments,</span>
-<span class="sd">        samples the coefficients from a normal distribution parametrized by the layer&#39;s kernel (weights) and</span>
-<span class="sd">        computes the dot product of the features and the coefficients</span>
-<span class="sd">        :param inputs:</span>
-<span class="sd">        :param training:</span>
-<span class="sd">        :return:</span>
+<span class="sd">        Apply the VINDy layer to the inputs.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        inputs : tf.Tensor</span>
+<span class="sd">            Input tensor.</span>
+<span class="sd">        training : bool, optional</span>
+<span class="sd">            Whether the layer is in training mode (default is False).</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        tf.Tensor or list</span>
+<span class="sd">            Output tensor after applying the VINDy layer. If training, returns a list containing the output tensor,</span>
+<span class="sd">            mean, and log variance.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># todo: think about whether we want to have deterministic coefficients during inference (after training) or not</span>
         <span class="n">z_features</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tfFeat</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>
         <span class="n">coeffs</span><span class="p">,</span> <span class="n">coeffs_mean</span><span class="p">,</span> <span class="n">coeffs_log_var</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_coeffs</span>
         <span class="k">if</span> <span class="n">training</span><span class="p">:</span>
             <span class="n">z_dot</span> <span class="o">=</span> <span class="n">z_features</span> <span class="o">@</span> <span class="n">tf</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">coeffs</span><span class="p">)</span>
             <span class="k">return</span> <span class="p">[</span><span class="n">z_dot</span><span class="p">,</span> <span class="n">coeffs_mean</span><span class="p">,</span> <span class="n">coeffs_log_var</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="c1"># in case of evaluation, we use the mean of the coefficients</span>
             <span class="n">z_dot</span> <span class="o">=</span> <span class="n">z_features</span> <span class="o">@</span> <span class="n">tf</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fill_coefficient_matrix</span><span class="p">(</span><span class="n">coeffs_mean</span><span class="p">))</span>
             <span class="k">return</span> <span class="n">z_dot</span></div>
 
@@ -230,17 +283,48 @@
 <a class="viewcode-back" href="../../../vindy.layers.html#vindy.layers.vindy_layer.VindyLayer.visualize_coefficients">[docs]</a>
     <span class="k">def</span> <span class="nf">visualize_coefficients</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x_range</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">z</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mu</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Visualizes the coefficients of the SINDy layer as distributions</span>
-<span class="sd">        :return:</span>
+<span class="sd">        Visualize the coefficients of the SINDy layer as distributions.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        x_range : tuple, optional</span>
+<span class="sd">            Range of x values for the plot (default is None).</span>
+<span class="sd">        z : list of str, optional</span>
+<span class="sd">            Names of the states, e.g., \[&#39;z1&#39;, &#39;z2&#39;, ...\] (default is None).</span>
+<span class="sd">        mu : list of str, optional</span>
+<span class="sd">            Names of the parameters, e.g., \[&#39;mu1&#39;, &#39;mu2&#39;, ...\] (default is None).</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        None</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># get coefficient parameterization</span>
         <span class="n">_</span><span class="p">,</span> <span class="n">mean</span><span class="p">,</span> <span class="n">log_scale</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_coeffs</span>
-        <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_visualize_coefficients</span><span class="p">(</span>
-            <span class="n">mean</span><span class="o">.</span><span class="n">numpy</span><span class="p">(),</span> <span class="n">log_scale</span><span class="o">.</span><span class="n">numpy</span><span class="p">(),</span> <span class="n">x_range</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">mu</span>
-        <span class="p">)</span></div>
+        <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_visualize_coefficients</span><span class="p">(</span><span class="n">mean</span><span class="o">.</span><span class="n">numpy</span><span class="p">(),</span> <span class="n">log_scale</span><span class="o">.</span><span class="n">numpy</span><span class="p">(),</span> <span class="n">x_range</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">mu</span><span class="p">)</span></div>
+
 
 
     <span class="k">def</span> <span class="nf">_visualize_coefficients</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mean</span><span class="p">,</span> <span class="n">log_scale</span><span class="p">,</span> <span class="n">x_range</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">z</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mu</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Visualize the coefficients of the SINDy layer as distributions.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        mean : np.ndarray</span>
+<span class="sd">            Mean of the coefficient distributions.</span>
+<span class="sd">        log_scale : np.ndarray</span>
+<span class="sd">            Log scale of the coefficient distributions.</span>
+<span class="sd">        x_range : tuple, optional</span>
+<span class="sd">            Range of x values for the plot (default is None).</span>
+<span class="sd">        z : list of str, optional</span>
+<span class="sd">            Names of the states, e.g., \[&#39;z1&#39;, &#39;z2&#39;, ...\] (default is None).</span>
+<span class="sd">        mu : list of str, optional</span>
+<span class="sd">            Names of the parameters, e.g., \[&#39;mu1&#39;, &#39;mu2&#39;, ...\] (default is None).</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        matplotlib.figure.Figure</span>
+<span class="sd">            Figure object containing the plots.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="c1"># get name of the corresponding features</span>
         <span class="n">feature_names</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_feature_names</span><span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="n">mu</span><span class="p">)</span>
@@ -282,9 +366,16 @@
     <span class="k">def</span> <span class="nf">pdf_thresholding</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">threshold</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Cancel the coefficients of the SINDy layer if their corresponding probability density function at zero is above</span>
-<span class="sd">        the threshold, i.e. if pdf(0) &gt; threshold</span>
-<span class="sd">        :param threshold:</span>
-<span class="sd">        :return:</span>
+<span class="sd">        the threshold, i.e., if pdf(0) &gt; threshold.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        threshold : float, optional</span>
+<span class="sd">            Threshold for canceling coefficients (default is 1.0).</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        None</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># get current</span>
         <span class="n">_</span><span class="p">,</span> <span class="n">loc</span><span class="p">,</span> <span class="n">log_scale</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_coeffs</span>
@@ -312,7 +403,14 @@
 <a class="viewcode-back" href="../../../vindy.layers.html#vindy.layers.vindy_layer.LogVarL1L2Regularizer">[docs]</a>
 <span class="k">class</span> <span class="nc">LogVarL1L2Regularizer</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">regularizers</span><span class="o">.</span><span class="n">Regularizer</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Regularizer for the log variance of the coefficients in the VINDy layer</span>
+<span class="sd">    Regularizer for the log variance of the coefficients in the VINDy layer.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    l1 : float, optional</span>
+<span class="sd">        L1 regularization factor (default is 0.0).</span>
+<span class="sd">    l2 : float, optional</span>
+<span class="sd">        L2 regularization factor (default is 0.0).</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">l1</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">l2</span><span class="o">=</span><span class="mf">0.0</span><span class="p">):</span>
@@ -326,6 +424,19 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">l2</span> <span class="o">=</span> <span class="n">l2</span>
 
     <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Apply the regularization.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        x : tf.Tensor</span>
+<span class="sd">            Input tensor.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        tf.Tensor</span>
+<span class="sd">            Regularization term.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">regularization</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">l1</span><span class="p">:</span>
             <span class="n">regularization</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">l1</span> <span class="o">*</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="mf">0.5</span> <span class="o">*</span> <span class="n">x</span><span class="p">)))</span>

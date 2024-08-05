@@ -43,7 +43,7 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../vindy.html">vindy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../vindy.html">vindy package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../contact.html">Contact</a></li>
 </ul>
 
@@ -82,6 +82,35 @@
 <div class="viewcode-block" id="SindyLayer">
 <a class="viewcode-back" href="../../../vindy.layers.html#vindy.layers.sindy_layer.SindyLayer">[docs]</a>
 <span class="k">class</span> <span class="nc">SindyLayer</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Layer</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Layer for SINDy approximation of the time derivative of the latent variable.</span>
+<span class="sd">    Feature libraries are applied to the latent variable and its time derivative, and a sparse regression is performed.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    state_dim : int</span>
+<span class="sd">        Number of latent variables.</span>
+<span class="sd">    param_dim : int, optional</span>
+<span class="sd">        Number of parameters (default is 0).</span>
+<span class="sd">    feature_libraries : list, optional</span>
+<span class="sd">        List of feature libraries for the latent variables (default is [PolynomialLibrary(degree=3)]).</span>
+<span class="sd">    param_feature_libraries : list, optional</span>
+<span class="sd">        List of feature libraries for the parameters (default is []).</span>
+<span class="sd">    second_order : bool, optional</span>
+<span class="sd">        If True, enforce 2nd order structure (default is True).</span>
+<span class="sd">    kernel_regularizer : tf.keras.regularizers.Regularizer, optional</span>
+<span class="sd">        Regularizer for the kernel (default is tf.keras.regularizers.L1L2(l1=1e-3, l2=0)).</span>
+<span class="sd">    x_mu_interaction : bool, optional</span>
+<span class="sd">        If True, interaction between latent variables and parameters (default is True).</span>
+<span class="sd">    mask : array-like, optional</span>
+<span class="sd">        If required, certain coefficients of the latent governing equations can be fixed and are consequently masked out for training (default is None).</span>
+<span class="sd">    fixed_coeffs : array-like, optional</span>
+<span class="sd">        Values for the coefficients that are masked out during training (default is None).</span>
+<span class="sd">    dtype : str, optional</span>
+<span class="sd">        Data type of the layer (default is &quot;float32&quot;).</span>
+<span class="sd">    kwargs : dict</span>
+<span class="sd">        Additional arguments for the TensorFlow layer class.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -170,14 +199,22 @@
     <span class="k">def</span> <span class="nf">loss_trackers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns the loss trackers of the layer if any. The standard sindy layer has no loss trackers.</span>
-<span class="sd">        :return:</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        dict</span>
+<span class="sd">            Loss trackers.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">dict</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="nf">_init_to_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">init_locals</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        In order to save the model, we save the parameters with which the model was initialized except for the data itself</span>
-<span class="sd">        :param init_locals: local variables from the __init__ function</span>
+<span class="sd">        Save the parameters with which the model was initialized except for the data itself.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        init_locals : dict</span>
+<span class="sd">            Local variables from the __init__ function.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">sig</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">signature</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="fm">__init__</span><span class="p">)</span>
@@ -190,9 +227,12 @@
 <a class="viewcode-back" href="../../../vindy.layers.html#vindy.layers.sindy_layer.SindyLayer.assert_arguments">[docs]</a>
     <span class="k">def</span> <span class="nf">assert_arguments</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arguments</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Asserts that the arguments passed to the layer are valid</span>
-<span class="sd">        :param arguments:</span>
-<span class="sd">        :return:</span>
+<span class="sd">        Assert that the arguments passed to the layer are valid.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        arguments : dict</span>
+<span class="sd">            Arguments passed to the layer.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">assert</span> <span class="n">arguments</span><span class="p">[</span><span class="s2">&quot;dtype&quot;</span><span class="p">]</span> <span class="ow">in</span> <span class="p">[</span>
             <span class="s2">&quot;float32&quot;</span><span class="p">,</span>
@@ -251,19 +291,39 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">coefficient_matrix_shape</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the shape of the coefficient matrix.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        tuple</span>
+<span class="sd">            Shape of the coefficient matrix.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_dim</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_bases_functions</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">kernel_shape</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Returns the dimension of the kernel (weights) of the SINDy layer</span>
-<span class="sd">        :return:</span>
+<span class="sd">        Returns the dimension of the kernel (weights) of the SINDy layer.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        tuple</span>
+<span class="sd">            Shape of the kernel.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_dofs</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
 
 <div class="viewcode-block" id="SindyLayer.init_weigths">
 <a class="viewcode-back" href="../../../vindy.layers.html#vindy.layers.sindy_layer.SindyLayer.init_weigths">[docs]</a>
     <span class="k">def</span> <span class="nf">init_weigths</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">kernel_regularizer</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize the weights of the SINDy layer.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        kernel_regularizer : tf.keras.regularizers.Regularizer</span>
+<span class="sd">            Regularizer for the kernel.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="c1"># get amount of dofs (equals the number of ones in the mask)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">n_dofs</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mask</span><span class="p">))</span>
@@ -283,6 +343,22 @@
 <div class="viewcode-block" id="SindyLayer.set_mask">
 <a class="viewcode-back" href="../../../vindy.layers.html#vindy.layers.sindy_layer.SindyLayer.set_mask">[docs]</a>
     <span class="k">def</span> <span class="nf">set_mask</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mask</span><span class="p">,</span> <span class="n">fixed_coeffs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the mask and fixed coefficients for the SINDy layer to mask out certain coefficients and set their values.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        mask : array-like or None</span>
+<span class="sd">            Mask for the coefficients. If None, a mask of ones is used.</span>
+<span class="sd">        fixed_coeffs : array-like or None, optional</span>
+<span class="sd">            Fixed coefficients for the masked values. If None, a matrix of zeros is used.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        tuple</span>
+<span class="sd">            A tuple containing the mask and fixed coefficients.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
         <span class="k">if</span> <span class="n">mask</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">mask</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">ones</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">state_dim</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_bases_functions</span><span class="p">])</span>
         <span class="k">if</span> <span class="n">fixed_coeffs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -310,8 +386,12 @@
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">_coeffs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Returns the coefficients of the SINDy layer as a matrix</span>
-<span class="sd">        :return:</span>
+<span class="sd">        Get the coefficients of the SINDy layer as a matrix.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        tf.Tensor</span>
+<span class="sd">            Coefficient matrix.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># fill the coefficient matrix with the trainable coefficients</span>
         <span class="n">coeffs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fill_coefficient_matrix</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">kernel</span><span class="p">)</span>
@@ -321,12 +401,28 @@
 <div class="viewcode-block" id="SindyLayer.get_sindy_coeffs">
 <a class="viewcode-back" href="../../../vindy.layers.html#vindy.layers.sindy_layer.SindyLayer.get_sindy_coeffs">[docs]</a>
     <span class="k">def</span> <span class="nf">get_sindy_coeffs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the SINDy coefficients as a numpy array.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        np.ndarray</span>
+<span class="sd">            SINDy coefficients.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_coeffs</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span></div>
 
 
 <div class="viewcode-block" id="SindyLayer.get_prunable_weights">
 <a class="viewcode-back" href="../../../vindy.layers.html#vindy.layers.sindy_layer.SindyLayer.get_prunable_weights">[docs]</a>
     <span class="k">def</span> <span class="nf">get_prunable_weights</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the prunable weights of the SINDy layer.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list</span>
+<span class="sd">            List of prunable weights.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Prune bias also, though that usually harms model accuracy too much.</span>
         <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">kernel</span><span class="p">]</span></div>
 
@@ -334,19 +430,40 @@
 <div class="viewcode-block" id="SindyLayer.prune_weights">
 <a class="viewcode-back" href="../../../vindy.layers.html#vindy.layers.sindy_layer.SindyLayer.prune_weights">[docs]</a>
     <span class="k">def</span> <span class="nf">prune_weights</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-        <span class="n">mask</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">greater</span><span class="p">(</span>
-            <span class="n">tf</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">kernel</span><span class="p">),</span> <span class="n">threshold</span> <span class="o">*</span> <span class="n">tf</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">kernel</span><span class="p">)</span>
-        <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">kernel</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">kernel</span><span class="p">,</span> <span class="n">mask</span><span class="p">)</span></div>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Prune the weights of the SINDy layer by setting values below a threshold to zero.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        threshold : float, optional</span>
+<span class="sd">            Threshold for pruning (default is 0.01).</span>
+<span class="sd">        training : bool, optional</span>
+<span class="sd">            Whether the layer is in training mode (default is False).</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">mask</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">greater</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">kernel</span><span class="p">),</span> <span class="n">threshold</span> <span class="o">*</span> <span class="n">tf</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">kernel</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">kernel</span><span class="o">.</span><span class="n">dtype</span><span class="p">))</span>
+        <span class="n">mask</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">kernel</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">kernel</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">kernel</span><span class="p">,</span> <span class="n">mask</span><span class="p">))</span></div>
 
 
 <div class="viewcode-block" id="SindyLayer.fill_coefficient_matrix">
 <a class="viewcode-back" href="../../../vindy.layers.html#vindy.layers.sindy_layer.SindyLayer.fill_coefficient_matrix">[docs]</a>
     <span class="k">def</span> <span class="nf">fill_coefficient_matrix</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">trainable_coeffs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        fill the coefficient matrix with the trainable coefficients</span>
-<span class="sd">        :param trainable_coeffs: (array-like) trainable coefficients</span>
-<span class="sd">        :return:</span>
+<span class="sd">        Fill the coefficient matrix with the trainable coefficients.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        trainable_coeffs : array-like</span>
+<span class="sd">            Trainable coefficients.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        tf.Tensor</span>
+<span class="sd">            Coefficient matrix filled with the trainable coefficients.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># create a zero matrix for the coefficients with the correct shape</span>
         <span class="n">coeffs</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">coefficient_matrix_shape</span><span class="p">)</span>
@@ -366,6 +483,22 @@
 <a class="viewcode-back" href="../../../vindy.layers.html#vindy.layers.sindy_layer.SindyLayer.call">[docs]</a>
     <span class="nd">@tf</span><span class="o">.</span><span class="n">function</span>
     <span class="k">def</span> <span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Perform the forward pass of the SINDy layer.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        inputs : tf.Tensor</span>
+<span class="sd">            Input tensor.</span>
+<span class="sd">        training : bool, optional</span>
+<span class="sd">            Whether the layer is in training mode (default is False).</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        tf.Tensor</span>
+<span class="sd">            Output tensor after applying the SINDy layer.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
         <span class="n">z_features</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tfFeat</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>
         <span class="n">z_dot</span> <span class="o">=</span> <span class="n">z_features</span> <span class="o">@</span> <span class="n">tf</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_coeffs</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">z_dot</span></div>
@@ -376,9 +509,17 @@
     <span class="nd">@tf</span><span class="o">.</span><span class="n">function</span>
     <span class="k">def</span> <span class="nf">tfFeat</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        combine all features</span>
-<span class="sd">        :param inputs:</span>
-<span class="sd">        :return:</span>
+<span class="sd">        Combine all features for the SINDy layer.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        inputs : tf.Tensor</span>
+<span class="sd">            Input tensor.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        tf.Tensor</span>
+<span class="sd">            Combined features.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># in case we want interaction between parameters and states</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">x_mu_interaction</span><span class="p">:</span>
@@ -402,9 +543,19 @@
     <span class="nd">@tf</span><span class="o">.</span><span class="n">function</span>
     <span class="k">def</span> <span class="nf">concat_features</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">libraries</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        concatenate features from different libraries</span>
-<span class="sd">        :param z: input</span>
-<span class="sd">        :param libraries: list of libraries</span>
+<span class="sd">        Concatenate features from different libraries.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        z : tf.Tensor</span>
+<span class="sd">            Input tensor.</span>
+<span class="sd">        libraries : list</span>
+<span class="sd">            List of feature libraries.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        tf.Tensor</span>
+<span class="sd">            Concatenated features.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">features</span> <span class="o">=</span> <span class="p">[</span><span class="n">library</span><span class="p">(</span><span class="n">z</span><span class="p">)</span> <span class="k">for</span> <span class="n">library</span> <span class="ow">in</span> <span class="n">libraries</span><span class="p">]</span>
         <span class="n">z_feat</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">features</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
@@ -415,10 +566,19 @@
 <a class="viewcode-back" href="../../../vindy.layers.html#vindy.layers.sindy_layer.SindyLayer.get_feature_names">[docs]</a>
     <span class="k">def</span> <span class="nf">get_feature_names</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">z</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mu</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        construct features names for states and parameters</span>
-<span class="sd">        :param z: (list of strings) names of the states, e.g. [&#39;z1&#39;, &#39;z2&#39;, ...]</span>
-<span class="sd">        :param mu: (list of strings) names of the parameters, e.g. [&#39;mu1&#39;, &#39;mu2&#39;, ...]</span>
-<span class="sd">        :return:</span>
+<span class="sd">        Construct feature names for states and parameters.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        z : list of str, optional</span>
+<span class="sd">            Names of the states, e.g., \[&#39;z1&#39;, &#39;z2&#39;, ...\] (default is None).</span>
+<span class="sd">        mu : list of str, optional</span>
+<span class="sd">            Names of the parameters, e.g., \[&#39;mu1&#39;, &#39;mu2&#39;, ...\] (default is None).</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list of str</span>
+<span class="sd">            List of feature names.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="n">z</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -453,11 +613,20 @@
 <a class="viewcode-back" href="../../../vindy.layers.html#vindy.layers.sindy_layer.SindyLayer.print">[docs]</a>
     <span class="k">def</span> <span class="nf">print</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">z</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mu</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">precision</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">3</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        print the model equation</span>
-<span class="sd">        :param z: (list of strings) names of the states, e.g. [&#39;z1&#39;, &#39;z2&#39;, ...]</span>
-<span class="sd">        :param mu: (list of strings) names of the parameters, e.g. [&#39;mu1&#39;, &#39;mu2&#39;, ...]</span>
-<span class="sd">        :param precision: (int) number of decimal places</span>
-<span class="sd">        :return:</span>
+<span class="sd">        Print the model equation.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        z : list of str, optional</span>
+<span class="sd">            Names of the states, e.g., \[&#39;z1&#39;, &#39;z2&#39;, ...\] (default is None).</span>
+<span class="sd">        mu : list of str, optional</span>
+<span class="sd">            Names of the parameters, e.g., \[&#39;mu1&#39;, &#39;mu2&#39;, ...\] (default is None).</span>
+<span class="sd">        precision : int, optional</span>
+<span class="sd">            Number of decimal places (default is 3).</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        None</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_equation_to_str</span><span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">precision</span><span class="p">))</span></div>
 
@@ -466,11 +635,21 @@
 <a class="viewcode-back" href="../../../vindy.layers.html#vindy.layers.sindy_layer.SindyLayer.model_equation_to_str">[docs]</a>
     <span class="k">def</span> <span class="nf">model_equation_to_str</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">z</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mu</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">precision</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">3</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        convert coefficients and feature names into a readble equation</span>
-<span class="sd">        :param z:  (list of strings) names of the states, e.g. [&#39;z1&#39;, &#39;z2&#39;, ...]</span>
-<span class="sd">        :param mu: (list of strings) names of the parameters, e.g. [&#39;mu1&#39;, &#39;mu2&#39;, ...]</span>
-<span class="sd">        :param precision: (int) number of decimal places</span>
-<span class="sd">        :return:</span>
+<span class="sd">        Convert coefficients and feature names into a readable equation.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        z : list of str, optional</span>
+<span class="sd">            Names of the states, e.g., \[&#39;z1&#39;, &#39;z2&#39;, ...\] (default is None).</span>
+<span class="sd">        mu : list of str, optional</span>
+<span class="sd">            Names of the parameters, e.g., \[&#39;mu1&#39;, &#39;mu2&#39;, ...\] (default is None).</span>
+<span class="sd">        precision : int, optional</span>
+<span class="sd">            Number of decimal places (default is 3).</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str</span>
+<span class="sd">            Model equation as a string.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">z</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">z</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;z</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_dim</span><span class="p">)]</span>

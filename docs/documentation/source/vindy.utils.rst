@@ -4,6 +4,8 @@ vindy.utils package
 Submodules
 ----------
 
+vindy.utils.utils module
+------------------------
 
 .. automodule:: vindy.utils.utils
    :members:

@@ -43,7 +43,7 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../vindy.html">vindy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../vindy.html">vindy package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../contact.html">Contact</a></li>
 </ul>
 
@@ -79,16 +79,35 @@
 <div class="viewcode-block" id="ForceLibrary">
 <a class="viewcode-back" href="../../../vindy.libraries.html#vindy.libraries.force_library.ForceLibrary">[docs]</a>
 <span class="k">class</span> <span class="nc">ForceLibrary</span><span class="p">(</span><span class="n">BaseLibrary</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Library for force features.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">functions</span><span class="o">=</span><span class="p">[</span><span class="n">tf</span><span class="o">.</span><span class="n">sin</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">cos</span><span class="p">]):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize the force library.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        functions : list of callable, optional</span>
+<span class="sd">            List of functions to apply (default: [tf.sin, tf.cos])</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">functions</span> <span class="o">=</span> <span class="n">functions</span>
 
     <span class="nd">@tf</span><span class="o">.</span><span class="n">function</span>
     <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        transform input x to force features following force = amplitude * sin(omega * t)</span>
-<span class="sd">        :param x: array-like of shape (n_samples, 2*reduce_order), latent variable and its time derivative</span>
-<span class="sd">        :return: polynomial features</span>
+<span class="sd">        Transform input x to force features following force = amplitude * sin(omega * t).</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        x : array-like of shape (n_samples, 2*reduce_order)</span>
+<span class="sd">            Latent variable and its time derivative.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        array-like</span>
+<span class="sd">            Force features.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">x_force</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">func</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">functions</span><span class="p">:</span>
@@ -101,9 +120,17 @@
 <a class="viewcode-back" href="../../../vindy.libraries.html#vindy.libraries.force_library.ForceLibrary.get_names">[docs]</a>
     <span class="k">def</span> <span class="nf">get_names</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        construct features for the input x</span>
-<span class="sd">        :param x: input</span>
-<span class="sd">        :return: feature</span>
+<span class="sd">        Construct the names of the features for the input x.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        x : array-like</span>
+<span class="sd">            Input data.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list of str</span>
+<span class="sd">            Names of the force features.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">x_force</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">func</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">functions</span><span class="p">:</span>

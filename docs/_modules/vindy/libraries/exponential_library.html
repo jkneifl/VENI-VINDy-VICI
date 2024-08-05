@@ -43,7 +43,7 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../vindy.html">vindy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../vindy.html">vindy package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../contact.html">Contact</a></li>
 </ul>
 
@@ -79,6 +79,9 @@
 <div class="viewcode-block" id="ExponentialLibrary">
 <a class="viewcode-back" href="../../../vindy.libraries.html#vindy.libraries.exponential_library.ExponentialLibrary">[docs]</a>
 <span class="k">class</span> <span class="nc">ExponentialLibrary</span><span class="p">(</span><span class="n">BaseLibrary</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Library for exponential features.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coeff</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">coeff</span> <span class="o">=</span> <span class="n">coeff</span>
@@ -86,9 +89,17 @@
     <span class="nd">@tf</span><span class="o">.</span><span class="n">function</span>
     <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        transform input x to exponential features</span>
-<span class="sd">        :param x: array-like of shape (n_samples, 2*reduce_order), latent variable and its time derivative</span>
-<span class="sd">        :return: polynomial features</span>
+<span class="sd">        Construct exponential features for the input x.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        x : any</span>
+<span class="sd">            Input data (n_samples, 2*reduce_order).</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        any</span>
+<span class="sd">            Exponential features.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">x_exp</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">coeff</span><span class="p">:</span>
@@ -100,9 +111,17 @@
 <a class="viewcode-back" href="../../../vindy.libraries.html#vindy.libraries.exponential_library.ExponentialLibrary.get_names">[docs]</a>
     <span class="k">def</span> <span class="nf">get_names</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        construct features for the input x</span>
-<span class="sd">        :param x: input</span>
-<span class="sd">        :return: feature</span>
+<span class="sd">        Construct the names of the exponential features for the input x.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        x : any</span>
+<span class="sd">            Input data.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list of str</span>
+<span class="sd">            Names of the exponential features.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># ensure that x is a list</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>

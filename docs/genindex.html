@@ -43,7 +43,7 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="vindy.html">vindy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vindy.html">vindy package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="contact.html">Contact</a></li>
 </ul>
 
@@ -119,9 +119,13 @@
 <h2 id="B">B</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="vindy.distributions.html#vindy.distributions.base_distribution.BaseDistribution">BaseDistribution (class in vindy.distributions.base_distribution)</a>
+</li>
       <li><a href="vindy.libraries.html#vindy.libraries.base_library.BaseLibrary">BaseLibrary (class in vindy.libraries.base_library)</a>
 </li>
       <li><a href="vindy.networks.html#vindy.networks.base_model.BaseModel">BaseModel (class in vindy.networks.base_model)</a>
+</li>
+      <li><a href="vindy.layers.html#vindy.layers.vindy_layer.VindyLayer.beta">beta (VindyLayer attribute)</a>
 </li>
       <li><a href="vindy.networks.html#vindy.networks.autoencoder_sindy.AutoencoderSindy.build_decoder">build_decoder() (AutoencoderSindy method)</a>
 </li>
@@ -155,9 +159,15 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="vindy.networks.html#vindy.networks.autoencoder_sindy.AutoencoderSindy.calc_latent_time_derivatives">calc_latent_time_derivatives() (AutoencoderSindy method)</a>
 </li>
-      <li><a href="vindy.layers.html#vindy.layers.sindy_layer.SindyLayer.call">call() (SindyLayer method)</a>
+      <li><a href="vindy.distributions.html#id1">call() (BaseDistribution method)</a>, <a href="vindy.distributions.html#vindy.distributions.base_distribution.BaseDistribution.call">[1]</a>
 
       <ul>
+        <li><a href="vindy.distributions.html#id7">(Gaussian method)</a>, <a href="vindy.distributions.html#vindy.distributions.gaussian.Gaussian.call">[1]</a>
+</li>
+        <li><a href="vindy.distributions.html#id13">(Laplace method)</a>, <a href="vindy.distributions.html#vindy.distributions.laplace.Laplace.call">[1]</a>
+</li>
+        <li><a href="vindy.layers.html#vindy.layers.sindy_layer.SindyLayer.call">(SindyLayer method)</a>
+</li>
         <li><a href="vindy.networks.html#vindy.networks.variational_autoencoder_sindy.VAESindy.call">(VAESindy method)</a>
 </li>
         <li><a href="vindy.layers.html#vindy.layers.vindy_layer.VindyLayer.call">(VindyLayer method)</a>
@@ -165,12 +175,12 @@
       </ul></li>
       <li><a href="vindy.callbacks.html#vindy.callbacks.sindy_callback.SindyCallback.call_pySINDy">call_pySINDy() (SindyCallback method)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="vindy.callbacks.html#vindy.callbacks.pdf_threshold_callback.PDFThresholdCallback.cancel_coefficients">cancel_coefficients() (PDFThresholdCallback method)</a>
 </li>
       <li><a href="vindy.utils.html#vindy.utils.utils.coefficient_distributions_to_csv">coefficient_distributions_to_csv() (in module vindy.utils.utils)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="vindy.layers.html#vindy.layers.sindy_layer.SindyLayer.coefficient_matrix_shape">coefficient_matrix_shape (SindyLayer property)</a>
 </li>
       <li><a href="vindy.networks.html#vindy.networks.autoencoder_sindy.AutoencoderSindy.compile">compile() (AutoencoderSindy method)</a>
@@ -243,6 +253,8 @@
 <h2 id="G">G</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="vindy.distributions.html#vindy.distributions.gaussian.Gaussian">Gaussian (class in vindy.distributions.gaussian)</a>
+</li>
       <li><a href="vindy.layers.html#vindy.layers.sindy_layer.SindyLayer.get_feature_names">get_feature_names() (SindyLayer method)</a>
 </li>
       <li><a href="vindy.networks.html#vindy.networks.base_model.BaseModel.get_int_loss">get_int_loss() (BaseModel method)</a>
@@ -313,6 +325,14 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="vindy.layers.html#vindy.layers.sindy_layer.SindyLayer.kernel_shape">kernel_shape (SindyLayer property)</a>
 </li>
+      <li><a href="vindy.distributions.html#id0">KL_divergence() (BaseDistribution method)</a>, <a href="vindy.distributions.html#vindy.distributions.base_distribution.BaseDistribution.KL_divergence">[1]</a>
+
+      <ul>
+        <li><a href="vindy.distributions.html#id6">(Gaussian method)</a>, <a href="vindy.distributions.html#vindy.distributions.gaussian.Gaussian.KL_divergence">[1]</a>
+</li>
+        <li><a href="vindy.distributions.html#id12">(Laplace method)</a>, <a href="vindy.distributions.html#vindy.distributions.laplace.Laplace.KL_divergence">[1]</a>
+</li>
+      </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="vindy.networks.html#vindy.networks.variational_autoencoder_sindy.VAESindy.kl_loss">kl_loss() (VAESindy method)</a>
@@ -321,20 +341,28 @@
         <li><a href="vindy.layers.html#vindy.layers.vindy_layer.VindyLayer.kl_loss">(VindyLayer method)</a>
 </li>
       </ul></li>
+      <li><a href="vindy.layers.html#vindy.layers.vindy_layer.VindyLayer.kl_loss_tracker">kl_loss_tracker (VindyLayer attribute)</a>
+</li>
   </ul></td>
 </tr></table>
 
 <h2 id="L">L</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="vindy.distributions.html#vindy.distributions.laplace.Laplace">Laplace (class in vindy.distributions.laplace)</a>
+</li>
       <li><a href="vindy.networks.html#vindy.networks.base_model.BaseModel.load">load() (BaseModel static method)</a>
 </li>
+      <li><a href="vindy.distributions.html#vindy.distributions.laplace.Laplace.log_scale_to_deviation">log_scale_to_deviation() (Laplace method)</a>
+</li>
+      <li><a href="vindy.distributions.html#id8">log_var_to_deviation() (Gaussian method)</a>, <a href="vindy.distributions.html#vindy.distributions.gaussian.Gaussian.log_var_to_deviation">[1]</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="vindy.layers.html#vindy.layers.vindy_layer.LogVarL1L2Regularizer">LogVarL1L2Regularizer (class in vindy.layers.vindy_layer)</a>
 </li>
       <li><a href="vindy.libraries.html#vindy.libraries.polynomial_library.PolynomialLibrary.loop_rec">loop_rec() (PolynomialLibrary method)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="vindy.libraries.html#vindy.libraries.polynomial_library.PolynomialLibrary.loop_rec_names">loop_rec_names() (PolynomialLibrary method)</a>
 </li>
       <li><a href="vindy.layers.html#vindy.layers.sindy_layer.SindyLayer.loss_trackers">loss_trackers (SindyLayer property)</a>
@@ -368,6 +396,14 @@
         <li><a href="vindy.callbacks.html#module-vindy.callbacks.spotify_callback">vindy.callbacks.spotify_callback</a>
 </li>
         <li><a href="vindy.callbacks.html#module-vindy.callbacks.threshold_prune_callback">vindy.callbacks.threshold_prune_callback</a>
+</li>
+        <li><a href="vindy.distributions.html#module-vindy.distributions">vindy.distributions</a>
+</li>
+        <li><a href="vindy.distributions.html#module-vindy.distributions.base_distribution">vindy.distributions.base_distribution</a>
+</li>
+        <li><a href="vindy.distributions.html#module-vindy.distributions.gaussian">vindy.distributions.gaussian</a>
+</li>
+        <li><a href="vindy.distributions.html#module-vindy.distributions.laplace">vindy.distributions.laplace</a>
 </li>
         <li><a href="vindy.layers.html#module-vindy.layers">vindy.layers</a>
 </li>
@@ -408,10 +444,6 @@
 <h2 id="O">O</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="vindy.callbacks.html#vindy.callbacks.threshold_prune_callback.ThresholdPruneCallback.on_batch_begin">on_batch_begin() (ThresholdPruneCallback method)</a>
-</li>
-      <li><a href="vindy.callbacks.html#vindy.callbacks.threshold_prune_callback.ThresholdPruneCallback.on_epoch_begin">on_epoch_begin() (ThresholdPruneCallback method)</a>
-</li>
       <li><a href="vindy.callbacks.html#vindy.callbacks.pdf_threshold_callback.PDFThresholdCallback.on_epoch_end">on_epoch_end() (PDFThresholdCallback method)</a>
 
       <ul>
@@ -421,6 +453,8 @@
 </li>
         <li><a href="vindy.callbacks.html#vindy.callbacks.spotify_callback.SpotifyCallback.on_epoch_end">(SpotifyCallback method)</a>
 </li>
+        <li><a href="vindy.callbacks.html#vindy.callbacks.threshold_prune_callback.ThresholdPruneCallback.on_epoch_end">(ThresholdPruneCallback method)</a>
+</li>
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
@@ -428,6 +462,8 @@
 
       <ul>
         <li><a href="vindy.callbacks.html#vindy.callbacks.sindy_callback.SindyCallback.on_train_end">(SindyCallback method)</a>
+</li>
+        <li><a href="vindy.callbacks.html#vindy.callbacks.threshold_prune_callback.ThresholdPruneCallback.on_train_end">(ThresholdPruneCallback method)</a>
 </li>
       </ul></li>
   </ul></td>
@@ -442,12 +478,12 @@
 </li>
       <li><a href="vindy.callbacks.html#vindy.callbacks.sindy_callback.SindyCallback.perform_update">perform_update() (SindyCallback method)</a>
 </li>
+      <li><a href="vindy.distributions.html#id2">plot() (BaseDistribution method)</a>, <a href="vindy.distributions.html#vindy.distributions.base_distribution.BaseDistribution.plot">[1]</a>
+</li>
       <li><a href="vindy.libraries.html#vindy.libraries.polynomial_library.PolynomialLibrary.poly_higher_order">poly_higher_order() (PolynomialLibrary method)</a>
 </li>
       <li><a href="vindy.libraries.html#vindy.libraries.polynomial_library.PolynomialLibrary">PolynomialLibrary (class in vindy.libraries.polynomial_library)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="vindy.callbacks.html#vindy.callbacks.sindy_callback.SindyCallback.prepare_data_for_pysindy">prepare_data_for_pysindy() (SindyCallback method)</a>
 </li>
       <li><a href="vindy.networks.html#vindy.networks.base_model.BaseModel.print">print() (BaseModel method)</a>
@@ -456,10 +492,26 @@
         <li><a href="vindy.layers.html#vindy.layers.sindy_layer.SindyLayer.print">(SindyLayer method)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="vindy.layers.html#vindy.layers.vindy_layer.VindyLayer.priors">priors (VindyLayer attribute)</a>
+</li>
+      <li><a href="vindy.distributions.html#id3">prob_density_fcn() (BaseDistribution method)</a>, <a href="vindy.distributions.html#vindy.distributions.base_distribution.BaseDistribution.prob_density_fcn">[1]</a>
+
+      <ul>
+        <li><a href="vindy.distributions.html#id9">(Gaussian method)</a>, <a href="vindy.distributions.html#vindy.distributions.gaussian.Gaussian.prob_density_fcn">[1]</a>
+</li>
+        <li><a href="vindy.distributions.html#id14">(Laplace method)</a>, <a href="vindy.distributions.html#vindy.distributions.laplace.Laplace.prob_density_fcn">[1]</a>
+</li>
+      </ul></li>
       <li><a href="vindy.callbacks.html#vindy.callbacks.sindy_callback.SindyCallback.process_data_for_sindy">process_data_for_sindy() (SindyCallback method)</a>
 </li>
       <li><a href="vindy.layers.html#vindy.layers.sindy_layer.SindyLayer.prune_weights">prune_weights() (SindyLayer method)</a>
+
+      <ul>
+        <li><a href="vindy.callbacks.html#vindy.callbacks.threshold_prune_callback.ThresholdPruneCallback.prune_weights">(ThresholdPruneCallback method)</a>
 </li>
+      </ul></li>
   </ul></td>
 </tr></table>
 
@@ -477,6 +529,8 @@
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="vindy.networks.html#vindy.networks.autoencoder_sindy.AutoencoderSindy.rescale">rescale() (AutoencoderSindy method)</a>
+</li>
+      <li><a href="vindy.distributions.html#id4">reverse_log() (BaseDistribution method)</a>, <a href="vindy.distributions.html#vindy.distributions.base_distribution.BaseDistribution.reverse_log">[1]</a>
 </li>
       <li><a href="vindy.networks.html#vindy.networks.base_model.BaseModel.rhs_">rhs_() (BaseModel method)</a>
 </li>
@@ -544,6 +598,20 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="vindy.networks.html#vindy.networks.variational_autoencoder_sindy.VAESindy">VAESindy (class in vindy.networks.variational_autoencoder_sindy)</a>
 </li>
+      <li><a href="vindy.distributions.html#id5">variance() (BaseDistribution method)</a>, <a href="vindy.distributions.html#vindy.distributions.base_distribution.BaseDistribution.variance">[1]</a>
+
+      <ul>
+        <li><a href="vindy.distributions.html#id10">(Gaussian method)</a>, <a href="vindy.distributions.html#vindy.distributions.gaussian.Gaussian.variance">[1]</a>
+</li>
+        <li><a href="vindy.distributions.html#id15">(Laplace method)</a>, <a href="vindy.distributions.html#vindy.distributions.laplace.Laplace.variance">[1]</a>
+</li>
+      </ul></li>
+      <li><a href="vindy.distributions.html#id11">variance_to_log_scale() (Gaussian method)</a>, <a href="vindy.distributions.html#vindy.distributions.gaussian.Gaussian.variance_to_log_scale">[1]</a>
+
+      <ul>
+        <li><a href="vindy.distributions.html#id16">(Laplace method)</a>, <a href="vindy.distributions.html#vindy.distributions.laplace.Laplace.variance_to_log_scale">[1]</a>
+</li>
+      </ul></li>
       <li>
     vindy
 
@@ -594,6 +662,34 @@
 </li>
       </ul></li>
       <li>
+    vindy.distributions
+
+      <ul>
+        <li><a href="vindy.distributions.html#module-vindy.distributions">module</a>
+</li>
+      </ul></li>
+      <li>
+    vindy.distributions.base_distribution
+
+      <ul>
+        <li><a href="vindy.distributions.html#module-vindy.distributions.base_distribution">module</a>
+</li>
+      </ul></li>
+      <li>
+    vindy.distributions.gaussian
+
+      <ul>
+        <li><a href="vindy.distributions.html#module-vindy.distributions.gaussian">module</a>
+</li>
+      </ul></li>
+      <li>
+    vindy.distributions.laplace
+
+      <ul>
+        <li><a href="vindy.distributions.html#module-vindy.distributions.laplace">module</a>
+</li>
+      </ul></li>
+      <li>
     vindy.layers
 
       <ul>
@@ -607,6 +703,8 @@
         <li><a href="vindy.layers.html#module-vindy.layers.sindy_layer">module</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     vindy.layers.vindy_layer
 
@@ -628,8 +726,6 @@
         <li><a href="vindy.libraries.html#module-vindy.libraries.base_library">module</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     vindy.libraries.exponential_library
 

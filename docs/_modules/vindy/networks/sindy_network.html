@@ -43,7 +43,7 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../vindy.html">vindy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../vindy.html">vindy package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../contact.html">Contact</a></li>
 </ul>
 
@@ -74,7 +74,7 @@
   <h1>Source code for vindy.networks.sindy_network</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
-<span class="kn">from</span> <span class="nn">vindy.networks</span> <span class="kn">import</span> <span class="n">BaseModel</span>
+<span class="kn">from</span> <span class="nn">.base_model</span> <span class="kn">import</span> <span class="n">BaseModel</span>
 
 <span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">()</span>
 <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">()</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">)</span>
@@ -83,6 +83,9 @@
 <div class="viewcode-block" id="SindyNetwork">
 <a class="viewcode-back" href="../../../vindy.networks.html#vindy.networks.sindy_network.SindyNetwork">[docs]</a>
 <span class="k">class</span> <span class="nc">SindyNetwork</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Model to discover dynamics of a system using SINDy or VINDy.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -97,14 +100,28 @@
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Model to discover low-dimensional dynamics of a system using SINDy or VINDy</span>
-<span class="sd">        :param sindy_layer: Layer to identify the governing equatinos of the latent dynamics, must be a class inheriting</span>
-<span class="sd">            from SindyLayer</span>
-<span class="sd">        :param x: Input data</span>
-<span class="sd">        :param mu: parameter data</span>
-<span class="sd">        :param l_dz: Weight of the derivative loss</span>
-<span class="sd">        :param l_int: Weight of the integration loss</span>
-<span class="sd">        :param kwargs:</span>
+<span class="sd">        Initialize the SINDy network.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        sindy_layer : SindyLayer</span>
+<span class="sd">            Layer to identify the governing equations of the latent dynamics.</span>
+<span class="sd">        x : array-like</span>
+<span class="sd">            Input data.</span>
+<span class="sd">        mu : array-like, optional</span>
+<span class="sd">            Parameter data (default is None).</span>
+<span class="sd">        second_order : bool, optional</span>
+<span class="sd">            Whether the system is second order (default is True).</span>
+<span class="sd">        l_dz : float, optional</span>
+<span class="sd">            Weight of the derivative loss (default is 1).</span>
+<span class="sd">        l_int : float, optional</span>
+<span class="sd">            Weight of the integration loss (default is 0).</span>
+<span class="sd">        dt : float, optional</span>
+<span class="sd">            Time step (default is 0).</span>
+<span class="sd">        dtype : str, optional</span>
+<span class="sd">            Data type (default is &quot;float32&quot;).</span>
+<span class="sd">        kwargs : dict</span>
+<span class="sd">            Additional arguments.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="c1"># assert that input arguments are valid</span>
@@ -142,6 +159,9 @@
 <div class="viewcode-block" id="SindyNetwork.create_loss_trackers">
 <a class="viewcode-back" href="../../../vindy.networks.html#vindy.networks.sindy_network.SindyNetwork.create_loss_trackers">[docs]</a>
     <span class="k">def</span> <span class="nf">create_loss_trackers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create loss trackers for the model.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">loss_trackers</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">loss_trackers</span><span class="p">[</span><span class="s2">&quot;loss&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">Mean</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;loss&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">loss_trackers</span><span class="p">[</span><span class="s2">&quot;dz&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">Mean</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;dz&quot;</span><span class="p">)</span>
@@ -156,8 +176,12 @@
 <a class="viewcode-back" href="../../../vindy.networks.html#vindy.networks.sindy_network.SindyNetwork.get_trainable_weights">[docs]</a>
     <span class="k">def</span> <span class="nf">get_trainable_weights</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Returns the trainable weights of the model</span>
-<span class="sd">        :return:</span>
+<span class="sd">        Return the trainable weights of the model.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list</span>
+<span class="sd">            List of trainable weights.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">sindy</span><span class="o">.</span><span class="n">trainable_weights</span></div>
 
@@ -166,10 +190,14 @@
 <a class="viewcode-back" href="../../../vindy.networks.html#vindy.networks.sindy_network.SindyNetwork.build_model">[docs]</a>
     <span class="k">def</span> <span class="nf">build_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">mu</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        build the model</span>
-<span class="sd">        :param x: array-like of shape (n_samples, n_features), full state</span>
-<span class="sd">        :param mu: array-like of shape (n_samples, n_params), parameters</span>
-<span class="sd">        :return:</span>
+<span class="sd">        Build the model.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        z : array-like</span>
+<span class="sd">            Latent state.</span>
+<span class="sd">        mu : array-like</span>
+<span class="sd">            Parameters.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">z</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">Input</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">z</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],),</span> <span class="n">dtype</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dtype_</span><span class="p">)</span>
         <span class="c1"># sindy</span>
@@ -184,10 +212,17 @@
     <span class="nd">@tf</span><span class="o">.</span><span class="n">function</span>
     <span class="k">def</span> <span class="nf">build_loss</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        split input into state, its derivative and the parameters, perform the forward pass, calculate the loss,</span>
-<span class="sd">        and update the weights</span>
-<span class="sd">        :param inputs: list of array-like objects</span>
-<span class="sd">        :return:</span>
+<span class="sd">        Split input into state, its derivative, and the parameters, perform the forward pass, calculate the loss, and update the weights.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        inputs : list</span>
+<span class="sd">            List of array-like objects.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        dict</span>
+<span class="sd">            Dictionary of losses.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="c1"># second order systems dx_ddt = f(x, dx_dt, mu)</span>
@@ -217,13 +252,25 @@
     <span class="nd">@tf</span><span class="o">.</span><span class="n">function</span>
     <span class="k">def</span> <span class="nf">get_loss</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">dz_dt</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">z_int</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mu_int</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        calculate loss for first order system</span>
-<span class="sd">        :param z: array-like of shape (n_samples, n_features), full state</span>
-<span class="sd">        :param dz_dt: array-like of shape (n_samples, n_features), time derivative of state</span>
-<span class="sd">        :param mu: array-like of shape (n_samples, n_features), control input</span>
-<span class="sd">        :param z_int: array-like of shape (n_samples, n_features, n_integrationsteps), full state at {t+1,...,t+n_integrationsteps}</span>
-<span class="sd">        :param mu_int: array-like of shape (n_samples, n_param, n_integrationsteps), control input at {t+1,...,t+n_integrationsteps}</span>
-<span class="sd">        :return: dz_loss, int_loss, losses: individual losses</span>
+<span class="sd">        Calculate loss for first order system.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        z : array-like</span>
+<span class="sd">            Full state.</span>
+<span class="sd">        dz_dt : array-like</span>
+<span class="sd">            Time derivative of state.</span>
+<span class="sd">        mu : array-like</span>
+<span class="sd">            Control input.</span>
+<span class="sd">        z_int : array-like, optional</span>
+<span class="sd">            Full state at future time steps (default is None).</span>
+<span class="sd">        mu_int : array-like, optional</span>
+<span class="sd">            Control input at future time steps (default is None).</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        dict</span>
+<span class="sd">            Dictionary of losses.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">losses</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">loss</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 
@@ -265,15 +312,29 @@
         <span class="bp">self</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">dz_dt</span><span class="p">,</span> <span class="n">dz_ddt</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">z_int</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dz_dt_int</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mu_int</span><span class="o">=</span><span class="kc">None</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        calculate loss for second order system</span>
-<span class="sd">        :param x: array-like of shape (n_samples, n_features), full state</span>
-<span class="sd">        :param dz_dt: array-like of shape (n_samples, n_features), time derivative of state</span>
-<span class="sd">        :param dz_ddt: array-like of shape (n_samples, n_features), second time derivative of state</span>
-<span class="sd">        :param mu: array-like of shape (n_samples, n_param), control input</span>
-<span class="sd">        :param z_int: array-like of shape (n_samples, n_features, n_integrationsteps), full state at {t+1,...,t+n_integrationsteps}</span>
-<span class="sd">        :param dz_dt_int: array-like of shape (n_samples, n_features, n_integrationsteps), time derivative of state at {t+1,...,t+n_integrationsteps}</span>
-<span class="sd">        :param mu_int: array-like of shape (n_samples, n_param, n_integrationsteps), control input at {t+1,...,t+n_integrationsteps}</span>
-<span class="sd">        :return: rec_loss, dz_loss, dx_loss, int_loss, loss: individual losses</span>
+<span class="sd">        Calculate loss for second order system.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        z : array-like</span>
+<span class="sd">            Full state.</span>
+<span class="sd">        dz_dt : array-like</span>
+<span class="sd">            Time derivative of state.</span>
+<span class="sd">        dz_ddt : array-like</span>
+<span class="sd">            Second time derivative of state.</span>
+<span class="sd">        mu : array-like</span>
+<span class="sd">            Control input.</span>
+<span class="sd">        z_int : array-like, optional</span>
+<span class="sd">            Full state at future time steps (default is None).</span>
+<span class="sd">        dz_dt_int : array-like, optional</span>
+<span class="sd">            Time derivative of state at future time steps (default is None).</span>
+<span class="sd">        mu_int : array-like, optional</span>
+<span class="sd">            Control input at future time steps (default is None).</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        dict</span>
+<span class="sd">            Dictionary of losses.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">losses</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">loss</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 

@@ -10,9 +10,8 @@ import os
 import sys
 # sys.path.insert(0, os.path.abspath(os.path.join('..', '..', 'vindy')))
 # sys.path.insert(0, os.path.abspath(os.path.join('..', 'vindy')))
-src_path = os.path.abspath(os.path.join('..', '..', '..', 'vindy'))
+src_path = os.path.abspath(os.path.join('..', '..', '..'))
 sys.path.insert(0, src_path)
-sys.path.insert(0, os.path.abspath(os.path.join('..', '..', '..', 'vindy', 'distributions')))
 # sys.path.insert(0, os.path.abspath(os.path.join('..', '..', 'vindy', 'distributions')))
 print(src_path)
 
@@ -24,7 +23,11 @@ release = '0.1.7'
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
-extensions = ["sphinx.ext.todo", "sphinx.ext.viewcode", "sphinx.ext.autodoc", 'sphinx.ext.napoleon',
+extensions = ["sphinx.ext.todo",
+              "sphinx.ext.viewcode",
+              'sphinx.ext.autodoc',
+              'sphinx.ext.napoleon',
+              # 'numpydoc',
               'myst_parser']
 
 templates_path = ['_templates']
@@ -40,3 +43,10 @@ add_module_names = False
 
 html_theme = 'sphinx_rtd_theme'
 html_static_path = ['_static']
+
+# Napoleon settings
+napoleon_google_docstring = False
+napoleon_numpy_docstring = True
+
+# Numpydoc settings
+numpydoc_show_class_members = False

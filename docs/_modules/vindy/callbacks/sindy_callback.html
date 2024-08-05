@@ -43,7 +43,7 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../vindy.html">vindy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../vindy.html">vindy package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../contact.html">Contact</a></li>
 </ul>
 
@@ -81,6 +81,9 @@
 <div class="viewcode-block" id="SindyCallback">
 <a class="viewcode-back" href="../../../vindy.callbacks.html#vindy.callbacks.sindy_callback.SindyCallback">[docs]</a>
 <span class="k">class</span> <span class="nc">SindyCallback</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">callbacks</span><span class="o">.</span><span class="n">Callback</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Callback for the SINDy layer. This callback is used to update the identified coefficients of the SINDy layer.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -102,21 +105,42 @@
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Callback for the SINDy layer. This callback is used to update the identified coefficients of the SINDy layer</span>
-<span class="sd">        :param x: training data</span>
-<span class="sd">        :param dxdt: time derivative of training data</span>
-<span class="sd">        :param dxddt: second order time derivative of training data</span>
-<span class="sd">        :param mu: parameter of the system</span>
-<span class="sd">        :param t: time</span>
-<span class="sd">        :param freq: frequency of the update</span>
-<span class="sd">        :param threshold: threshold for the update</span>
-<span class="sd">        :param threshholder: Regularization function to use. Currently implemented options are</span>
-<span class="sd">                ‘l0’ (l0 norm), ‘l1’ (l1 norm), ‘l2’ (l2 norm), ‘cad’ (clipped absolute deviation),</span>
-<span class="sd">                ‘weighted_l0’ (weighted l0 norm), ‘weighted_l1’ (weighted l1 norm), and ‘weighted_l2’ (weighted l2 norm).</span>
-<span class="sd">        :param z_names: names of the latent variables</span>
-<span class="sd">        :param mu_names: names of the parameters</span>
-<span class="sd">        :param print_precision: precision of the printed model equation</span>
-<span class="sd">        :param kwargs:</span>
+<span class="sd">        Initialize the SINDy callback.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        x : array-like</span>
+<span class="sd">            Training data.</span>
+<span class="sd">        dxdt : array-like</span>
+<span class="sd">            Time derivative of training data.</span>
+<span class="sd">        dxddt : array-like</span>
+<span class="sd">            Second order time derivative of training data.</span>
+<span class="sd">        mu : array-like</span>
+<span class="sd">            Parameter of the system.</span>
+<span class="sd">        t : array-like</span>
+<span class="sd">            Time.</span>
+<span class="sd">        freq : int, optional</span>
+<span class="sd">            Frequency of the update (default is 100).</span>
+<span class="sd">        train_end : bool, optional</span>
+<span class="sd">            Whether to perform update at the end of training (default is False).</span>
+<span class="sd">        ensemble : bool, optional</span>
+<span class="sd">            Whether to use ensemble method for SINDy (default is False).</span>
+<span class="sd">        subset_size : float, optional</span>
+<span class="sd">            Size of the subset for ensemble method (default is 0.5).</span>
+<span class="sd">        n_subsets : int, optional</span>
+<span class="sd">            Number of subsets for ensemble method (default is 100).</span>
+<span class="sd">        threshold : float, optional</span>
+<span class="sd">            Threshold for the update (default is 0.1).</span>
+<span class="sd">        thresholder : str, optional</span>
+<span class="sd">            Regularization function to use (default is &quot;l0&quot;).</span>
+<span class="sd">        z_names : list of str, optional</span>
+<span class="sd">            Names of the latent variables (default is None).</span>
+<span class="sd">        mu_names : list of str, optional</span>
+<span class="sd">            Names of the parameters (default is None).</span>
+<span class="sd">        print_precision : int, optional</span>
+<span class="sd">            Precision of the printed model equation (default is 3).</span>
+<span class="sd">        kwargs : dict</span>
+<span class="sd">            Additional arguments.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">assert</span> <span class="p">(</span>
             <span class="nb">isinstance</span><span class="p">(</span><span class="n">subset_size</span><span class="p">,</span> <span class="nb">float</span><span class="p">)</span> <span class="ow">and</span> <span class="n">subset_size</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">subset_size</span> <span class="o">&lt;=</span> <span class="mi">1</span>
@@ -146,12 +170,23 @@
 <a class="viewcode-back" href="../../../vindy.callbacks.html#vindy.callbacks.sindy_callback.SindyCallback.prepare_data_for_pysindy">[docs]</a>
     <span class="k">def</span> <span class="nf">prepare_data_for_pysindy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">z_feat</span><span class="p">,</span> <span class="n">dzdt</span><span class="p">,</span> <span class="n">dzddt</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        prepare training data for the seperate sindy sindy_model</span>
-<span class="sd">        :param z_feat:</span>
-<span class="sd">        :param dzdt:</span>
-<span class="sd">        :param dzddt:</span>
-<span class="sd">        :param t:</span>
-<span class="sd">        :return:</span>
+<span class="sd">        Prepare training data for the separate SINDy model.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        t : array-like</span>
+<span class="sd">            Time.</span>
+<span class="sd">        z_feat : array-like</span>
+<span class="sd">            Latent variables and their features.</span>
+<span class="sd">        dzdt : array-like</span>
+<span class="sd">            Time derivative of latent variables.</span>
+<span class="sd">        dzddt : array-like, optional</span>
+<span class="sd">            Second time derivative of latent variables (default is None).</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        tuple</span>
+<span class="sd">            Prepared latent variables, their time derivatives, and time.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">n_samples</span> <span class="o">=</span> <span class="n">z_feat</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="n">n_timesteps</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
@@ -171,6 +206,14 @@
 <div class="viewcode-block" id="SindyCallback.process_data_for_sindy">
 <a class="viewcode-back" href="../../../vindy.callbacks.html#vindy.callbacks.sindy_callback.SindyCallback.process_data_for_sindy">[docs]</a>
     <span class="k">def</span> <span class="nf">process_data_for_sindy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Process data for SINDy optimization.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        tuple</span>
+<span class="sd">            Processed latent variables, their time derivatives, time, fixed coefficients, feature IDs, and mask.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># concatenate the input for the sindy layer</span>
         <span class="n">mu</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mu</span>
         <span class="c1"># calculate the time derivatives of the latent variable given the training data</span>
@@ -217,6 +260,9 @@
 <div class="viewcode-block" id="SindyCallback.perform_update">
 <a class="viewcode-back" href="../../../vindy.callbacks.html#vindy.callbacks.sindy_callback.SindyCallback.perform_update">[docs]</a>
     <span class="k">def</span> <span class="nf">perform_update</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Perform the SINDy update.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">z_feat</span><span class="p">,</span> <span class="n">z_dot</span><span class="p">,</span> <span class="n">times_train</span><span class="p">,</span> <span class="n">fixed_coeffs</span><span class="p">,</span> <span class="n">feat_ids</span><span class="p">,</span> <span class="n">mask</span> <span class="o">=</span> <span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">process_data_for_sindy</span><span class="p">()</span>
         <span class="p">)</span>
@@ -256,6 +302,16 @@
 <div class="viewcode-block" id="SindyCallback.update_weights">
 <a class="viewcode-back" href="../../../vindy.callbacks.html#vindy.callbacks.sindy_callback.SindyCallback.update_weights">[docs]</a>
     <span class="k">def</span> <span class="nf">update_weights</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">weights</span><span class="p">,</span> <span class="n">variance</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Update the weights of the SINDy layer.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        weights : array-like</span>
+<span class="sd">            Weights to update.</span>
+<span class="sd">        variance : array-like, optional</span>
+<span class="sd">            Variance of the weights (default is None).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># %% set the weights of the original sindy_model to the weights of the seperate sindy sindy_model</span>
         <span class="c1"># check if weights contain nan or inf values</span>
 
@@ -296,6 +352,29 @@
 <div class="viewcode-block" id="SindyCallback.call_pySINDy">
 <a class="viewcode-back" href="../../../vindy.callbacks.html#vindy.callbacks.sindy_callback.SindyCallback.call_pySINDy">[docs]</a>
     <span class="k">def</span> <span class="nf">call_pySINDy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">z_feat</span><span class="p">,</span> <span class="n">z_dot</span><span class="p">,</span> <span class="n">times_train</span><span class="p">,</span> <span class="n">fixed_coeffs</span><span class="p">,</span> <span class="n">feat_ids</span><span class="p">,</span> <span class="n">mask</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Fit a separate SINDy model using the provided data and constraints.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        z_feat : list of array-like</span>
+<span class="sd">            Latent variables and their features.</span>
+<span class="sd">        z_dot : list of array-like</span>
+<span class="sd">            Time derivatives of latent variables.</span>
+<span class="sd">        times_train : array-like</span>
+<span class="sd">            Time.</span>
+<span class="sd">        fixed_coeffs : array-like</span>
+<span class="sd">            Fixed coefficients for the SINDy model.</span>
+<span class="sd">        feat_ids : array-like</span>
+<span class="sd">            IDs of the selected features.</span>
+<span class="sd">        mask : array-like</span>
+<span class="sd">            Mask specifying which features are used in the SINDy model.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        pysindy.SINDy</span>
+<span class="sd">            Fitted SINDy model.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># %% Define the constraints for the optimization of the seperate sindy sindy_model</span>
         <span class="c1"># we want to apply the same mask and fixed coefficients as in the original sindy_model</span>
         <span class="c1"># -&gt; rewrite the constraints for pysindy</span>
@@ -336,6 +415,14 @@
 <div class="viewcode-block" id="SindyCallback.on_train_end">
 <a class="viewcode-back" href="../../../vindy.callbacks.html#vindy.callbacks.sindy_callback.SindyCallback.on_train_end">[docs]</a>
     <span class="k">def</span> <span class="nf">on_train_end</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">logs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Perform SINDy update at the end of training if specified.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        logs : dict, optional</span>
+<span class="sd">            Dictionary of logs (default is None).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">train_end</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">sindylayer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">sindy_layer</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">perform_update</span><span class="p">()</span></div>
@@ -344,6 +431,16 @@
 <div class="viewcode-block" id="SindyCallback.on_epoch_end">
 <a class="viewcode-back" href="../../../vindy.callbacks.html#vindy.callbacks.sindy_callback.SindyCallback.on_epoch_end">[docs]</a>
     <span class="k">def</span> <span class="nf">on_epoch_end</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">epoch</span><span class="p">,</span> <span class="n">logs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Perform SINDy update at the end of every specified number of epochs.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        epoch : int</span>
+<span class="sd">            Current epoch number.</span>
+<span class="sd">        logs : dict, optional</span>
+<span class="sd">            Dictionary of logs (default is None).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># only perform sindy update every freq epochs</span>
         <span class="k">if</span> <span class="p">(</span><span class="n">epoch</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">freq</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">sindylayer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">sindy_layer</span>

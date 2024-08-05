@@ -46,22 +46,22 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
-<li class="toctree-l1 current"><a class="reference internal" href="vindy.html">vindy</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="vindy.callbacks.html">vindy.callbacks package</a></li>
-<li class="toctree-l2"><a class="reference internal" href="vindy.distributions.html">vindy.distributions package</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">vindy.layers package</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#module-vindy.layers.sindy_layer">Submodules</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#vindy.layers.sindy_layer.SindyLayer"><code class="docutils literal notranslate"><span class="pre">SindyLayer</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#vindy.layers.vindy_layer.LogVarL1L2Regularizer"><code class="docutils literal notranslate"><span class="pre">LogVarL1L2Regularizer</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#vindy.layers.vindy_layer.VindyLayer"><code class="docutils literal notranslate"><span class="pre">VindyLayer</span></code></a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="vindy.html">vindy package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="vindy.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="vindy.callbacks.html">vindy.callbacks package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="vindy.distributions.html">vindy.distributions package</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">vindy.layers package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-vindy.layers.sindy_layer">vindy.layers.sindy_layer module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-vindy.layers.vindy_layer">vindy.layers.vindy_layer module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-vindy.layers">Module contents</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="#module-vindy.layers">Module contents</a></li>
+<li class="toctree-l3"><a class="reference internal" href="vindy.libraries.html">vindy.libraries package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="vindy.networks.html">vindy.networks package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="vindy.utils.html">vindy.utils package</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="vindy.libraries.html">vindy.libraries package</a></li>
-<li class="toctree-l2"><a class="reference internal" href="vindy.networks.html">vindy.networks package</a></li>
-<li class="toctree-l2"><a class="reference internal" href="vindy.utils.html">vindy.utils package</a></li>
 <li class="toctree-l2"><a class="reference internal" href="vindy.html#module-vindy">Module contents</a></li>
 </ul>
 </li>
@@ -82,7 +82,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
-          <li class="breadcrumb-item"><a href="vindy.html">vindy</a></li>
+          <li class="breadcrumb-item"><a href="vindy.html">vindy package</a></li>
       <li class="breadcrumb-item active">vindy.layers package</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/vindy.layers.rst.txt" rel="nofollow"> View page source</a>
@@ -95,195 +95,496 @@
              
   <section id="vindy-layers-package">
 <h1>vindy.layers package<a class="headerlink" href="#vindy-layers-package" title="Link to this heading"></a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
+</section>
 <section id="module-vindy.layers.sindy_layer">
-<span id="submodules"></span><h2>Submodules<a class="headerlink" href="#module-vindy.layers.sindy_layer" title="Link to this heading"></a></h2>
+<span id="vindy-layers-sindy-layer-module"></span><h2>vindy.layers.sindy_layer module<a class="headerlink" href="#module-vindy.layers.sindy_layer" title="Link to this heading"></a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="vindy.layers.sindy_layer.SindyLayer">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">SindyLayer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vindy/layers/sindy_layer.html#SindyLayer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vindy.layers.sindy_layer.SindyLayer" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Layer</span></code></p>
+<p>Layer for SINDy approximation of the time derivative of the latent variable.
+Feature libraries are applied to the latent variable and its time derivative, and a sparse regression is performed.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>state_dim</strong> (<em>int</em>) – Number of latent variables.</p></li>
+<li><p><strong>param_dim</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of parameters (default is 0).</p></li>
+<li><p><strong>feature_libraries</strong> (<em>list</em><em>, </em><em>optional</em>) – List of feature libraries for the latent variables (default is [PolynomialLibrary(degree=3)]).</p></li>
+<li><p><strong>param_feature_libraries</strong> (<em>list</em><em>, </em><em>optional</em>) – List of feature libraries for the parameters (default is []).</p></li>
+<li><p><strong>second_order</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, enforce 2nd order structure (default is True).</p></li>
+<li><p><strong>kernel_regularizer</strong> (<em>tf.keras.regularizers.Regularizer</em><em>, </em><em>optional</em>) – Regularizer for the kernel (default is tf.keras.regularizers.L1L2(l1=1e-3, l2=0)).</p></li>
+<li><p><strong>x_mu_interaction</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, interaction between latent variables and parameters (default is True).</p></li>
+<li><p><strong>mask</strong> (<em>array-like</em><em>, </em><em>optional</em>) – If required, certain coefficients of the latent governing equations can be fixed and are consequently masked out for training (default is None).</p></li>
+<li><p><strong>fixed_coeffs</strong> (<em>array-like</em><em>, </em><em>optional</em>) – Values for the coefficients that are masked out during training (default is None).</p></li>
+<li><p><strong>dtype</strong> (<em>str</em><em>, </em><em>optional</em>) – Data type of the layer (default is “float32”).</p></li>
+<li><p><strong>kwargs</strong> (<em>dict</em>) – Additional arguments for the TensorFlow layer class.</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="vindy.layers.sindy_layer.SindyLayer.assert_arguments">
 <span class="sig-name descname"><span class="pre">assert_arguments</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">arguments</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vindy/layers/sindy_layer.html#SindyLayer.assert_arguments"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vindy.layers.sindy_layer.SindyLayer.assert_arguments" title="Link to this definition"></a></dt>
-<dd><p>Asserts that the arguments passed to the layer are valid
-:param arguments:
-:return:</p>
+<dd><p>Assert that the arguments passed to the layer are valid.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>arguments</strong> (<em>dict</em>) – Arguments passed to the layer.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="vindy.layers.sindy_layer.SindyLayer.call">
 <span class="sig-name descname"><span class="pre">call</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">training</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vindy/layers/sindy_layer.html#SindyLayer.call"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vindy.layers.sindy_layer.SindyLayer.call" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Perform the forward pass of the SINDy layer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>inputs</strong> (<em>tf.Tensor</em>) – Input tensor.</p></li>
+<li><p><strong>training</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether the layer is in training mode (default is False).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Output tensor after applying the SINDy layer.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tf.Tensor</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="vindy.layers.sindy_layer.SindyLayer.coefficient_matrix_shape">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">coefficient_matrix_shape</span></span><a class="headerlink" href="#vindy.layers.sindy_layer.SindyLayer.coefficient_matrix_shape" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Returns the shape of the coefficient matrix.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Shape of the coefficient matrix.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>tuple</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="vindy.layers.sindy_layer.SindyLayer.concat_features">
 <span class="sig-name descname"><span class="pre">concat_features</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">z</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">libraries</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vindy/layers/sindy_layer.html#SindyLayer.concat_features"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vindy.layers.sindy_layer.SindyLayer.concat_features" title="Link to this definition"></a></dt>
-<dd><p>concatenate features from different libraries
-:param z: input
-:param libraries: list of libraries</p>
+<dd><p>Concatenate features from different libraries.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>z</strong> (<em>tf.Tensor</em>) – Input tensor.</p></li>
+<li><p><strong>libraries</strong> (<em>list</em>) – List of feature libraries.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Concatenated features.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tf.Tensor</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="vindy.layers.sindy_layer.SindyLayer.fill_coefficient_matrix">
 <span class="sig-name descname"><span class="pre">fill_coefficient_matrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trainable_coeffs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vindy/layers/sindy_layer.html#SindyLayer.fill_coefficient_matrix"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vindy.layers.sindy_layer.SindyLayer.fill_coefficient_matrix" title="Link to this definition"></a></dt>
-<dd><p>fill the coefficient matrix with the trainable coefficients
-:param trainable_coeffs: (array-like) trainable coefficients
-:return:</p>
+<dd><p>Fill the coefficient matrix with the trainable coefficients.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>trainable_coeffs</strong> (<em>array-like</em>) – Trainable coefficients.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Coefficient matrix filled with the trainable coefficients.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tf.Tensor</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="vindy.layers.sindy_layer.SindyLayer.get_feature_names">
 <span class="sig-name descname"><span class="pre">get_feature_names</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">z</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mu</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vindy/layers/sindy_layer.html#SindyLayer.get_feature_names"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vindy.layers.sindy_layer.SindyLayer.get_feature_names" title="Link to this definition"></a></dt>
-<dd><p>construct features names for states and parameters
-:param z: (list of strings) names of the states, e.g. [‘z1’, ‘z2’, …]
-:param mu: (list of strings) names of the parameters, e.g. [‘mu1’, ‘mu2’, …]
-:return:</p>
+<dd><p>Construct feature names for states and parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>z</strong> (<em>list</em><em> of </em><em>str</em><em>, </em><em>optional</em>) – Names of the states, e.g., [‘z1’, ‘z2’, …] (default is None).</p></li>
+<li><p><strong>mu</strong> (<em>list</em><em> of </em><em>str</em><em>, </em><em>optional</em>) – Names of the parameters, e.g., [‘mu1’, ‘mu2’, …] (default is None).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>List of feature names.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list of str</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="vindy.layers.sindy_layer.SindyLayer.get_prunable_weights">
 <span class="sig-name descname"><span class="pre">get_prunable_weights</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/vindy/layers/sindy_layer.html#SindyLayer.get_prunable_weights"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vindy.layers.sindy_layer.SindyLayer.get_prunable_weights" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Get the prunable weights of the SINDy layer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>List of prunable weights.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="vindy.layers.sindy_layer.SindyLayer.get_sindy_coeffs">
 <span class="sig-name descname"><span class="pre">get_sindy_coeffs</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/vindy/layers/sindy_layer.html#SindyLayer.get_sindy_coeffs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vindy.layers.sindy_layer.SindyLayer.get_sindy_coeffs" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Get the SINDy coefficients as a numpy array.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>SINDy coefficients.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="vindy.layers.sindy_layer.SindyLayer.init_weigths">
 <span class="sig-name descname"><span class="pre">init_weigths</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">kernel_regularizer</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vindy/layers/sindy_layer.html#SindyLayer.init_weigths"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vindy.layers.sindy_layer.SindyLayer.init_weigths" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Initialize the weights of the SINDy layer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>kernel_regularizer</strong> (<em>tf.keras.regularizers.Regularizer</em>) – Regularizer for the kernel.</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="vindy.layers.sindy_layer.SindyLayer.kernel_shape">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">kernel_shape</span></span><a class="headerlink" href="#vindy.layers.sindy_layer.SindyLayer.kernel_shape" title="Link to this definition"></a></dt>
-<dd><p>Returns the dimension of the kernel (weights) of the SINDy layer
-:return:</p>
+<dd><p>Returns the dimension of the kernel (weights) of the SINDy layer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Shape of the kernel.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>tuple</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="vindy.layers.sindy_layer.SindyLayer.loss_trackers">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">loss_trackers</span></span><a class="headerlink" href="#vindy.layers.sindy_layer.SindyLayer.loss_trackers" title="Link to this definition"></a></dt>
-<dd><p>Returns the loss trackers of the layer if any. The standard sindy layer has no loss trackers.
-:return:</p>
+<dd><p>Returns the loss trackers of the layer if any. The standard sindy layer has no loss trackers.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Loss trackers.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="vindy.layers.sindy_layer.SindyLayer.model_equation_to_str">
 <span class="sig-name descname"><span class="pre">model_equation_to_str</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">z</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mu</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">precision</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">3</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vindy/layers/sindy_layer.html#SindyLayer.model_equation_to_str"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vindy.layers.sindy_layer.SindyLayer.model_equation_to_str" title="Link to this definition"></a></dt>
-<dd><p>convert coefficients and feature names into a readble equation
-:param z:  (list of strings) names of the states, e.g. [‘z1’, ‘z2’, …]
-:param mu: (list of strings) names of the parameters, e.g. [‘mu1’, ‘mu2’, …]
-:param precision: (int) number of decimal places
-:return:</p>
+<dd><p>Convert coefficients and feature names into a readable equation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>z</strong> (<em>list</em><em> of </em><em>str</em><em>, </em><em>optional</em>) – Names of the states, e.g., [‘z1’, ‘z2’, …] (default is None).</p></li>
+<li><p><strong>mu</strong> (<em>list</em><em> of </em><em>str</em><em>, </em><em>optional</em>) – Names of the parameters, e.g., [‘mu1’, ‘mu2’, …] (default is None).</p></li>
+<li><p><strong>precision</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of decimal places (default is 3).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Model equation as a string.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="vindy.layers.sindy_layer.SindyLayer.print">
 <span class="sig-name descname"><span class="pre">print</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">z</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mu</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">precision</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">3</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vindy/layers/sindy_layer.html#SindyLayer.print"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vindy.layers.sindy_layer.SindyLayer.print" title="Link to this definition"></a></dt>
-<dd><p>print the model equation
-:param z: (list of strings) names of the states, e.g. [‘z1’, ‘z2’, …]
-:param mu: (list of strings) names of the parameters, e.g. [‘mu1’, ‘mu2’, …]
-:param precision: (int) number of decimal places
-:return:</p>
+<dd><p>Print the model equation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>z</strong> (<em>list</em><em> of </em><em>str</em><em>, </em><em>optional</em>) – Names of the states, e.g., [‘z1’, ‘z2’, …] (default is None).</p></li>
+<li><p><strong>mu</strong> (<em>list</em><em> of </em><em>str</em><em>, </em><em>optional</em>) – Names of the parameters, e.g., [‘mu1’, ‘mu2’, …] (default is None).</p></li>
+<li><p><strong>precision</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of decimal places (default is 3).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="vindy.layers.sindy_layer.SindyLayer.prune_weights">
 <span class="sig-name descname"><span class="pre">prune_weights</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">training</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vindy/layers/sindy_layer.html#SindyLayer.prune_weights"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vindy.layers.sindy_layer.SindyLayer.prune_weights" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Prune the weights of the SINDy layer by setting values below a threshold to zero.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>threshold</strong> (<em>float</em><em>, </em><em>optional</em>) – Threshold for pruning (default is 0.01).</p></li>
+<li><p><strong>training</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether the layer is in training mode (default is False).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="vindy.layers.sindy_layer.SindyLayer.set_mask">
 <span class="sig-name descname"><span class="pre">set_mask</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mask</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed_coeffs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vindy/layers/sindy_layer.html#SindyLayer.set_mask"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vindy.layers.sindy_layer.SindyLayer.set_mask" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Set the mask and fixed coefficients for the SINDy layer to mask out certain coefficients and set their values.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mask</strong> (<em>array-like</em><em> or </em><em>None</em>) – Mask for the coefficients. If None, a mask of ones is used.</p></li>
+<li><p><strong>fixed_coeffs</strong> (<em>array-like</em><em> or </em><em>None</em><em>, </em><em>optional</em>) – Fixed coefficients for the masked values. If None, a matrix of zeros is used.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A tuple containing the mask and fixed coefficients.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="vindy.layers.sindy_layer.SindyLayer.tfFeat">
 <span class="sig-name descname"><span class="pre">tfFeat</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vindy/layers/sindy_layer.html#SindyLayer.tfFeat"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vindy.layers.sindy_layer.SindyLayer.tfFeat" title="Link to this definition"></a></dt>
-<dd><p>combine all features
-:param inputs:
-:return:</p>
+<dd><p>Combine all features for the SINDy layer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>inputs</strong> (<em>tf.Tensor</em>) – Input tensor.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Combined features.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tf.Tensor</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
 
-<dl class="py class" id="module-vindy.layers.vindy_layer">
+</section>
+<section id="module-vindy.layers.vindy_layer">
+<span id="vindy-layers-vindy-layer-module"></span><h2>vindy.layers.vindy_layer module<a class="headerlink" href="#module-vindy.layers.vindy_layer" title="Link to this heading"></a></h2>
+<dl class="py class">
 <dt class="sig sig-object py" id="vindy.layers.vindy_layer.LogVarL1L2Regularizer">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">LogVarL1L2Regularizer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">l1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">l2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vindy/layers/vindy_layer.html#LogVarL1L2Regularizer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vindy.layers.vindy_layer.LogVarL1L2Regularizer" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Regularizer</span></code></p>
-<p>Regularizer for the log variance of the coefficients in the VINDy layer</p>
+<p>Regularizer for the log variance of the coefficients in the VINDy layer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>l1</strong> (<em>float</em><em>, </em><em>optional</em>) – L1 regularization factor (default is 0.0).</p></li>
+<li><p><strong>l2</strong> (<em>float</em><em>, </em><em>optional</em>) – L2 regularization factor (default is 0.0).</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="vindy.layers.vindy_layer.VindyLayer">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">VindyLayer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vindy/layers/vindy_layer.html#VindyLayer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vindy.layers.vindy_layer.VindyLayer" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#vindy.layers.sindy_layer.SindyLayer" title="vindy.layers.sindy_layer.SindyLayer"><code class="xref py py-class docutils literal notranslate"><span class="pre">SindyLayer</span></code></a></p>
+<p>Layer for variational identification of nonlinear dynamics (VINDy) approximation of the
+time derivative of the latent variable. Feature libraries are applied to the latent variables and a
+(sparse) variational inference is performed to obtain the coefficients.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>beta</strong> (<em>float</em>) – Scaling factor for the KL divergence.</p></li>
+<li><p><strong>priors</strong> (<a class="reference internal" href="vindy.distributions.html#vindy.distributions.base_distribution.BaseDistribution" title="vindy.distributions.base_distribution.BaseDistribution"><em>BaseDistribution</em></a><em> or </em><em>list</em><em> of </em><a class="reference internal" href="vindy.distributions.html#vindy.distributions.base_distribution.BaseDistribution" title="vindy.distributions.base_distribution.BaseDistribution"><em>BaseDistribution</em></a>) – Prior distribution(s) for the coefficients.</p></li>
+<li><p><strong>kwargs</strong> (<em>dict</em>) – Additional keyword arguments.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="vindy.layers.vindy_layer.VindyLayer.priors">
+<span class="sig-name descname"><span class="pre">priors</span></span><a class="headerlink" href="#vindy.layers.vindy_layer.VindyLayer.priors" title="Link to this definition"></a></dt>
+<dd><p>Prior distribution(s) for the coefficients.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="vindy.distributions.html#vindy.distributions.base_distribution.BaseDistribution" title="vindy.distributions.base_distribution.BaseDistribution">BaseDistribution</a> or list of <a class="reference internal" href="vindy.distributions.html#vindy.distributions.base_distribution.BaseDistribution" title="vindy.distributions.base_distribution.BaseDistribution">BaseDistribution</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="vindy.layers.vindy_layer.VindyLayer.beta">
+<span class="sig-name descname"><span class="pre">beta</span></span><a class="headerlink" href="#vindy.layers.vindy_layer.VindyLayer.beta" title="Link to this definition"></a></dt>
+<dd><p>Scaling factor for the KL divergence.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="vindy.layers.vindy_layer.VindyLayer.kl_loss_tracker">
+<span class="sig-name descname"><span class="pre">kl_loss_tracker</span></span><a class="headerlink" href="#vindy.layers.vindy_layer.VindyLayer.kl_loss_tracker" title="Link to this definition"></a></dt>
+<dd><p>Tracker for the KL divergence loss.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tf.keras.metrics.Mean</p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="vindy.layers.vindy_layer.VindyLayer.assert_additional_args">
 <span class="sig-name descname"><span class="pre">assert_additional_args</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">beta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">priors</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vindy/layers/vindy_layer.html#VindyLayer.assert_additional_args"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vindy.layers.vindy_layer.VindyLayer.assert_additional_args" title="Link to this definition"></a></dt>
-<dd><p>Asserts that the additional arguments are valid
-:param beta:
-:param priors:
-:return:</p>
+<dd><p>Assert that the additional arguments are valid.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>beta</strong> (<em>float</em><em> or </em><em>int</em>) – Scaling factor for the KL divergence.</p></li>
+<li><p><strong>priors</strong> (<a class="reference internal" href="vindy.distributions.html#vindy.distributions.base_distribution.BaseDistribution" title="vindy.distributions.base_distribution.BaseDistribution"><em>BaseDistribution</em></a><em> or </em><em>list</em><em> of </em><a class="reference internal" href="vindy.distributions.html#vindy.distributions.base_distribution.BaseDistribution" title="vindy.distributions.base_distribution.BaseDistribution"><em>BaseDistribution</em></a>) – Prior distribution(s) for the coefficients.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="vindy.layers.vindy_layer.VindyLayer.call">
 <span class="sig-name descname"><span class="pre">call</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">training</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vindy/layers/vindy_layer.html#VindyLayer.call"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vindy.layers.vindy_layer.VindyLayer.call" title="Link to this definition"></a></dt>
-<dd><p>Applies the VINDy layer to the arguments, i.e. applies the feature libraries to the arguments,
-samples the coefficients from a normal distribution parametrized by the layer’s kernel (weights) and
-computes the dot product of the features and the coefficients
-:param inputs:
-:param training:
-:return:</p>
+<dd><p>Apply the VINDy layer to the inputs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>inputs</strong> (<em>tf.Tensor</em>) – Input tensor.</p></li>
+<li><p><strong>training</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether the layer is in training mode (default is False).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Output tensor after applying the VINDy layer. If training, returns a list containing the output tensor,
+mean, and log variance.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tf.Tensor or list</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="vindy.layers.vindy_layer.VindyLayer.get_sindy_coeffs">
 <span class="sig-name descname"><span class="pre">get_sindy_coeffs</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/vindy/layers/vindy_layer.html#VindyLayer.get_sindy_coeffs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vindy.layers.vindy_layer.VindyLayer.get_sindy_coeffs" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Get the SINDy coefficients as a numpy array.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>SINDy coefficients.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="vindy.layers.vindy_layer.VindyLayer.init_weigths">
 <span class="sig-name descname"><span class="pre">init_weigths</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">kernel_regularizer</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vindy/layers/vindy_layer.html#VindyLayer.init_weigths"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vindy.layers.vindy_layer.VindyLayer.init_weigths" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Initialize the weights of the VINDy layer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>kernel_regularizer</strong> (<em>tf.keras.regularizers.Regularizer</em>) – Regularizer for the kernel weights.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="vindy.layers.vindy_layer.VindyLayer.kl_loss">
 <span class="sig-name descname"><span class="pre">kl_loss</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mean</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vindy/layers/vindy_layer.html#VindyLayer.kl_loss"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vindy.layers.vindy_layer.VindyLayer.kl_loss" title="Link to this definition"></a></dt>
-<dd><p>Computes the KL divergence between the priors and the coefficient distributions of the VINDy layer
-:param mean:
-:param scale:
-:return:</p>
+<dd><p>Compute the KL divergence between the priors and the coefficient distributions of the VINDy layer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mean</strong> (<em>tf.Tensor</em>) – Mean of the coefficient distributions.</p></li>
+<li><p><strong>scale</strong> (<em>tf.Tensor</em>) – Scale of the coefficient distributions.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>KL divergence loss.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tf.Tensor</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="vindy.layers.vindy_layer.VindyLayer.loss_trackers">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">loss_trackers</span></span><a class="headerlink" href="#vindy.layers.vindy_layer.VindyLayer.loss_trackers" title="Link to this definition"></a></dt>
-<dd><p>Returns the loss trackers of the layer if any. The standard sindy layer has no loss trackers.
-:return:</p>
+<dd><p>Get the loss trackers.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dictionary of loss trackers.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="vindy.layers.vindy_layer.VindyLayer.pdf_thresholding">
 <span class="sig-name descname"><span class="pre">pdf_thresholding</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">threshold</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vindy/layers/vindy_layer.html#VindyLayer.pdf_thresholding"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vindy.layers.vindy_layer.VindyLayer.pdf_thresholding" title="Link to this definition"></a></dt>
 <dd><p>Cancel the coefficients of the SINDy layer if their corresponding probability density function at zero is above
-the threshold, i.e. if pdf(0) &gt; threshold
-:param threshold:
-:return:</p>
+the threshold, i.e., if pdf(0) &gt; threshold.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>threshold</strong> (<em>float</em><em>, </em><em>optional</em>) – Threshold for canceling coefficients (default is 1.0).</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="vindy.layers.vindy_layer.VindyLayer.visualize_coefficients">
 <span class="sig-name descname"><span class="pre">visualize_coefficients</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mu</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vindy/layers/vindy_layer.html#VindyLayer.visualize_coefficients"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vindy.layers.vindy_layer.VindyLayer.visualize_coefficients" title="Link to this definition"></a></dt>
-<dd><p>Visualizes the coefficients of the SINDy layer as distributions
-:return:</p>
+<dd><p>Visualize the coefficients of the SINDy layer as distributions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x_range</strong> (<em>tuple</em><em>, </em><em>optional</em>) – Range of x values for the plot (default is None).</p></li>
+<li><p><strong>z</strong> (<em>list</em><em> of </em><em>str</em><em>, </em><em>optional</em>) – Names of the states, e.g., [‘z1’, ‘z2’, …] (default is None).</p></li>
+<li><p><strong>mu</strong> (<em>list</em><em> of </em><em>str</em><em>, </em><em>optional</em>) – Names of the parameters, e.g., [‘mu1’, ‘mu2’, …] (default is None).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>

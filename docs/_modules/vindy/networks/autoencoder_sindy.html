@@ -43,7 +43,7 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../vindy.html">vindy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../vindy.html">vindy package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../contact.html">Contact</a></li>
 </ul>
 
@@ -106,19 +106,44 @@
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Model to discover low-dimensional dynamics of a high-dimensional system using autoencoders and SINDy</span>
-<span class="sd">        :param sindy_layer: Layer to identify the governing equatinos of the latent dynamics, must be a class inheriting</span>
-<span class="sd">            from SindyLayer</span>
-<span class="sd">        :param reduced_order: Order of the reduced model</span>
-<span class="sd">        :param x: Input data</span>
-<span class="sd">        :param y: Output data</span>
-<span class="sd">        :param l_1: l1 regularization factor for the autoencoder layers</span>
-<span class="sd">        :param l_2: l1 regularization factor for the autoencoder layers</span>
-<span class="sd">        :param l_rec: Weight of the reconstruction loss</span>
-<span class="sd">        :param l_dz: Weight of the derivative loss</span>
-<span class="sd">        :param l_dx: Weight of the derivative loss</span>
-<span class="sd">        :param l_int: Weight of the integration loss</span>
-<span class="sd">        :param kwargs:</span>
+<span class="sd">        Initialize the AutoencoderSindy model.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        sindy_layer : SindyLayer</span>
+<span class="sd">            Layer to identify the governing equations of the latent dynamics.</span>
+<span class="sd">        reduced_order : int</span>
+<span class="sd">            Order of the reduced model.</span>
+<span class="sd">        x : array-like</span>
+<span class="sd">            Input data.</span>
+<span class="sd">        mu : array-like, optional</span>
+<span class="sd">            Parameter data (default is None).</span>
+<span class="sd">        scaling : str, optional</span>
+<span class="sd">            Scaling method (default is &quot;individual&quot;).</span>
+<span class="sd">        layer_sizes : list of int, optional</span>
+<span class="sd">            Sizes of the layers in the encoder and decoder (default is [10, 10, 10]).</span>
+<span class="sd">        activation : str, optional</span>
+<span class="sd">            Activation function (default is &quot;selu&quot;).</span>
+<span class="sd">        second_order : bool, optional</span>
+<span class="sd">            Whether the system is second order (default is True).</span>
+<span class="sd">        l1 : float, optional</span>
+<span class="sd">            L1 regularization factor for the autoencoder layers (default is 0).</span>
+<span class="sd">        l2 : float, optional</span>
+<span class="sd">            L2 regularization factor for the autoencoder layers (default is 0).</span>
+<span class="sd">        l_rec : float, optional</span>
+<span class="sd">            Weight of the reconstruction loss (default is 1).</span>
+<span class="sd">        l_dz : float, optional</span>
+<span class="sd">            Weight of the derivative loss (default is 1).</span>
+<span class="sd">        l_dx : float, optional</span>
+<span class="sd">            Weight of the derivative loss (default is 1).</span>
+<span class="sd">        l_int : float, optional</span>
+<span class="sd">            Weight of the integration loss (default is 0).</span>
+<span class="sd">        dt : float, optional</span>
+<span class="sd">            Time step (default is 0).</span>
+<span class="sd">        dtype : str, optional</span>
+<span class="sd">            Data type (default is &quot;float32&quot;).</span>
+<span class="sd">        kwargs : dict</span>
+<span class="sd">            Additional arguments.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="c1"># assert that input arguments are valid</span>
@@ -199,6 +224,9 @@
 <div class="viewcode-block" id="AutoencoderSindy.create_loss_trackers">
 <a class="viewcode-back" href="../../../vindy.networks.html#vindy.networks.autoencoder_sindy.AutoencoderSindy.create_loss_trackers">[docs]</a>
     <span class="k">def</span> <span class="nf">create_loss_trackers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create loss trackers for the model.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">loss_trackers</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">loss_trackers</span><span class="p">[</span><span class="s2">&quot;loss&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">Mean</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;loss&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">loss_trackers</span><span class="p">[</span><span class="s2">&quot;rec&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">Mean</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;rec&quot;</span><span class="p">)</span>
@@ -224,13 +252,18 @@
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        wrapper for the compile function of the keras model to enable the use of a different optimizers for different</span>
-<span class="sd">        parts of the model</span>
-<span class="sd">        :param optimizer: tf.keras.optimizers object, optimizer for the autoencoder</span>
-<span class="sd">        :param loss: tf.keras.losses object, loss function for the autoencoder</span>
-<span class="sd">        :param sindy_optimizer: tf.keras.optimizers object, optimizer for the SINDy part of the model</span>
-<span class="sd">        :param kwargs: additional kwargs for the compile function</span>
-<span class="sd">        :return:</span>
+<span class="sd">        Wrapper for the compile function of the keras model to enable the use of different optimizers for different parts of the model.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        optimizer : tf.keras.optimizers.Optimizer, optional</span>
+<span class="sd">            Optimizer for the autoencoder (default is Adam with learning rate 1e-3).</span>
+<span class="sd">        loss : tf.keras.losses.Loss, optional</span>
+<span class="sd">            Loss function for the autoencoder (default is BinaryCrossentropy).</span>
+<span class="sd">        sindy_optimizer : tf.keras.optimizers.Optimizer, optional</span>
+<span class="sd">            Optimizer for the SINDy part of the model (default is None).</span>
+<span class="sd">        kwargs : dict</span>
+<span class="sd">            Additional arguments for the compile function.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">AutoencoderSindy</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">optimizer</span><span class="o">=</span><span class="n">optimizer</span><span class="p">,</span> <span class="n">loss</span><span class="o">=</span><span class="n">loss</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">sindy_optimizer</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -248,10 +281,19 @@
     <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">reconstruction_loss</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">x_pred</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        calculate the reconstruction loss</span>
-<span class="sd">        :param x: array-like of shape (n_samples, n_features)</span>
-<span class="sd">        :param x_pred: array-like of shape (n_samples, n_features)</span>
-<span class="sd">        :return:</span>
+<span class="sd">        Calculate the reconstruction loss.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        x : array-like of shape (n_samples, n_features)</span>
+<span class="sd">            Original input data.</span>
+<span class="sd">        x_pred : array-like of shape (n_samples, n_features)</span>
+<span class="sd">            Reconstructed input data.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        tf.Tensor</span>
+<span class="sd">            Reconstruction loss.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_mean</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="n">x_pred</span><span class="p">))</span></div>
 
@@ -260,8 +302,12 @@
 <a class="viewcode-back" href="../../../vindy.networks.html#vindy.networks.autoencoder_sindy.AutoencoderSindy.get_trainable_weights">[docs]</a>
     <span class="k">def</span> <span class="nf">get_trainable_weights</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Returns the trainable weights of the model</span>
-<span class="sd">        :return:</span>
+<span class="sd">        Return the trainable weights of the model.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list</span>
+<span class="sd">            List of trainable weights.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">encoder</span><span class="o">.</span><span class="n">trainable_weights</span>
@@ -274,10 +320,14 @@
 <a class="viewcode-back" href="../../../vindy.networks.html#vindy.networks.autoencoder_sindy.AutoencoderSindy.build_model">[docs]</a>
     <span class="k">def</span> <span class="nf">build_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">mu</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        build the model</span>
-<span class="sd">        :param x: array-like of shape (n_samples, n_features), full state</span>
-<span class="sd">        :param mu: array-like of shape (n_samples, n_params), parameters</span>
-<span class="sd">        :return:</span>
+<span class="sd">        Build the model.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        x : array-like</span>
+<span class="sd">            Full state.</span>
+<span class="sd">        mu : array-like</span>
+<span class="sd">            Parameters.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">x</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dtype_</span><span class="p">)</span>
 
@@ -300,9 +350,12 @@
 <a class="viewcode-back" href="../../../vindy.networks.html#vindy.networks.autoencoder_sindy.AutoencoderSindy.define_scaling">[docs]</a>
     <span class="k">def</span> <span class="nf">define_scaling</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        define the scaling factor for given training data</span>
-<span class="sd">        :param x:</span>
-<span class="sd">        :return:</span>
+<span class="sd">        Define the scaling factor for given training data.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        x : array-like</span>
+<span class="sd">            Training data.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># scale the data if requested</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">scaling</span> <span class="o">==</span> <span class="s2">&quot;individual&quot;</span><span class="p">:</span>
@@ -335,6 +388,20 @@
 <div class="viewcode-block" id="AutoencoderSindy.scale">
 <a class="viewcode-back" href="../../../vindy.networks.html#vindy.networks.autoencoder_sindy.AutoencoderSindy.scale">[docs]</a>
     <span class="k">def</span> <span class="nf">scale</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Scale the data.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        x : array-like</span>
+<span class="sd">            Input data.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        array-like</span>
+<span class="sd">            Scaled data.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
         <span class="c1"># scale the data</span>
         <span class="n">x</span> <span class="o">=</span> <span class="n">x</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">scale_factor</span>
         <span class="k">return</span> <span class="n">x</span></div>
@@ -343,6 +410,19 @@
 <div class="viewcode-block" id="AutoencoderSindy.rescale">
 <a class="viewcode-back" href="../../../vindy.networks.html#vindy.networks.autoencoder_sindy.AutoencoderSindy.rescale">[docs]</a>
     <span class="k">def</span> <span class="nf">rescale</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Rescale the data.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        x : array-like</span>
+<span class="sd">            Scaled data.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        array-like</span>
+<span class="sd">            Rescaled data.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># rescale the data</span>
         <span class="n">x</span> <span class="o">=</span> <span class="n">x</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">scale_factor</span>
         <span class="k">return</span> <span class="n">x</span></div>
@@ -352,10 +432,21 @@
 <a class="viewcode-back" href="../../../vindy.networks.html#vindy.networks.autoencoder_sindy.AutoencoderSindy.build_encoder">[docs]</a>
     <span class="k">def</span> <span class="nf">build_encoder</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        build a fully connected encoder with layers of size layer_sizes</span>
-<span class="sd">        :param x: input to the autoencoder</span>
+<span class="sd">        Build a fully connected encoder with layers of size layer_sizes.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        x : array-like</span>
+<span class="sd">            Input to the autoencoder.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        x_input : tf.keras.Input</span>
+<span class="sd">            Input tensor.</span>
+<span class="sd">        z : tf.Tensor</span>
+<span class="sd">            Latent variable.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">x_input</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">Input</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="n">dtype</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dtype_</span><span class="p">)</span>
+        <span class="n">x_input</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">Input</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],),</span> <span class="n">dtype</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dtype_</span><span class="p">)</span>
         <span class="n">z</span> <span class="o">=</span> <span class="n">x_input</span>
         <span class="k">for</span> <span class="n">n_neurons</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">layer_sizes</span><span class="p">:</span>
             <span class="n">z</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span>
@@ -375,9 +466,17 @@
 <a class="viewcode-back" href="../../../vindy.networks.html#vindy.networks.autoencoder_sindy.AutoencoderSindy.build_decoder">[docs]</a>
     <span class="k">def</span> <span class="nf">build_decoder</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">z</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Build a fully connected decoder with layers of reversed sizes in layer_sizes</span>
-<span class="sd">        :param z:</span>
-<span class="sd">        :return:</span>
+<span class="sd">        Build a fully connected decoder with layers of reversed sizes in layer_sizes.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        z : array-like</span>
+<span class="sd">            Latent variable.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        tf.Tensor</span>
+<span class="sd">            Reconstructed full state.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># new decoder</span>
         <span class="n">x_</span> <span class="o">=</span> <span class="n">z</span>
@@ -400,12 +499,19 @@
     <span class="nd">@tf</span><span class="o">.</span><span class="n">function</span>
     <span class="k">def</span> <span class="nf">build_loss</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        split input into state, its derivative and the parameters, perform the forward pass, calculate the loss,</span>
-<span class="sd">        and update the weights</span>
-<span class="sd">        :param inputs: list of array-like objects</span>
-<span class="sd">        :return:</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        Split input into state, its derivative, and the parameters, perform the forward pass, calculate the loss,</span>
+<span class="sd">        and update the weights.</span>
 
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        inputs : list</span>
+<span class="sd">            List of array-like objects.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        dict</span>
+<span class="sd">            Dictionary of losses.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># second order systems dx_ddt = f(x, dx_dt, mu)</span>
         <span class="n">x</span><span class="p">,</span> <span class="n">dx_dt</span><span class="p">,</span> <span class="n">dx_ddt</span><span class="p">,</span> <span class="n">x_int</span><span class="p">,</span> <span class="n">dx_int</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">mu_int</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">split_inputs</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>
 
@@ -452,12 +558,23 @@
     <span class="k">def</span> <span class="nf">calc_latent_time_derivatives</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">dx_dt</span><span class="p">,</span> <span class="n">dx_ddt</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Calculate time derivatives of latent variables given the time derivatives of the input variables</span>
-<span class="sd">            (used for comparison with SINDy)</span>
-<span class="sd">        :param x: array-like of shape (n_samples, n_features), full state</span>
-<span class="sd">        :param dx_dt: array-like of shape (n_samples, n_features), time derivative of state</span>
-<span class="sd">        :param dx_ddt: array-like of shape (n_samples, n_features), second time derivative of state</span>
-<span class="sd">        :return: z, dz_dt, dz_ddt: array-like of shape (n_samples, n_latent), latent variables and their time derivatives</span>
+<span class="sd">        (used for comparison with SINDy)</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        x : array-like</span>
+<span class="sd">            Full state.</span>
+<span class="sd">        dx_dt : array-like</span>
+<span class="sd">            Time derivative of state.</span>
+<span class="sd">        dx_ddt : array-like, optional</span>
+<span class="sd">            Second time derivative of state (default is None).</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        tuple</span>
+<span class="sd">            Latent variables and their time derivatives.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+
         <span class="c1"># in case the variables are not vectorized but in their physical geometrical description flatten them</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">dx_ddt</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -506,11 +623,21 @@
 
     <span class="k">def</span> <span class="nf">_training_encoding</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">losses</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        For compatibility with the class we need a method that only returns the latent variable</span>
-<span class="sd">        but not the mean and log variance. The mean and log variance are stored in the class attributes so that they</span>
-<span class="sd">        can be accessed by the get_loss method.</span>
-<span class="sd">        :param x:</span>
-<span class="sd">        :return:</span>
+<span class="sd">        For compatibility with the class we need a method that only returns the latent variable but not the mean and</span>
+<span class="sd">        log variance. The mean and log variance are stored in the class attributes so that they can be accessed by the</span>
+<span class="sd">        get_loss method.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        x : array-like</span>
+<span class="sd">            Full state.</span>
+<span class="sd">        losses : dict</span>
+<span class="sd">            Dictionary of losses.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        tf.Tensor</span>
+<span class="sd">            Latent variable.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">z</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">encoder</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">z</span><span class="p">,</span> <span class="n">losses</span>
@@ -520,9 +647,17 @@
     <span class="nd">@tf</span><span class="o">.</span><span class="n">function</span>
     <span class="k">def</span> <span class="nf">get_loss_rec</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        calculate reconstruction loss of autoencoder</span>
-<span class="sd">        :param x: array-like of shape (n_samples, n_features), full state</span>
-<span class="sd">        :return:</span>
+<span class="sd">        Calculate the reconstruction loss.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        x : array-like</span>
+<span class="sd">            Full state.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        tf.Tensor</span>
+<span class="sd">            Reconstruction loss.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">losses</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">loss</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
         <span class="n">z</span><span class="p">,</span> <span class="n">losses</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_training_encoding</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">losses</span><span class="p">)</span>
@@ -545,13 +680,25 @@
     <span class="nd">@tf</span><span class="o">.</span><span class="n">function</span>
     <span class="k">def</span> <span class="nf">get_loss</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">dx_dt</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">x_int</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mu_int</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        calculate loss for first order system</span>
-<span class="sd">        :param x: array-like of shape (n_samples, n_features), full state</span>
-<span class="sd">        :param dx_dt: array-like of shape (n_samples, n_features), time derivative of state</span>
-<span class="sd">        :param mu: array-like of shape (n_samples, n_features), control input</span>
-<span class="sd">        :param x_int: array-like of shape (n_samples, n_features, n_integrationsteps), full state at {t+1,...,t+n_integrationsteps}</span>
-<span class="sd">        :param mu_int: array-like of shape (n_samples, n_param, n_integrationsteps), control input at {t+1,...,t+n_integrationsteps}</span>
-<span class="sd">        :return: rec_loss, dz_loss, dx_loss, int_loss, loss: individual losses</span>
+<span class="sd">        Calculate loss for first order system.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        x : array-like</span>
+<span class="sd">            Full state.</span>
+<span class="sd">        dx_dt : array-like</span>
+<span class="sd">            Time derivative of state.</span>
+<span class="sd">        mu : array-like</span>
+<span class="sd">            Control input.</span>
+<span class="sd">        x_int : array-like, optional</span>
+<span class="sd">            Full state at future time steps (default is None).</span>
+<span class="sd">        mu_int : array-like, optional</span>
+<span class="sd">            Control input at future time steps (default is None).</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        dict</span>
+<span class="sd">            Dictionary of losses.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">losses</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">loss</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 
@@ -623,15 +770,29 @@
         <span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">dx_dt</span><span class="p">,</span> <span class="n">dx_ddt</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">x_int</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dx_dt_int</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mu_int</span><span class="o">=</span><span class="kc">None</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        calculate loss for second order system</span>
-<span class="sd">        :param x: array-like of shape (n_samples, n_features), full state</span>
-<span class="sd">        :param dx_dt: array-like of shape (n_samples, n_features), time derivative of state</span>
-<span class="sd">        :param dx_ddt: array-like of shape (n_samples, n_features), second time derivative of state</span>
-<span class="sd">        :param mu: array-like of shape (n_samples, n_param), control input</span>
-<span class="sd">        :param x_int: array-like of shape (n_samples, n_features, n_integrationsteps), full state at {t+1,...,t+n_integrationsteps}</span>
-<span class="sd">        :param dx_dt_int: array-like of shape (n_samples, n_features, n_integrationsteps), time derivative of state at {t+1,...,t+n_integrationsteps}</span>
-<span class="sd">        :param mu_int: array-like of shape (n_samples, n_param, n_integrationsteps), control input at {t+1,...,t+n_integrationsteps}</span>
-<span class="sd">        :return: rec_loss, dz_loss, dx_loss, int_loss, loss: individual losses</span>
+<span class="sd">        Calculate loss for second order system.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        x : array-like</span>
+<span class="sd">            Full state.</span>
+<span class="sd">        dx_dt : array-like</span>
+<span class="sd">            Time derivative of state.</span>
+<span class="sd">        dx_ddt : array-like</span>
+<span class="sd">            Second time derivative of state.</span>
+<span class="sd">        mu : array-like</span>
+<span class="sd">            Control input.</span>
+<span class="sd">        x_int : array-like, optional</span>
+<span class="sd">            Full state at future time steps (default is None).</span>
+<span class="sd">        dx_dt_int : array-like, optional</span>
+<span class="sd">            Time derivative of state at future time steps (default is None).</span>
+<span class="sd">        mu_int : array-like, optional</span>
+<span class="sd">            Control input at future time steps (default is None).</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        dict</span>
+<span class="sd">            Dictionary of losses.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">losses</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">loss</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 
@@ -724,9 +885,17 @@
     <span class="c1"># @tf.function</span>
     <span class="k">def</span> <span class="nf">encode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        encode full state</span>
-<span class="sd">        :param x: array-like of shape (n_samples, n_features, n_dof_per_feature), full state</span>
-<span class="sd">        :return: z: array-like of shape (n_samples, reduced_order), latent variable</span>
+<span class="sd">        Encode full state.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        x : array-like of shape (n_samples, n_features, n_dof_per_feature)</span>
+<span class="sd">            Full state.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        array-like of shape (n_samples, reduced_order)</span>
+<span class="sd">            Latent variable.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">flatten</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
         <span class="n">z</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">encoder</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
@@ -738,9 +907,17 @@
 <a class="viewcode-back" href="../../../vindy.networks.html#vindy.networks.autoencoder_sindy.AutoencoderSindy.decode">[docs]</a>
     <span class="k">def</span> <span class="nf">decode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">z</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        decode latent variable</span>
-<span class="sd">        :param z: array-like of shape (n_samples, reduced_order), latent variable</span>
-<span class="sd">        :return: x: array-like of shape (n_samples, n_features, n_dof_per_feature), full state</span>
+<span class="sd">        Decode latent variable.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        z : array-like of shape (n_samples, reduced_order)</span>
+<span class="sd">            Latent variable.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        array-like of shape (n_samples, n_features, n_dof_per_feature)</span>
+<span class="sd">            Full state.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">x_rec</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">decoder</span><span class="p">(</span><span class="n">z</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">unflatten</span><span class="p">(</span><span class="n">x_rec</span><span class="p">)</span></div>
@@ -751,10 +928,17 @@
     <span class="nd">@tf</span><span class="o">.</span><span class="n">function</span>
     <span class="k">def</span> <span class="nf">reconstruct</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">_</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        reconstruct full state</span>
-<span class="sd">        :param x: array-like of shape (n_samples, n_features, n_dof_per_feature), full state</span>
-<span class="sd">        :param x_rec: array-like of shape (n_samples, n_features, n_dof_per_feature), full state</span>
-<span class="sd">        :return:</span>
+<span class="sd">        Reconstruct full state.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        x : array-like of shape (n_samples, n_features, n_dof_per_feature)</span>
+<span class="sd">            Full state.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        array-like of shape (n_samples, n_features, n_dof_per_feature)</span>
+<span class="sd">            Reconstructed full state.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">z</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
         <span class="n">x_rec</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">z</span><span class="p">)</span>

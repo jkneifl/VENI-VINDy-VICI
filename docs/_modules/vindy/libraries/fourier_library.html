@@ -43,7 +43,7 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../vindy.html">vindy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../vindy.html">vindy package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../contact.html">Contact</a></li>
 </ul>
 
@@ -79,20 +79,42 @@
 <div class="viewcode-block" id="FourierLibrary">
 <a class="viewcode-back" href="../../../vindy.libraries.html#vindy.libraries.fourier_library.FourierLibrary">[docs]</a>
 <span class="k">class</span> <span class="nc">FourierLibrary</span><span class="p">(</span><span class="n">BaseLibrary</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Library for Fourier features.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">freqs</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize the Fourier library.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        freqs : list of int, optional</span>
+<span class="sd">            List of frequencies (default: [1])</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">freqs</span> <span class="o">=</span> <span class="n">freqs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fcn</span> <span class="o">=</span> <span class="p">[</span><span class="n">tf</span><span class="o">.</span><span class="n">sin</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">cos</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">sigmoid</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fcn_names</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;sin&quot;</span><span class="p">,</span> <span class="s2">&quot;cos&quot;</span><span class="p">,</span> <span class="s2">&quot;sigmoid&quot;</span><span class="p">]</span>
 
     <span class="nd">@tf</span><span class="o">.</span><span class="n">function</span>
     <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        transform input x to trigonometric features of order self.poly_order</span>
-<span class="sd">        :param x: array-like of shape (n_samples, 2*reduce_order), latent variable and its time derivative</span>
-<span class="sd">        :return: polynomial features</span>
+<span class="sd">        Transform input x to trigonometric features of</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        x : array-like of shape (n_samples, 2*reduce_order)</span>
+<span class="sd">            Latent variable and its time derivative.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        array-like</span>
+<span class="sd">            Trigonometric features.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">x_fourier</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">freqs</span><span class="p">:</span>
-            <span class="n">x_fourier</span> <span class="o">+=</span> <span class="p">[</span><span class="n">tf</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">f</span> <span class="o">*</span> <span class="n">x</span><span class="p">),</span> <span class="n">tf</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">f</span> <span class="o">*</span> <span class="n">x</span><span class="p">),</span> <span class="n">tf</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">sigmoid</span><span class="p">(</span><span class="n">f</span> <span class="o">*</span> <span class="n">x</span><span class="p">)]</span>
+            <span class="k">for</span> <span class="n">fcn</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">fcn</span><span class="p">:</span>
+                <span class="n">x_fourier</span> <span class="o">+=</span> <span class="p">[</span><span class="n">fcn</span><span class="p">(</span><span class="n">f</span> <span class="o">*</span> <span class="n">x</span><span class="p">)]</span>
         <span class="n">x_fourier</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">x_fourier</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">x_fourier</span>
 
@@ -100,17 +122,26 @@
 <a class="viewcode-back" href="../../../vindy.libraries.html#vindy.libraries.fourier_library.FourierLibrary.get_names">[docs]</a>
     <span class="k">def</span> <span class="nf">get_names</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        construct features for the input x</span>
-<span class="sd">        :param x: input</span>
-<span class="sd">        :return: feature</span>
+<span class="sd">        Construct the names of the features for the input x.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        x : array-like</span>
+<span class="sd">            Input data.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list of str</span>
+<span class="sd">            Names of the trigonometric features.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># ensure that x is a list</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
             <span class="n">x</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="p">]</span>
         <span class="n">x_fourier</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">x_</span> <span class="ow">in</span> <span class="n">x</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">freqs</span><span class="p">:</span>
-                <span class="n">x_fourier</span> <span class="o">+=</span> <span class="p">[</span><span class="sa">f</span><span class="s1">&#39;sin(</span><span class="si">{</span><span class="n">f</span><span class="si">}</span><span class="s1"> * </span><span class="si">{</span><span class="n">x_</span><span class="si">}</span><span class="s1">)&#39;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;cos(</span><span class="si">{</span><span class="n">f</span><span class="si">}</span><span class="s1"> * </span><span class="si">{</span><span class="n">x_</span><span class="si">}</span><span class="s1">)&#39;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;sigmoid(</span><span class="si">{</span><span class="n">f</span><span class="si">}</span><span class="s1"> * </span><span class="si">{</span><span class="n">x_</span><span class="si">}</span><span class="s1">)&#39;</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">freqs</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">fcn</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">fcn_names</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">x_</span> <span class="ow">in</span> <span class="n">x</span><span class="p">:</span>
+                    <span class="n">x_fourier</span> <span class="o">+=</span> <span class="p">[</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">fcn</span><span class="si">}</span><span class="s1">(</span><span class="si">{</span><span class="n">f</span><span class="si">}</span><span class="s1"> * </span><span class="si">{</span><span class="n">x_</span><span class="si">}</span><span class="s1">)&#39;</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">x_fourier</span></div>
 </div>
 

@@ -43,7 +43,7 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../vindy.html">vindy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../vindy.html">vindy package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../contact.html">Contact</a></li>
 </ul>
 
@@ -92,11 +92,18 @@
 <div class="viewcode-block" id="BaseModel">
 <a class="viewcode-back" href="../../../vindy.networks.html#vindy.networks.base_model.BaseModel">[docs]</a>
 <span class="k">class</span> <span class="nc">BaseModel</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">Model</span><span class="p">,</span> <span class="n">ABC</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Abstract base class for autoencoder SINDy models.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">_init_to_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">init_locals</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        In order to save the model, we save the parameters with which the model was initialized except for the data itself</span>
-<span class="sd">        :param init_locals: local variables from the __init__ function</span>
+<span class="sd">        Save the parameters with which the model was initialized except for the data itself.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        init_locals : dict</span>
+<span class="sd">            Local variables from the `__init__` function.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="c1"># ! broken due to tf (can&#39;t copy layer https://github.com/keras-team/keras/issues/19383)</span>
@@ -124,9 +131,17 @@
 <a class="viewcode-back" href="../../../vindy.networks.html#vindy.networks.base_model.BaseModel.assert_arguments">[docs]</a>
     <span class="k">def</span> <span class="nf">assert_arguments</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arguments</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Asserts that the arguments passed to the model are valid</span>
-<span class="sd">        :param arguments: all arguments passed to the model</span>
-<span class="sd">        :return:</span>
+<span class="sd">        Assert that the arguments passed to the model are valid.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        arguments : dict</span>
+<span class="sd">            All arguments passed to the model.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        AssertionError</span>
+<span class="sd">            If any of the arguments are invalid.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># assert that sindy_layer is of correct class</span>
         <span class="k">assert</span> <span class="nb">type</span><span class="p">(</span><span class="n">arguments</span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">])</span> <span class="ow">in</span> <span class="p">(</span>
@@ -170,9 +185,12 @@
 <a class="viewcode-back" href="../../../vindy.networks.html#vindy.networks.base_model.BaseModel.save">[docs]</a>
     <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Saves the model weights as well as the model configuration from the initialization to a given path</span>
-<span class="sd">        :param path: (string) path to the folder where the model should be saved</span>
-<span class="sd">        :return:</span>
+<span class="sd">        Save the model weights and configuration to a given path.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        path : str, optional</span>
+<span class="sd">            Path to the folder where the model should be saved (default is None).</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">path</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">path</span> <span class="o">=</span> <span class="p">(</span>
@@ -201,12 +219,29 @@
         <span class="n">kwargs_overwrite</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{},</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        loads the model from the given path</span>
-<span class="sd">        :param X: the data is needed to initialize the model</span>
-<span class="sd">        :param mu: the parameters which were used to create the model the first time</span>
-<span class="sd">        :param path: path to the model</span>
-<span class="sd">        :param kwargs: additional kwargs to overwrite the config</span>
-<span class="sd">        :return:</span>
+<span class="sd">        Load the model from the given path.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        aesindy : class</span>
+<span class="sd">            The class of the model to be loaded.</span>
+<span class="sd">        x : array-like, optional</span>
+<span class="sd">            Data needed to initialize the model (default is None).</span>
+<span class="sd">        mu : array-like, optional</span>
+<span class="sd">            Parameters used to create the model the first time (default is None).</span>
+<span class="sd">        mask : array-like, optional</span>
+<span class="sd">            Mask for the model (default is None).</span>
+<span class="sd">        fixed_coeffs : array-like, optional</span>
+<span class="sd">            Fixed coefficients for the model (default is None).</span>
+<span class="sd">        path : str, optional</span>
+<span class="sd">            Path to the model (default is None).</span>
+<span class="sd">        kwargs_overwrite : dict, optional</span>
+<span class="sd">            Additional kwargs to overwrite the config (default is {}).</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        BaseModel</span>
+<span class="sd">            Loaded model.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">weights_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;weights/&quot;</span><span class="p">)</span>
@@ -273,12 +308,23 @@
 <a class="viewcode-back" href="../../../vindy.networks.html#vindy.networks.base_model.BaseModel.integrate">[docs]</a>
     <span class="k">def</span> <span class="nf">integrate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">z0</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">mu</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;RK45&quot;</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Integrate the model using scipy.integrate.solve_ivp</span>
-<span class="sd">        :param z0: (array-like) initial state</span>
-<span class="sd">        :param t: time points to evaluate the solution at</span>
-<span class="sd">        :param mu: parameters to use in the model</span>
-<span class="sd">        :param method: integration method to use</span>
-<span class="sd">        :return:</span>
+<span class="sd">        Integrate the model using `scipy.integrate.solve_ivp`.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        z0 : array-like</span>
+<span class="sd">            Initial state.</span>
+<span class="sd">        t : array-like</span>
+<span class="sd">            Time points to evaluate the solution at.</span>
+<span class="sd">        mu : array-like or callable, optional</span>
+<span class="sd">            Parameters to use in the model (default is None).</span>
+<span class="sd">        method : str, optional</span>
+<span class="sd">            Integration method to use (default is &quot;RK45&quot;).</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        scipy.integrate.OdeResult</span>
+<span class="sd">            Solution of the integration.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">mu</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="nb">callable</span><span class="p">(</span><span class="n">mu</span><span class="p">):</span>
@@ -321,8 +367,12 @@
 <a class="viewcode-back" href="../../../vindy.networks.html#vindy.networks.base_model.BaseModel.sindy_coeffs">[docs]</a>
     <span class="k">def</span> <span class="nf">sindy_coeffs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        returns the coefficients of the SINDy model</span>
-<span class="sd">        :return:</span>
+<span class="sd">        Return the coefficients of the SINDy model.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        array-like</span>
+<span class="sd">            Coefficients of the SINDy model.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">sindy_layer</span><span class="o">.</span><span class="n">get_sindy_coeffs</span><span class="p">()</span></div>
 
@@ -331,12 +381,23 @@
 <a class="viewcode-back" href="../../../vindy.networks.html#vindy.networks.base_model.BaseModel.fit">[docs]</a>
     <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">validation_data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        wrapper for the fit function of the keras model to flatten the data if necessary</span>
-<span class="sd">        :param x:</span>
-<span class="sd">        :param y:</span>
-<span class="sd">        :param validation_data:</span>
-<span class="sd">        :param kwargs:</span>
-<span class="sd">        :return:</span>
+<span class="sd">        Wrapper for the fit function of the keras model to flatten the data if necessary.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        x : array-like</span>
+<span class="sd">            Training data.</span>
+<span class="sd">        y : array-like, optional</span>
+<span class="sd">            Target data (default is None).</span>
+<span class="sd">        validation_data : tuple or array-like, optional</span>
+<span class="sd">            Data on which to evaluate the loss and any model metrics at the end of each epoch (default is None).</span>
+<span class="sd">        kwargs : dict</span>
+<span class="sd">            Additional arguments for the fit function.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        History</span>
+<span class="sd">            A `History` object. Its `History.history` attribute is a record of training loss values and metrics values at successive epochs.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># flatten and cast the input</span>
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">x_</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
@@ -366,11 +427,21 @@
 <a class="viewcode-back" href="../../../vindy.networks.html#vindy.networks.base_model.BaseModel.concatenate_sindy_input">[docs]</a>
     <span class="k">def</span> <span class="nf">concatenate_sindy_input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">dzdt</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mu</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        concatenate the state, (its derivative), and the parameters to the input of the SINDy layer</span>
-<span class="sd">        :param z:</span>
-<span class="sd">        :param dzdt:</span>
-<span class="sd">        :param mu:</span>
-<span class="sd">        :return:</span>
+<span class="sd">        Concatenate the state, its derivative, and the parameters to the input of the SINDy layer.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        z : array-like</span>
+<span class="sd">            State.</span>
+<span class="sd">        dzdt : array-like, optional</span>
+<span class="sd">            Derivative of the state (default is None).</span>
+<span class="sd">        mu : array-like, optional</span>
+<span class="sd">            Parameters (default is None).</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        array-like</span>
+<span class="sd">            Concatenated input for the SINDy layer.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">quantities_to_concatenate</span> <span class="o">=</span> <span class="p">[</span><span class="n">z</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">dzdt</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -386,9 +457,19 @@
 <a class="viewcode-back" href="../../../vindy.networks.html#vindy.networks.base_model.BaseModel.build_sindy">[docs]</a>
     <span class="k">def</span> <span class="nf">build_sindy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">mu</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Build the model for the forward pass of the SINDy layer</span>
-<span class="sd">        :param z: array-like of shape (n_samples, reduced_order), latent state</span>
-<span class="sd">        :param mu: array-like of shape (n_samples, n_params), parameters</span>
+<span class="sd">        Build the model for the forward pass of the SINDy layer.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        z : array-like</span>
+<span class="sd">            Latent state.</span>
+<span class="sd">        mu : array-like</span>
+<span class="sd">            Parameters.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        tuple</span>
+<span class="sd">            Concatenated input for the SINDy layer and the output of the SINDy layer.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># sindy</span>
         <span class="n">dzdt</span> <span class="o">=</span> <span class="kc">None</span>
@@ -407,9 +488,17 @@
 <a class="viewcode-back" href="../../../vindy.networks.html#vindy.networks.base_model.BaseModel.split_inputs">[docs]</a>
     <span class="k">def</span> <span class="nf">split_inputs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Split the inputs into the state, its derivative, and the parameters (if present)</span>
-<span class="sd">        :param inputs:</span>
-<span class="sd">        :return:</span>
+<span class="sd">        Split the inputs into the state, its derivative, and the parameters (if present).</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        inputs : list</span>
+<span class="sd">            List of inputs.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        tuple</span>
+<span class="sd">            Split inputs.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># initialize variables as None</span>
         <span class="n">x</span><span class="p">,</span> <span class="n">dx_dt</span><span class="p">,</span> <span class="n">dx_ddt</span><span class="p">,</span> <span class="n">x_int</span><span class="p">,</span> <span class="n">dx_int</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">mu_int</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="mi">7</span>
@@ -444,9 +533,17 @@
     <span class="nd">@tf</span><span class="o">.</span><span class="n">function</span>
     <span class="k">def</span> <span class="nf">train_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        perform one training step</span>
-<span class="sd">        :param inputs:</span>
-<span class="sd">        :return:</span>
+<span class="sd">        Perform one training step.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        inputs : list</span>
+<span class="sd">            List of inputs.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        dict</span>
+<span class="sd">            Dictionary of losses.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="c1"># perform forwad pass, calculate loss and update weights</span>
@@ -467,9 +564,17 @@
     <span class="nd">@tf</span><span class="o">.</span><span class="n">function</span>
     <span class="k">def</span> <span class="nf">test_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        perform one test step</span>
-<span class="sd">        :param inputs:</span>
-<span class="sd">        :return:</span>
+<span class="sd">        Perform one test step.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        inputs : list</span>
+<span class="sd">            List of inputs.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        dict</span>
+<span class="sd">            Dictionary of losses.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># perform forwad pass, calculate loss for validation data</span>
         <span class="n">losses</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">build_loss</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>
@@ -486,9 +591,17 @@
     <span class="nd">@tf</span><span class="o">.</span><span class="n">function</span>
     <span class="k">def</span> <span class="nf">get_int_loss</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Integrate the identified dynamical system and compare the result to the true dynamics</span>
-<span class="sd">        :param inputs:</span>
-<span class="sd">        :return:</span>
+<span class="sd">        Integrate the identified dynamical system and compare the result to the true dynamics.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        inputs : list</span>
+<span class="sd">            List of inputs.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        float</span>
+<span class="sd">            Integration loss.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># todo: use tensorflow&#39;s built in ode solver</span>
 
@@ -597,11 +710,21 @@
 <a class="viewcode-back" href="../../../vindy.networks.html#vindy.networks.base_model.BaseModel.evaluate_sindy_layer">[docs]</a>
     <span class="k">def</span> <span class="nf">evaluate_sindy_layer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">dz_dt</span><span class="p">,</span> <span class="n">mu</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Evaluate the SINDy layer</span>
-<span class="sd">        :param z: latent variable</span>
-<span class="sd">        :param dzdt: time derivative of the latent variable (only required for second order models)</span>
-<span class="sd">        :param mu:</span>
-<span class="sd">        :return:</span>
+<span class="sd">        Evaluate the SINDy layer.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        z : array-like</span>
+<span class="sd">            Latent variable.</span>
+<span class="sd">        dz_dt : array-like</span>
+<span class="sd">            Time derivative of the latent variable (only required for second order models).</span>
+<span class="sd">        mu : array-like</span>
+<span class="sd">            Parameters.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        tuple</span>
+<span class="sd">            SINDy prediction, mean, and log variance.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># sindy approximation of the time derivative of the latent variable</span>
         <span class="k">if</span> <span class="n">mu</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -639,10 +762,14 @@
 <a class="viewcode-back" href="../../../vindy.networks.html#vindy.networks.base_model.BaseModel.vis_modes">[docs]</a>
     <span class="k">def</span> <span class="nf">vis_modes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">n_modes</span><span class="o">=</span><span class="mi">3</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Visualize the reconstruction of the reduced coefficients of the PCA modes</span>
-<span class="sd">        :param x:</span>
-<span class="sd">        :param n_modes:</span>
-<span class="sd">        :return:</span>
+<span class="sd">        Visualize the reconstruction of the reduced coefficients of the PCA modes.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        x : array-like</span>
+<span class="sd">            Input data.</span>
+<span class="sd">        n_modes : int, optional</span>
+<span class="sd">            Number of modes to visualize (default is 3).</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">n_modes</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">n_modes</span><span class="p">,</span> <span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
         <span class="n">z</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">encoder</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">flatten</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>

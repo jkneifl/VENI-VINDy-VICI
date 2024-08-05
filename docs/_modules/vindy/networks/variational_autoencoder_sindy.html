@@ -43,7 +43,7 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../vindy.html">vindy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../vindy.html">vindy package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../contact.html">Contact</a></li>
 </ul>
 
@@ -75,7 +75,7 @@
 <span></span><span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">vindy.layers.distributions</span> <span class="kn">import</span> <span class="n">Gaussian</span>
+<span class="kn">from</span> <span class="nn">vindy.distributions</span> <span class="kn">import</span> <span class="n">Gaussian</span>
 <span class="kn">from</span> <span class="nn">.autoencoder_sindy</span> <span class="kn">import</span> <span class="n">AutoencoderSindy</span>
 
 <span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">()</span>
@@ -85,12 +85,20 @@
 <div class="viewcode-block" id="VAESindy">
 <a class="viewcode-back" href="../../../vindy.networks.html#vindy.networks.variational_autoencoder_sindy.VAESindy">[docs]</a>
 <span class="k">class</span> <span class="nc">VAESindy</span><span class="p">(</span><span class="n">AutoencoderSindy</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Model to discover low-dimensional dynamics of a high-dimensional system using variational autoencoders and SINDy/VINDy.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">beta</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Model to discover low-dimensional dynamics of a high-dimensional system using autoencoders and SINDy</span>
-<span class="sd">        :param beta: float, weight of the KL divergence term in the loss function</span>
-<span class="sd">        :param kwargs: arguments for AutoencoderSindy</span>
+<span class="sd">        Initialize the VAE SINDy model.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        beta : float</span>
+<span class="sd">            Weight of the KL divergence term in the loss function.</span>
+<span class="sd">        kwargs : dict</span>
+<span class="sd">            Additional arguments for AutoencoderSindy.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># assert that input arguments are valid</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;config&quot;</span><span class="p">):</span>
@@ -103,8 +111,7 @@
 <a class="viewcode-back" href="../../../vindy.networks.html#vindy.networks.variational_autoencoder_sindy.VAESindy.create_loss_trackers">[docs]</a>
     <span class="k">def</span> <span class="nf">create_loss_trackers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Creates the loss trackers for the model</span>
-<span class="sd">        :return:</span>
+<span class="sd">        Create loss trackers for the model.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">VAESindy</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">create_loss_trackers</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">loss_trackers</span><span class="p">[</span><span class="s2">&quot;kl&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">Mean</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;kl_loss&quot;</span><span class="p">)</span></div>
@@ -114,9 +121,17 @@
 <a class="viewcode-back" href="../../../vindy.networks.html#vindy.networks.variational_autoencoder_sindy.VAESindy.build_encoder">[docs]</a>
     <span class="k">def</span> <span class="nf">build_encoder</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Builds the variational encoder part of the model which</span>
-<span class="sd">        :param x:</span>
-<span class="sd">        :return:</span>
+<span class="sd">        Build the variational encoder part of the model.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        x : array-like</span>
+<span class="sd">            Input data.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        tuple</span>
+<span class="sd">            Input tensor and latent variable tensor.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">x_input</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">Input</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],),</span> <span class="n">dtype</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dtype_</span><span class="p">)</span>
         <span class="n">z_</span> <span class="o">=</span> <span class="n">x_input</span>
@@ -152,10 +167,19 @@
 <a class="viewcode-back" href="../../../vindy.networks.html#vindy.networks.variational_autoencoder_sindy.VAESindy.kl_loss">[docs]</a>
     <span class="k">def</span> <span class="nf">kl_loss</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mean</span><span class="p">,</span> <span class="n">log_var</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        KL divergence loss for Gaussian distributions</span>
-<span class="sd">        :param mean:</span>
-<span class="sd">        :param log_var:</span>
-<span class="sd">        :return:</span>
+<span class="sd">        Calculate the KL divergence loss for Gaussian distributions.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        mean : tf.Tensor</span>
+<span class="sd">            Mean of the latent variable distribution.</span>
+<span class="sd">        log_var : tf.Tensor</span>
+<span class="sd">            Log variance of the latent variable distribution.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        tf.Tensor</span>
+<span class="sd">            KL divergence loss.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">kl_loss</span> <span class="o">=</span> <span class="o">-</span><span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">log_var</span> <span class="o">-</span> <span class="n">tf</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">mean</span><span class="p">)</span> <span class="o">-</span> <span class="n">tf</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">log_var</span><span class="p">))</span>
         <span class="c1"># sum over the latent dimension is correct as it reflects the kl divergence for a multivariate isotropic Gaussian</span>
@@ -168,8 +192,18 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        For compatibility with the parent class we need a method that only returns the latent variable</span>
 <span class="sd">        but not the mean and log variance. The mean and log variance are used to calculate the KL divergence</span>
-<span class="sd">        :param x:</span>
-<span class="sd">        :return:</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        x : array-like</span>
+<span class="sd">            Full state.</span>
+<span class="sd">        losses : dict</span>
+<span class="sd">            Dictionary of losses.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        tuple</span>
+<span class="sd">            Latent variable and updated losses.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">z_mean</span><span class="p">,</span> <span class="n">z_log_var</span><span class="p">,</span> <span class="n">z</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">variational_encoder</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
         <span class="n">kl_loss</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">kl_loss</span><span class="p">(</span><span class="n">z_mean</span><span class="p">,</span> <span class="n">z_log_var</span><span class="p">)</span>
@@ -181,9 +215,19 @@
 <a class="viewcode-back" href="../../../vindy.networks.html#vindy.networks.variational_autoencoder_sindy.VAESindy.encode">[docs]</a>
     <span class="k">def</span> <span class="nf">encode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        encode full state to latent distribution and return its mean</span>
-<span class="sd">        :param x: array-like of shape (n_samples, n_features, n_dof_per_feature), full state</span>
-<span class="sd">        :return: z: array-like of shape (n_samples, reduced_order), latent variable</span>
+<span class="sd">        Encode full state to latent distribution and return its mean.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        x : array-like of shape (n_samples, n_features, n_dof_per_feature)</span>
+<span class="sd">            Full state.</span>
+<span class="sd">        training : bool, optional</span>
+<span class="sd">            Whether the model is in training mode (default is False).</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        array-like of shape (n_samples, reduced_order)</span>
+<span class="sd">            Latent variable.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">flatten</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
         <span class="n">z_mean</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">variational_encoder</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
@@ -193,6 +237,20 @@
 <div class="viewcode-block" id="VAESindy.call">
 <a class="viewcode-back" href="../../../vindy.networks.html#vindy.networks.variational_autoencoder_sindy.VAESindy.call">[docs]</a>
     <span class="k">def</span> <span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">_</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Perform a forward pass through the model.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        inputs : array-like</span>
+<span class="sd">            Input data.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        array-like</span>
+<span class="sd">            Reconstructed data.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
         <span class="n">z_mean</span><span class="p">,</span> <span class="n">z_log_var</span><span class="p">,</span> <span class="n">z</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>
         <span class="n">reconstruction</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">z</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">reconstruction</span></div>
@@ -203,11 +261,19 @@
     <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">reconstruction_loss</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">x_reconstruction</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Computes the reconstruction loss of the autoencoder as log(mse) as stated in</span>
-<span class="sd">            https://arxiv.org/pdf/2006.10273.pdf</span>
-<span class="sd">        :param x: input</span>
-<span class="sd">        :param x_reconstruction: reconstruction</span>
-<span class="sd">        :return:</span>
+<span class="sd">        Compute the reconstruction loss of the autoencoder as log(mse) as stated in https://arxiv.org/pdf/2006.10273.pdf</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        x : array-like</span>
+<span class="sd">            Input data.</span>
+<span class="sd">        x_reconstruction : array-like</span>
+<span class="sd">            Reconstructed data.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        tf.Tensor</span>
+<span class="sd">            Reconstruction loss.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">log</span><span class="p">(</span>
             <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_mean</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">losses</span><span class="o">.</span><span class="n">mse</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">x_reconstruction</span><span class="p">))</span> <span class="o">+</span> <span class="mi">1</span>

@@ -46,17 +46,23 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
-<li class="toctree-l1 current"><a class="reference internal" href="vindy.html">vindy</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="vindy.callbacks.html">vindy.callbacks package</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">vindy.distributions package</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#submodules">Submodules</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#module-contents">Module contents</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="vindy.html">vindy package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="vindy.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="vindy.callbacks.html">vindy.callbacks package</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">vindy.distributions package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-vindy.distributions.base_distribution">vindy.distributions.base_distribution module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-vindy.distributions.gaussian">vindy.distributions.gaussian module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-vindy.distributions.laplace">vindy.distributions.laplace module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-vindy.distributions">Module contents</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="vindy.layers.html">vindy.layers package</a></li>
-<li class="toctree-l2"><a class="reference internal" href="vindy.libraries.html">vindy.libraries package</a></li>
-<li class="toctree-l2"><a class="reference internal" href="vindy.networks.html">vindy.networks package</a></li>
-<li class="toctree-l2"><a class="reference internal" href="vindy.utils.html">vindy.utils package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="vindy.layers.html">vindy.layers package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="vindy.libraries.html">vindy.libraries package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="vindy.networks.html">vindy.networks package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="vindy.utils.html">vindy.utils package</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="vindy.html#module-vindy">Module contents</a></li>
 </ul>
 </li>
@@ -77,7 +83,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
-          <li class="breadcrumb-item"><a href="vindy.html">vindy</a></li>
+          <li class="breadcrumb-item"><a href="vindy.html">vindy package</a></li>
       <li class="breadcrumb-item active">vindy.distributions package</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/vindy.distributions.rst.txt" rel="nofollow"> View page source</a>
@@ -93,8 +99,476 @@
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
 </section>
-<section id="module-contents">
-<h2>Module contents<a class="headerlink" href="#module-contents" title="Link to this heading"></a></h2>
+<section id="module-vindy.distributions.base_distribution">
+<span id="vindy-distributions-base-distribution-module"></span><h2>vindy.distributions.base_distribution module<a class="headerlink" href="#module-vindy.distributions.base_distribution" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="vindy.distributions.base_distribution.BaseDistribution">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">BaseDistribution</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vindy/distributions/base_distribution.html#BaseDistribution"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vindy.distributions.base_distribution.BaseDistribution" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Layer</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></p>
+<p>Base class for distribution layers implementing a call function to sample from the distribution and a
+KL divergence function to compute the KL divergence between two distributions.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="vindy.distributions.base_distribution.BaseDistribution.call">
+<span class="sig-name descname"><span class="pre">call</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vindy/distributions/base_distribution.html#BaseDistribution.call"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vindy.distributions.base_distribution.BaseDistribution.call" title="Link to this definition"></a></dt>
+<dd><p>Sample from the distribution.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vindy.distributions.base_distribution.BaseDistribution.KL_divergence">
+<span class="sig-name descname"><span class="pre">KL_divergence</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/vindy/distributions/base_distribution.html#BaseDistribution.KL_divergence"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vindy.distributions.base_distribution.BaseDistribution.KL_divergence" title="Link to this definition"></a></dt>
+<dd><p>Compute the KL divergence between two distributions.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vindy.distributions.base_distribution.BaseDistribution.prob_density_fcn">
+<span class="sig-name descname"><span class="pre">prob_density_fcn</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mean</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vindy/distributions/base_distribution.html#BaseDistribution.prob_density_fcn"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vindy.distributions.base_distribution.BaseDistribution.prob_density_fcn" title="Link to this definition"></a></dt>
+<dd><p>Compute the probability density function.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vindy.distributions.base_distribution.BaseDistribution.variance">
+<span class="sig-name descname"><span class="pre">variance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scale</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vindy/distributions/base_distribution.html#BaseDistribution.variance"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vindy.distributions.base_distribution.BaseDistribution.variance" title="Link to this definition"></a></dt>
+<dd><p>Compute the variance of the distribution.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vindy.distributions.base_distribution.BaseDistribution.reverse_log">
+<span class="sig-name descname"><span class="pre">reverse_log</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">log_scale</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vindy/distributions/base_distribution.html#BaseDistribution.reverse_log"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vindy.distributions.base_distribution.BaseDistribution.reverse_log" title="Link to this definition"></a></dt>
+<dd><p>Convert the log scale to scale.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vindy.distributions.base_distribution.BaseDistribution.plot">
+<span class="sig-name descname"><span class="pre">plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mean</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vindy/distributions/base_distribution.html#BaseDistribution.plot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vindy.distributions.base_distribution.BaseDistribution.plot" title="Link to this definition"></a></dt>
+<dd><p>Plot the probability density function of the distribution.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="id0">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">KL_divergence</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/vindy/distributions/base_distribution.html#BaseDistribution.KL_divergence"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id0" title="Link to this definition"></a></dt>
+<dd><p>Compute the KL divergence between two distributions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>KL divergence.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>tf.Tensor</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="id1">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">call</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vindy/distributions/base_distribution.html#BaseDistribution.call"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id1" title="Link to this definition"></a></dt>
+<dd><p>Sample from the distribution.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>inputs</strong> (<em>tuple</em>) – Inputs to the distribution.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Sampled values from the distribution.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tf.Tensor</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="id2">
+<span class="sig-name descname"><span class="pre">plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mean</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vindy/distributions/base_distribution.html#BaseDistribution.plot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id2" title="Link to this definition"></a></dt>
+<dd><p>Plot the probability density function of the distribution.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mean</strong> (<em>float</em>) – Mean of the distribution.</p></li>
+<li><p><strong>scale</strong> (<em>float</em>) – Scale of the distribution.</p></li>
+<li><p><strong>ax</strong> (<em>matplotlib.axes.Axes</em><em>, </em><em>optional</em>) – Matplotlib axes object to plot on. If None, a new axis is created.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="id3">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">prob_density_fcn</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mean</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vindy/distributions/base_distribution.html#BaseDistribution.prob_density_fcn"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id3" title="Link to this definition"></a></dt>
+<dd><p>Compute the probability density function.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>float</em>) – Input value.</p></li>
+<li><p><strong>mean</strong> (<em>float</em>) – Mean of the distribution.</p></li>
+<li><p><strong>scale</strong> (<em>float</em>) – Scale of the distribution.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Probability density function value.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="id4">
+<span class="sig-name descname"><span class="pre">reverse_log</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">log_scale</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vindy/distributions/base_distribution.html#BaseDistribution.reverse_log"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id4" title="Link to this definition"></a></dt>
+<dd><p>Convert the log scale to scale.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>log_scale</strong> (<em>float</em>) – Log scale.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Scale.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tf.Tensor</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="id5">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">variance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scale</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vindy/distributions/base_distribution.html#BaseDistribution.variance"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id5" title="Link to this definition"></a></dt>
+<dd><p>Compute the variance of the distribution.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>scale</strong> (<em>float</em>) – Scale of the distribution.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Variance.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-vindy.distributions.gaussian">
+<span id="vindy-distributions-gaussian-module"></span><h2>vindy.distributions.gaussian module<a class="headerlink" href="#module-vindy.distributions.gaussian" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="vindy.distributions.gaussian.Gaussian">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Gaussian</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vindy/distributions/gaussian.html#Gaussian"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vindy.distributions.gaussian.Gaussian" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#vindy.distributions.base_distribution.BaseDistribution" title="vindy.distributions.base_distribution.BaseDistribution"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseDistribution</span></code></a></p>
+<p>Layer for a Gaussian distribution that can be used to perform the reparameterization trick by sampling from a
+unit Gaussian and to compute the KL divergence between two Gaussian distributions.
+Uses (z_mean, z_log_var) to sample arguments from a normal distribution with mean z_mean and log variance z_log_var
+(the log variance is used to ensure that the variance is positive).</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="vindy.distributions.gaussian.Gaussian.call">
+<span class="sig-name descname"><span class="pre">call</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vindy/distributions/gaussian.html#Gaussian.call"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vindy.distributions.gaussian.Gaussian.call" title="Link to this definition"></a></dt>
+<dd><p>Draw a sample y ~ N(z_mean, exp(z_log_var)) from a normal distribution with mean z_mean and log variance z_log_var.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vindy.distributions.gaussian.Gaussian.KL_divergence">
+<span class="sig-name descname"><span class="pre">KL_divergence</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mean</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_var</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vindy/distributions/gaussian.html#Gaussian.KL_divergence"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vindy.distributions.gaussian.Gaussian.KL_divergence" title="Link to this definition"></a></dt>
+<dd><p>Compute the KL divergence between two univariate normal distributions.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vindy.distributions.gaussian.Gaussian.log_var_to_deviation">
+<span class="sig-name descname"><span class="pre">log_var_to_deviation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">log_var</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vindy/distributions/gaussian.html#Gaussian.log_var_to_deviation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vindy.distributions.gaussian.Gaussian.log_var_to_deviation" title="Link to this definition"></a></dt>
+<dd><p>Convert the log variance to standard deviation.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vindy.distributions.gaussian.Gaussian.variance_to_log_scale">
+<span class="sig-name descname"><span class="pre">variance_to_log_scale</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">variance</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vindy/distributions/gaussian.html#Gaussian.variance_to_log_scale"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vindy.distributions.gaussian.Gaussian.variance_to_log_scale" title="Link to this definition"></a></dt>
+<dd><p>Convert the variance to log scale.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vindy.distributions.gaussian.Gaussian.prob_density_fcn">
+<span class="sig-name descname"><span class="pre">prob_density_fcn</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mean</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">variance</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vindy/distributions/gaussian.html#Gaussian.prob_density_fcn"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vindy.distributions.gaussian.Gaussian.prob_density_fcn" title="Link to this definition"></a></dt>
+<dd><p>Compute the probability density function.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vindy.distributions.gaussian.Gaussian.variance">
+<span class="sig-name descname"><span class="pre">variance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">log_var</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vindy/distributions/gaussian.html#Gaussian.variance"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vindy.distributions.gaussian.Gaussian.variance" title="Link to this definition"></a></dt>
+<dd><p>Convert the log variance to variance.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="id6">
+<span class="sig-name descname"><span class="pre">KL_divergence</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mean</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_var</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vindy/distributions/gaussian.html#Gaussian.KL_divergence"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id6" title="Link to this definition"></a></dt>
+<dd><p>Computes the KL divergence between two univariate normal distributions p(x) ~ N(mu1, sigma1) and
+q(x) ~ N(mu2, sigma2) following</p>
+<blockquote>
+<div><p>KL(p,q) = log(sigma2/sigma1) + (sigma1^2 + (mu1-mu2)^2) / (2*sigma2^2) - 1/2</p>
+</div></blockquote>
+<dl class="simple">
+<dt>in case of a unitary Gaussian q(x) = N(0,1) the KL divergence simplifies to</dt><dd><p>KL(p,q) = log(1/sigma1) + (sigma1^2 + mu1^2 -1) / 2</p>
+</dd>
+<dt>which can be rewritten using the log variance log_var1 = log(sigma1**2) as</dt><dd><p>KL(p,q) = -0.5 * (1 + log_var1 - mu1^2 - exp(log_var1))</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mean</strong> (<em>float</em>) – Mean of the first normal distribution.</p></li>
+<li><p><strong>log_var</strong> (<em>float</em>) – Log variance of a given normal distribution.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>KL divergence.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tf.Tensor</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="id7">
+<span class="sig-name descname"><span class="pre">call</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vindy/distributions/gaussian.html#Gaussian.call"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id7" title="Link to this definition"></a></dt>
+<dd><p>Draw a sample y ~ N(z_mean, exp(z_log_var)) from a normal distribution with mean z_mean and
+log variance z_log_var using the reparameterization trick. (log variance is used to ensure numerical stability)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>inputs</strong> (<em>tuple</em>) – A tuple containing z_mean and z_log_var.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Sampled values from the Gaussian distribution.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tf.Tensor</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="id8">
+<span class="sig-name descname"><span class="pre">log_var_to_deviation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">log_var</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vindy/distributions/gaussian.html#Gaussian.log_var_to_deviation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id8" title="Link to this definition"></a></dt>
+<dd><p>Converts the log variance to standard deviation (variance = measurement_noise_factor^2) following
+measurement_noise_factor = exp(0.5 * log(measurement_noise_factor^2)) = (measurement_noise_factor^2)^0.5</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>log_var</strong> (<em>float</em>) – Log variance.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Standard deviation.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tf.Tensor</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="id9">
+<span class="sig-name descname"><span class="pre">prob_density_fcn</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mean</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">variance</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vindy/distributions/gaussian.html#Gaussian.prob_density_fcn"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id9" title="Link to this definition"></a></dt>
+<dd><p>Compute the probability density function.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>float</em>) – Input value.</p></li>
+<li><p><strong>mean</strong> (<em>float</em>) – Mean of the distribution.</p></li>
+<li><p><strong>variance</strong> (<em>float</em>) – Variance of the distribution.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Probability density function value.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="id10">
+<span class="sig-name descname"><span class="pre">variance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">log_var</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vindy/distributions/gaussian.html#Gaussian.variance"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id10" title="Link to this definition"></a></dt>
+<dd><p>Convert the log variance to variance.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>log_var</strong> (<em>float</em>) – Log variance.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Variance.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="id11">
+<span class="sig-name descname"><span class="pre">variance_to_log_scale</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">variance</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vindy/distributions/gaussian.html#Gaussian.variance_to_log_scale"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id11" title="Link to this definition"></a></dt>
+<dd><p>Converts the variance to log scale (log variance = log(measurement_noise_factor^2)) following
+log(measurement_noise_factor^2) = log(measurement_noise_factor^2)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>variance</strong> (<em>float</em>) – Variance.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Log scale.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tf.Tensor</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-vindy.distributions.laplace">
+<span id="vindy-distributions-laplace-module"></span><h2>vindy.distributions.laplace module<a class="headerlink" href="#module-vindy.distributions.laplace" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="vindy.distributions.laplace.Laplace">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Laplace</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vindy/distributions/laplace.html#Laplace"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vindy.distributions.laplace.Laplace" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#vindy.distributions.base_distribution.BaseDistribution" title="vindy.distributions.base_distribution.BaseDistribution"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseDistribution</span></code></a></p>
+<p>Layer for a Laplace distribution that can be used to perform the reparameterization trick by sampling from an
+unit Laplace and to compute the KL divergence between two Laplace distributions.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="vindy.distributions.laplace.Laplace.call">
+<span class="sig-name descname"><span class="pre">call</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vindy/distributions/laplace.html#Laplace.call"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vindy.distributions.laplace.Laplace.call" title="Link to this definition"></a></dt>
+<dd><p>Draw a sample y ~ L(z_mean, exp(z_log_var)) from a Laplace distribution with location loc and log scale.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vindy.distributions.laplace.Laplace.KL_divergence">
+<span class="sig-name descname"><span class="pre">KL_divergence</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mean</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_scale</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vindy/distributions/laplace.html#Laplace.KL_divergence"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vindy.distributions.laplace.Laplace.KL_divergence" title="Link to this definition"></a></dt>
+<dd><p>Compute the KL divergence between two univariate Laplace distributions.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vindy.distributions.laplace.Laplace.log_scale_to_deviation">
+<span class="sig-name descname"><span class="pre">log_scale_to_deviation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">log_scale</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vindy.distributions.laplace.Laplace.log_scale_to_deviation" title="Link to this definition"></a></dt>
+<dd><p>Convert the log scale to standard deviation.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vindy.distributions.laplace.Laplace.variance_to_log_scale">
+<span class="sig-name descname"><span class="pre">variance_to_log_scale</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">variance</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vindy/distributions/laplace.html#Laplace.variance_to_log_scale"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vindy.distributions.laplace.Laplace.variance_to_log_scale" title="Link to this definition"></a></dt>
+<dd><p>Convert the variance to log scale.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vindy.distributions.laplace.Laplace.prob_density_fcn">
+<span class="sig-name descname"><span class="pre">prob_density_fcn</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vindy/distributions/laplace.html#Laplace.prob_density_fcn"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vindy.distributions.laplace.Laplace.prob_density_fcn" title="Link to this definition"></a></dt>
+<dd><p>Compute the probability density function.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vindy.distributions.laplace.Laplace.variance">
+<span class="sig-name descname"><span class="pre">variance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">log_scale</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vindy/distributions/laplace.html#Laplace.variance"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vindy.distributions.laplace.Laplace.variance" title="Link to this definition"></a></dt>
+<dd><p>Compute the variance of the Laplace distribution.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="id12">
+<span class="sig-name descname"><span class="pre">KL_divergence</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mean</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_scale</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vindy/distributions/laplace.html#Laplace.KL_divergence"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id12" title="Link to this definition"></a></dt>
+<dd><p>Computes the KL divergence between two univariate Laplace distributions p(x) ~ L(mu1, s1) and
+q(x) ~ L(mu2, s2) following KL(p,q) = log(s2/s1) + (s1*exp(-<a href="#id17"><span class="problematic" id="id18">|mu1-mu2|</span></a>/s1) + <a href="#id19"><span class="problematic" id="id20">|mu1-mu2|</span></a>)/s2 - 1
+See supplemental material of
+Meyer, G. P. (2021). An alternative probabilistic interpretation of the huber loss. In Proceedings of the
+ieee/cvf conference on computer vision and pattern recognition (pp. 5261-5269).
+<a class="reference external" href="https://openaccess.thecvf.com/content/CVPR2021/supplemental/Meyer_An_Alternative_Probabilistic_CVPR_2021_supplemental.pdf">https://openaccess.thecvf.com/content/CVPR2021/supplemental/Meyer_An_Alternative_Probabilistic_CVPR_2021_supplemental.pdf</a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mean</strong> (<em>float</em>) – Mean (location) of the first Laplace distribution.</p></li>
+<li><p><strong>log_scale</strong> (<em>float</em>) – Log scale of the first Laplace distribution.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>KL divergence.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tf.Tensor</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="id13">
+<span class="sig-name descname"><span class="pre">call</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vindy/distributions/laplace.html#Laplace.call"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id13" title="Link to this definition"></a></dt>
+<dd><p>Draw a sample y ~ L(z_mean, exp(z_log_var)) from a Laplace distribution with location loc and
+log scale using the reparameterization trick. (log scale is used to ensure numerical stability)
+y = loc + scale * epsilon    with    epsilon ~ L(0, 1)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>inputs</strong> (<em>tuple</em>) – A tuple containing loc and log_scale.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Sampled values from the Laplace distribution.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tf.Tensor</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="id14">
+<span class="sig-name descname"><span class="pre">prob_density_fcn</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vindy/distributions/laplace.html#Laplace.prob_density_fcn"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id14" title="Link to this definition"></a></dt>
+<dd><p>Compute the probability density function of the Laplace distribution.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>float</em>) – Input value.</p></li>
+<li><p><strong>loc</strong> (<em>float</em>) – Mean (location) of the distribution.</p></li>
+<li><p><strong>scale</strong> (<em>float</em>) – Scale of the distribution.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Probability density function value.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="id15">
+<span class="sig-name descname"><span class="pre">variance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">log_scale</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vindy/distributions/laplace.html#Laplace.variance"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id15" title="Link to this definition"></a></dt>
+<dd><p>Compute the variance of the Laplace distribution.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>log_scale</strong> (<em>float</em>) – Log scale factor.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Variance.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="id16">
+<span class="sig-name descname"><span class="pre">variance_to_log_scale</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">variance</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vindy/distributions/laplace.html#Laplace.variance_to_log_scale"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id16" title="Link to this definition"></a></dt>
+<dd><p>Convert the variance to log scale.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>variance</strong> (<em>float</em>) – Variance.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Log scale.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tf.Tensor</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-vindy.distributions">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-vindy.distributions" title="Link to this heading"></a></h2>
 </section>
 </section>
 

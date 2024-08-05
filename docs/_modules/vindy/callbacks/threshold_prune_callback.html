@@ -43,7 +43,7 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../vindy.html">vindy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../vindy.html">vindy package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../contact.html">Contact</a></li>
 </ul>
 
@@ -79,37 +79,83 @@
 <a class="viewcode-back" href="../../../vindy.callbacks.html#vindy.callbacks.threshold_prune_callback.ThresholdPruneCallback">[docs]</a>
 <span class="k">class</span> <span class="nc">ThresholdPruneCallback</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">callbacks</span><span class="o">.</span><span class="n">Callback</span><span class="p">):</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span> <span class="n">start_epoch</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">epochs</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span> <span class="n">on_train_end</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">start_epoch</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Callback for the SINDy layer. This callback is used to set all coefficients of the VINDy layer to zeroif their</span>
-<span class="sd">        value is below a certain threshold</span>
-<span class="sd">        :param threshold:</span>
-<span class="sd">        :param start_epoch:</span>
-<span class="sd">        :param epochs:</span>
+<span class="sd">        Callback for the SINDy layer. This callback is used to set all coefficients of the SINDy layer to zero if their</span>
+<span class="sd">        value is below a certain threshold.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        freq : int</span>
+<span class="sd">            Frequency of the cancellation of the coefficients (every freq-th epochs).</span>
+<span class="sd">        threshold : float</span>
+<span class="sd">            Threshold for the cancellation of the coefficients (get canceled if value &lt; threshold).</span>
+<span class="sd">        on_train_end : bool</span>
+<span class="sd">            Perform thresholding at the end of training.</span>
+<span class="sd">        start_epoch : int</span>
+<span class="sd">            First epoch for which the thresholding is applied.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">threshold_</span> <span class="o">=</span> <span class="n">threshold</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">freq</span> <span class="o">=</span> <span class="n">freq</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">threshold</span> <span class="o">=</span> <span class="n">threshold</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">on_train_end_</span> <span class="o">=</span> <span class="n">on_train_end</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">start_epoch</span> <span class="o">=</span> <span class="n">start_epoch</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">prune_weights</span> <span class="o">=</span> <span class="kc">False</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">epochs</span> <span class="o">=</span> <span class="n">epochs</span>
         <span class="c1"># super init</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">ThresholdPruneCallback</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
 
-<div class="viewcode-block" id="ThresholdPruneCallback.on_epoch_begin">
-<a class="viewcode-back" href="../../../vindy.callbacks.html#vindy.callbacks.threshold_prune_callback.ThresholdPruneCallback.on_epoch_begin">[docs]</a>
-    <span class="k">def</span> <span class="nf">on_epoch_begin</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">epoch</span><span class="p">,</span> <span class="n">logs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">epoch</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_epoch</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">threshold</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">threshold_</span> <span class="o">*</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_min</span><span class="p">([(</span><span class="n">epoch</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_epoch</span><span class="p">)</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">epochs</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">prune_weights</span> <span class="o">=</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="ThresholdPruneCallback.on_epoch_end">
+<a class="viewcode-back" href="../../../vindy.callbacks.html#vindy.callbacks.threshold_prune_callback.ThresholdPruneCallback.on_epoch_end">[docs]</a>
+    <span class="k">def</span> <span class="nf">on_epoch_end</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">epoch</span><span class="p">,</span> <span class="n">logs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Called at the end of an epoch during training.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        epoch : int</span>
+<span class="sd">            The current epoch number.</span>
+<span class="sd">        logs : dict, optional</span>
+<span class="sd">            Dictionary of logs from the training process.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># only cancel coefficients every freq epochs</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">epoch</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_epoch</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">freq</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">epoch</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_epoch</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">prune_weights</span><span class="p">()</span></div>
 
 
-<div class="viewcode-block" id="ThresholdPruneCallback.on_batch_begin">
-<a class="viewcode-back" href="../../../vindy.callbacks.html#vindy.callbacks.threshold_prune_callback.ThresholdPruneCallback.on_batch_begin">[docs]</a>
-    <span class="k">def</span> <span class="nf">on_batch_begin</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch</span><span class="p">,</span> <span class="n">logs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">prune_weights</span><span class="p">:</span>
+<div class="viewcode-block" id="ThresholdPruneCallback.on_train_end">
+<a class="viewcode-back" href="../../../vindy.callbacks.html#vindy.callbacks.threshold_prune_callback.ThresholdPruneCallback.on_train_end">[docs]</a>
+    <span class="k">def</span> <span class="nf">on_train_end</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">logs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Called at the end of training.</span>
 
-            <span class="k">for</span> <span class="n">layer</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">sindy</span><span class="o">.</span><span class="n">layers</span><span class="p">:</span>
-                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">layer</span><span class="p">,</span> <span class="n">SindyLayer</span><span class="p">):</span>
-                    <span class="n">layer</span><span class="o">.</span><span class="n">prune_weights</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">threshold</span><span class="p">)</span></div>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        logs : dict, optional</span>
+<span class="sd">            Dictionary of logs from the training process.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_train_end_</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">prune_weights</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="ThresholdPruneCallback.prune_weights">
+<a class="viewcode-back" href="../../../vindy.callbacks.html#vindy.callbacks.threshold_prune_callback.ThresholdPruneCallback.prune_weights">[docs]</a>
+    <span class="k">def</span> <span class="nf">prune_weights</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Prune the weights of the SINDy layer if their value is below the threshold.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">sindy_layer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">sindy_layer</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">sindy_layer</span><span class="p">,</span> <span class="n">SindyLayer</span><span class="p">):</span>
+            <span class="n">tf</span><span class="o">.</span><span class="n">print</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Thresholding coefficients below </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">threshold</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+            <span class="n">sindy_layer</span><span class="o">.</span><span class="n">prune_weights</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">threshold</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">tf</span><span class="o">.</span><span class="n">print</span><span class="p">(</span>
+                <span class="s2">&quot;Thresholding coefficients is only implemented for SINDy layer use pdf thresholding for VINDy&quot;</span>
+            <span class="p">)</span></div>
 </div>
 
 </pre></div>

@@ -46,23 +46,24 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
-<li class="toctree-l1 current"><a class="reference internal" href="vindy.html">vindy</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="vindy.callbacks.html">vindy.callbacks package</a></li>
-<li class="toctree-l2"><a class="reference internal" href="vindy.distributions.html">vindy.distributions package</a></li>
-<li class="toctree-l2"><a class="reference internal" href="vindy.layers.html">vindy.layers package</a></li>
-<li class="toctree-l2"><a class="reference internal" href="vindy.libraries.html">vindy.libraries package</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">vindy.networks package</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#module-vindy.networks.autoencoder_sindy">Submodules</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#vindy.networks.autoencoder_sindy.AutoencoderSindy"><code class="docutils literal notranslate"><span class="pre">AutoencoderSindy</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#vindy.networks.base_model.BaseModel"><code class="docutils literal notranslate"><span class="pre">BaseModel</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#vindy.networks.sindy_network.SindyNetwork"><code class="docutils literal notranslate"><span class="pre">SindyNetwork</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#vindy.networks.variational_autoencoder_sindy.VAESindy"><code class="docutils literal notranslate"><span class="pre">VAESindy</span></code></a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="vindy.html">vindy package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="vindy.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="vindy.callbacks.html">vindy.callbacks package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="vindy.distributions.html">vindy.distributions package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="vindy.layers.html">vindy.layers package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="vindy.libraries.html">vindy.libraries package</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">vindy.networks package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-vindy.networks.autoencoder_sindy">vindy.networks.autoencoder_sindy module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-vindy.networks.base_model">vindy.networks.base_model module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-vindy.networks.sindy_network">vindy.networks.sindy_network module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-vindy.networks.variational_autoencoder_sindy">vindy.networks.variational_autoencoder_sindy module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-vindy.networks">Module contents</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="#module-vindy.networks">Module contents</a></li>
+<li class="toctree-l3"><a class="reference internal" href="vindy.utils.html">vindy.utils package</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="vindy.utils.html">vindy.utils package</a></li>
 <li class="toctree-l2"><a class="reference internal" href="vindy.html#module-vindy">Module contents</a></li>
 </ul>
 </li>
@@ -83,7 +84,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
-          <li class="breadcrumb-item"><a href="vindy.html">vindy</a></li>
+          <li class="breadcrumb-item"><a href="vindy.html">vindy package</a></li>
       <li class="breadcrumb-item active">vindy.networks package</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/vindy.networks.rst.txt" rel="nofollow"> View page source</a>
@@ -96,8 +97,11 @@
              
   <section id="vindy-networks-package">
 <h1>vindy.networks package<a class="headerlink" href="#vindy-networks-package" title="Link to this heading"></a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
+</section>
 <section id="module-vindy.networks.autoencoder_sindy">
-<span id="submodules"></span><h2>Submodules<a class="headerlink" href="#module-vindy.networks.autoencoder_sindy" title="Link to this heading"></a></h2>
+<span id="vindy-networks-autoencoder-sindy-module"></span><h2>vindy.networks.autoencoder_sindy module<a class="headerlink" href="#module-vindy.networks.autoencoder_sindy" title="Link to this heading"></a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="vindy.networks.autoencoder_sindy.AutoencoderSindy">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">AutoencoderSindy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vindy/networks/autoencoder_sindy.html#AutoencoderSindy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vindy.networks.autoencoder_sindy.AutoencoderSindy" title="Link to this definition"></a></dt>
@@ -113,53 +117,88 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="vindy.networks.autoencoder_sindy.AutoencoderSindy.build_decoder">
 <span class="sig-name descname"><span class="pre">build_decoder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">z</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vindy/networks/autoencoder_sindy.html#AutoencoderSindy.build_decoder"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vindy.networks.autoencoder_sindy.AutoencoderSindy.build_decoder" title="Link to this definition"></a></dt>
-<dd><p>Build a fully connected decoder with layers of reversed sizes in layer_sizes
-:param z:
-:return:</p>
+<dd><p>Build a fully connected decoder with layers of reversed sizes in layer_sizes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>z</strong> (<em>array-like</em>) – Latent variable.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Reconstructed full state.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tf.Tensor</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="vindy.networks.autoencoder_sindy.AutoencoderSindy.build_encoder">
 <span class="sig-name descname"><span class="pre">build_encoder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vindy/networks/autoencoder_sindy.html#AutoencoderSindy.build_encoder"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vindy.networks.autoencoder_sindy.AutoencoderSindy.build_encoder" title="Link to this definition"></a></dt>
-<dd><p>build a fully connected encoder with layers of size layer_sizes
-:param x: input to the autoencoder</p>
+<dd><p>Build a fully connected encoder with layers of size layer_sizes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>x</strong> (<em>array-like</em>) – Input to the autoencoder.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>x_input</strong> (<em>tf.keras.Input</em>) – Input tensor.</p></li>
+<li><p><strong>z</strong> (<em>tf.Tensor</em>) – Latent variable.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="vindy.networks.autoencoder_sindy.AutoencoderSindy.build_loss">
 <span class="sig-name descname"><span class="pre">build_loss</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vindy/networks/autoencoder_sindy.html#AutoencoderSindy.build_loss"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vindy.networks.autoencoder_sindy.AutoencoderSindy.build_loss" title="Link to this definition"></a></dt>
-<dd><p>split input into state, its derivative and the parameters, perform the forward pass, calculate the loss,
-and update the weights
-:param inputs: list of array-like objects
-:return:</p>
+<dd><p>Split input into state, its derivative, and the parameters, perform the forward pass, calculate the loss,
+and update the weights.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>inputs</strong> (<em>list</em>) – List of array-like objects.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Dictionary of losses.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="vindy.networks.autoencoder_sindy.AutoencoderSindy.build_model">
 <span class="sig-name descname"><span class="pre">build_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mu</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vindy/networks/autoencoder_sindy.html#AutoencoderSindy.build_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vindy.networks.autoencoder_sindy.AutoencoderSindy.build_model" title="Link to this definition"></a></dt>
-<dd><p>build the model
-:param x: array-like of shape (n_samples, n_features), full state
-:param mu: array-like of shape (n_samples, n_params), parameters
-:return:</p>
+<dd><p>Build the model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>array-like</em>) – Full state.</p></li>
+<li><p><strong>mu</strong> (<em>array-like</em>) – Parameters.</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="vindy.networks.autoencoder_sindy.AutoencoderSindy.calc_latent_time_derivatives">
 <span class="sig-name descname"><span class="pre">calc_latent_time_derivatives</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dx_dt</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dx_ddt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vindy/networks/autoencoder_sindy.html#AutoencoderSindy.calc_latent_time_derivatives"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vindy.networks.autoencoder_sindy.AutoencoderSindy.calc_latent_time_derivatives" title="Link to this definition"></a></dt>
-<dd><dl class="simple">
-<dt>Calculate time derivatives of latent variables given the time derivatives of the input variables</dt><dd><p>(used for comparison with SINDy)</p>
-</dd>
-</dl>
+<dd><p>Calculate time derivatives of latent variables given the time derivatives of the input variables
+(used for comparison with SINDy)</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>x</strong> – array-like of shape (n_samples, n_features), full state</p></li>
-<li><p><strong>dx_dt</strong> – array-like of shape (n_samples, n_features), time derivative of state</p></li>
-<li><p><strong>dx_ddt</strong> – array-like of shape (n_samples, n_features), second time derivative of state</p></li>
+<li><p><strong>x</strong> (<em>array-like</em>) – Full state.</p></li>
+<li><p><strong>dx_dt</strong> (<em>array-like</em>) – Time derivative of state.</p></li>
+<li><p><strong>dx_ddt</strong> (<em>array-like</em><em>, </em><em>optional</em>) – Second time derivative of state (default is None).</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>z, dz_dt, dz_ddt: array-like of shape (n_samples, n_latent), latent variables and their time derivatives</p>
+<dd class="field-even"><p>Latent variables and their time derivatives.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple</p>
 </dd>
 </dl>
 </dd></dl>
@@ -167,164 +206,326 @@ and update the weights
 <dl class="py method">
 <dt class="sig sig-object py" id="vindy.networks.autoencoder_sindy.AutoencoderSindy.compile">
 <span class="sig-name descname"><span class="pre">compile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">optimizer=&lt;keras.src.optimizers.adam.Adam</span> <span class="pre">object&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loss=&lt;keras.src.losses.losses.BinaryCrossentropy</span> <span class="pre">object&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sindy_optimizer=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vindy/networks/autoencoder_sindy.html#AutoencoderSindy.compile"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vindy.networks.autoencoder_sindy.AutoencoderSindy.compile" title="Link to this definition"></a></dt>
-<dd><p>wrapper for the compile function of the keras model to enable the use of a different optimizers for different
-parts of the model
-:param optimizer: tf.keras.optimizers object, optimizer for the autoencoder
-:param loss: tf.keras.losses object, loss function for the autoencoder
-:param sindy_optimizer: tf.keras.optimizers object, optimizer for the SINDy part of the model
-:param kwargs: additional kwargs for the compile function
-:return:</p>
+<dd><p>Wrapper for the compile function of the keras model to enable the use of different optimizers for different parts of the model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>optimizer</strong> (<em>tf.keras.optimizers.Optimizer</em><em>, </em><em>optional</em>) – Optimizer for the autoencoder (default is Adam with learning rate 1e-3).</p></li>
+<li><p><strong>loss</strong> (<em>tf.keras.losses.Loss</em><em>, </em><em>optional</em>) – Loss function for the autoencoder (default is BinaryCrossentropy).</p></li>
+<li><p><strong>sindy_optimizer</strong> (<em>tf.keras.optimizers.Optimizer</em><em>, </em><em>optional</em>) – Optimizer for the SINDy part of the model (default is None).</p></li>
+<li><p><strong>kwargs</strong> (<em>dict</em>) – Additional arguments for the compile function.</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="vindy.networks.autoencoder_sindy.AutoencoderSindy.create_loss_trackers">
 <span class="sig-name descname"><span class="pre">create_loss_trackers</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/vindy/networks/autoencoder_sindy.html#AutoencoderSindy.create_loss_trackers"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vindy.networks.autoencoder_sindy.AutoencoderSindy.create_loss_trackers" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Create loss trackers for the model.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="vindy.networks.autoencoder_sindy.AutoencoderSindy.decode">
 <span class="sig-name descname"><span class="pre">decode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">z</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vindy/networks/autoencoder_sindy.html#AutoencoderSindy.decode"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vindy.networks.autoencoder_sindy.AutoencoderSindy.decode" title="Link to this definition"></a></dt>
-<dd><p>decode latent variable
-:param z: array-like of shape (n_samples, reduced_order), latent variable
-:return: x: array-like of shape (n_samples, n_features, n_dof_per_feature), full state</p>
+<dd><p>Decode latent variable.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>z</strong> (<em>array-like</em><em> of </em><em>shape</em><em> (</em><em>n_samples</em><em>, </em><em>reduced_order</em><em>)</em>) – Latent variable.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Full state.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>array-like of shape (n_samples, n_features, n_dof_per_feature)</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="vindy.networks.autoencoder_sindy.AutoencoderSindy.define_scaling">
 <span class="sig-name descname"><span class="pre">define_scaling</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vindy/networks/autoencoder_sindy.html#AutoencoderSindy.define_scaling"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vindy.networks.autoencoder_sindy.AutoencoderSindy.define_scaling" title="Link to this definition"></a></dt>
-<dd><p>define the scaling factor for given training data
-:param x:
-:return:</p>
+<dd><p>Define the scaling factor for given training data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>x</strong> (<em>array-like</em>) – Training data.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="vindy.networks.autoencoder_sindy.AutoencoderSindy.encode">
 <span class="sig-name descname"><span class="pre">encode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vindy/networks/autoencoder_sindy.html#AutoencoderSindy.encode"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vindy.networks.autoencoder_sindy.AutoencoderSindy.encode" title="Link to this definition"></a></dt>
-<dd><p>encode full state
-:param x: array-like of shape (n_samples, n_features, n_dof_per_feature), full state
-:return: z: array-like of shape (n_samples, reduced_order), latent variable</p>
+<dd><p>Encode full state.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>x</strong> (<em>array-like</em><em> of </em><em>shape</em><em> (</em><em>n_samples</em><em>, </em><em>n_features</em><em>, </em><em>n_dof_per_feature</em><em>)</em>) – Full state.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Latent variable.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>array-like of shape (n_samples, reduced_order)</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="vindy.networks.autoencoder_sindy.AutoencoderSindy.get_loss">
 <span class="sig-name descname"><span class="pre">get_loss</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dx_dt</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mu</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_int</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mu_int</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vindy/networks/autoencoder_sindy.html#AutoencoderSindy.get_loss"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vindy.networks.autoencoder_sindy.AutoencoderSindy.get_loss" title="Link to this definition"></a></dt>
-<dd><p>calculate loss for first order system
-:param x: array-like of shape (n_samples, n_features), full state
-:param dx_dt: array-like of shape (n_samples, n_features), time derivative of state
-:param mu: array-like of shape (n_samples, n_features), control input
-:param x_int: array-like of shape (n_samples, n_features, n_integrationsteps), full state at {t+1,…,t+n_integrationsteps}
-:param mu_int: array-like of shape (n_samples, n_param, n_integrationsteps), control input at {t+1,…,t+n_integrationsteps}
-:return: rec_loss, dz_loss, dx_loss, int_loss, loss: individual losses</p>
+<dd><p>Calculate loss for first order system.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>array-like</em>) – Full state.</p></li>
+<li><p><strong>dx_dt</strong> (<em>array-like</em>) – Time derivative of state.</p></li>
+<li><p><strong>mu</strong> (<em>array-like</em>) – Control input.</p></li>
+<li><p><strong>x_int</strong> (<em>array-like</em><em>, </em><em>optional</em>) – Full state at future time steps (default is None).</p></li>
+<li><p><strong>mu_int</strong> (<em>array-like</em><em>, </em><em>optional</em>) – Control input at future time steps (default is None).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Dictionary of losses.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="vindy.networks.autoencoder_sindy.AutoencoderSindy.get_loss_2nd">
 <span class="sig-name descname"><span class="pre">get_loss_2nd</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dx_dt</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dx_ddt</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mu</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_int</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dx_dt_int</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mu_int</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vindy/networks/autoencoder_sindy.html#AutoencoderSindy.get_loss_2nd"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vindy.networks.autoencoder_sindy.AutoencoderSindy.get_loss_2nd" title="Link to this definition"></a></dt>
-<dd><p>calculate loss for second order system
-:param x: array-like of shape (n_samples, n_features), full state
-:param dx_dt: array-like of shape (n_samples, n_features), time derivative of state
-:param dx_ddt: array-like of shape (n_samples, n_features), second time derivative of state
-:param mu: array-like of shape (n_samples, n_param), control input
-:param x_int: array-like of shape (n_samples, n_features, n_integrationsteps), full state at {t+1,…,t+n_integrationsteps}
-:param dx_dt_int: array-like of shape (n_samples, n_features, n_integrationsteps), time derivative of state at {t+1,…,t+n_integrationsteps}
-:param mu_int: array-like of shape (n_samples, n_param, n_integrationsteps), control input at {t+1,…,t+n_integrationsteps}
-:return: rec_loss, dz_loss, dx_loss, int_loss, loss: individual losses</p>
+<dd><p>Calculate loss for second order system.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>array-like</em>) – Full state.</p></li>
+<li><p><strong>dx_dt</strong> (<em>array-like</em>) – Time derivative of state.</p></li>
+<li><p><strong>dx_ddt</strong> (<em>array-like</em>) – Second time derivative of state.</p></li>
+<li><p><strong>mu</strong> (<em>array-like</em>) – Control input.</p></li>
+<li><p><strong>x_int</strong> (<em>array-like</em><em>, </em><em>optional</em>) – Full state at future time steps (default is None).</p></li>
+<li><p><strong>dx_dt_int</strong> (<em>array-like</em><em>, </em><em>optional</em>) – Time derivative of state at future time steps (default is None).</p></li>
+<li><p><strong>mu_int</strong> (<em>array-like</em><em>, </em><em>optional</em>) – Control input at future time steps (default is None).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Dictionary of losses.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="vindy.networks.autoencoder_sindy.AutoencoderSindy.get_loss_rec">
 <span class="sig-name descname"><span class="pre">get_loss_rec</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vindy/networks/autoencoder_sindy.html#AutoencoderSindy.get_loss_rec"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vindy.networks.autoencoder_sindy.AutoencoderSindy.get_loss_rec" title="Link to this definition"></a></dt>
-<dd><p>calculate reconstruction loss of autoencoder
-:param x: array-like of shape (n_samples, n_features), full state
-:return:</p>
+<dd><p>Calculate the reconstruction loss.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>x</strong> (<em>array-like</em>) – Full state.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Reconstruction loss.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tf.Tensor</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="vindy.networks.autoencoder_sindy.AutoencoderSindy.get_trainable_weights">
 <span class="sig-name descname"><span class="pre">get_trainable_weights</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/vindy/networks/autoencoder_sindy.html#AutoencoderSindy.get_trainable_weights"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vindy.networks.autoencoder_sindy.AutoencoderSindy.get_trainable_weights" title="Link to this definition"></a></dt>
-<dd><p>Returns the trainable weights of the model
-:return:</p>
+<dd><p>Return the trainable weights of the model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>List of trainable weights.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>list</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="vindy.networks.autoencoder_sindy.AutoencoderSindy.reconstruct">
 <span class="sig-name descname"><span class="pre">reconstruct</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vindy/networks/autoencoder_sindy.html#AutoencoderSindy.reconstruct"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vindy.networks.autoencoder_sindy.AutoencoderSindy.reconstruct" title="Link to this definition"></a></dt>
-<dd><p>reconstruct full state
-:param x: array-like of shape (n_samples, n_features, n_dof_per_feature), full state
-:param x_rec: array-like of shape (n_samples, n_features, n_dof_per_feature), full state
-:return:</p>
+<dd><p>Reconstruct full state.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>x</strong> (<em>array-like</em><em> of </em><em>shape</em><em> (</em><em>n_samples</em><em>, </em><em>n_features</em><em>, </em><em>n_dof_per_feature</em><em>)</em>) – Full state.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Reconstructed full state.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>array-like of shape (n_samples, n_features, n_dof_per_feature)</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="vindy.networks.autoencoder_sindy.AutoencoderSindy.reconstruction_loss">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">reconstruction_loss</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_pred</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vindy/networks/autoencoder_sindy.html#AutoencoderSindy.reconstruction_loss"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vindy.networks.autoencoder_sindy.AutoencoderSindy.reconstruction_loss" title="Link to this definition"></a></dt>
-<dd><p>calculate the reconstruction loss
-:param x: array-like of shape (n_samples, n_features)
-:param x_pred: array-like of shape (n_samples, n_features)
-:return:</p>
+<dd><p>Calculate the reconstruction loss.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>array-like</em><em> of </em><em>shape</em><em> (</em><em>n_samples</em><em>, </em><em>n_features</em><em>)</em>) – Original input data.</p></li>
+<li><p><strong>x_pred</strong> (<em>array-like</em><em> of </em><em>shape</em><em> (</em><em>n_samples</em><em>, </em><em>n_features</em><em>)</em>) – Reconstructed input data.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Reconstruction loss.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tf.Tensor</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="vindy.networks.autoencoder_sindy.AutoencoderSindy.rescale">
 <span class="sig-name descname"><span class="pre">rescale</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vindy/networks/autoencoder_sindy.html#AutoencoderSindy.rescale"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vindy.networks.autoencoder_sindy.AutoencoderSindy.rescale" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Rescale the data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>x</strong> (<em>array-like</em>) – Scaled data.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Rescaled data.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>array-like</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="vindy.networks.autoencoder_sindy.AutoencoderSindy.scale">
 <span class="sig-name descname"><span class="pre">scale</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vindy/networks/autoencoder_sindy.html#AutoencoderSindy.scale"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vindy.networks.autoencoder_sindy.AutoencoderSindy.scale" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Scale the data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>x</strong> (<em>array-like</em>) – Input data.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Scaled data.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>array-like</p>
+</dd>
+</dl>
+</dd></dl>
 
 </dd></dl>
 
-<dl class="py class" id="module-vindy.networks.base_model">
+</section>
+<section id="module-vindy.networks.base_model">
+<span id="vindy-networks-base-model-module"></span><h2>vindy.networks.base_model module<a class="headerlink" href="#module-vindy.networks.base_model" title="Link to this heading"></a></h2>
+<dl class="py class">
 <dt class="sig sig-object py" id="vindy.networks.base_model.BaseModel">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">BaseModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vindy/networks/base_model.html#BaseModel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vindy.networks.base_model.BaseModel" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Model</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></p>
+<p>Abstract base class for autoencoder SINDy models.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="vindy.networks.base_model.BaseModel.assert_arguments">
 <span class="sig-name descname"><span class="pre">assert_arguments</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">arguments</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vindy/networks/base_model.html#BaseModel.assert_arguments"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vindy.networks.base_model.BaseModel.assert_arguments" title="Link to this definition"></a></dt>
-<dd><p>Asserts that the arguments passed to the model are valid
-:param arguments: all arguments passed to the model
-:return:</p>
+<dd><p>Assert that the arguments passed to the model are valid.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>arguments</strong> (<em>dict</em>) – All arguments passed to the model.</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>AssertionError</strong> – If any of the arguments are invalid.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="vindy.networks.base_model.BaseModel.build_sindy">
 <span class="sig-name descname"><span class="pre">build_sindy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">z</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mu</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vindy/networks/base_model.html#BaseModel.build_sindy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vindy.networks.base_model.BaseModel.build_sindy" title="Link to this definition"></a></dt>
-<dd><p>Build the model for the forward pass of the SINDy layer
-:param z: array-like of shape (n_samples, reduced_order), latent state
-:param mu: array-like of shape (n_samples, n_params), parameters</p>
+<dd><p>Build the model for the forward pass of the SINDy layer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>z</strong> (<em>array-like</em>) – Latent state.</p></li>
+<li><p><strong>mu</strong> (<em>array-like</em>) – Parameters.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Concatenated input for the SINDy layer and the output of the SINDy layer.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="vindy.networks.base_model.BaseModel.concatenate_sindy_input">
 <span class="sig-name descname"><span class="pre">concatenate_sindy_input</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">z</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dzdt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mu</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vindy/networks/base_model.html#BaseModel.concatenate_sindy_input"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vindy.networks.base_model.BaseModel.concatenate_sindy_input" title="Link to this definition"></a></dt>
-<dd><p>concatenate the state, (its derivative), and the parameters to the input of the SINDy layer
-:param z:
-:param dzdt:
-:param mu:
-:return:</p>
+<dd><p>Concatenate the state, its derivative, and the parameters to the input of the SINDy layer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>z</strong> (<em>array-like</em>) – State.</p></li>
+<li><p><strong>dzdt</strong> (<em>array-like</em><em>, </em><em>optional</em>) – Derivative of the state (default is None).</p></li>
+<li><p><strong>mu</strong> (<em>array-like</em><em>, </em><em>optional</em>) – Parameters (default is None).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Concatenated input for the SINDy layer.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>array-like</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="vindy.networks.base_model.BaseModel.evaluate_sindy_layer">
 <span class="sig-name descname"><span class="pre">evaluate_sindy_layer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">z</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dz_dt</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mu</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vindy/networks/base_model.html#BaseModel.evaluate_sindy_layer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vindy.networks.base_model.BaseModel.evaluate_sindy_layer" title="Link to this definition"></a></dt>
-<dd><p>Evaluate the SINDy layer
-:param z: latent variable
-:param dzdt: time derivative of the latent variable (only required for second order models)
-:param mu:
-:return:</p>
+<dd><p>Evaluate the SINDy layer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>z</strong> (<em>array-like</em>) – Latent variable.</p></li>
+<li><p><strong>dz_dt</strong> (<em>array-like</em>) – Time derivative of the latent variable (only required for second order models).</p></li>
+<li><p><strong>mu</strong> (<em>array-like</em>) – Parameters.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>SINDy prediction, mean, and log variance.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="vindy.networks.base_model.BaseModel.fit">
 <span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validation_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vindy/networks/base_model.html#BaseModel.fit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vindy.networks.base_model.BaseModel.fit" title="Link to this definition"></a></dt>
-<dd><p>wrapper for the fit function of the keras model to flatten the data if necessary
-:param x:
-:param y:
-:param validation_data:
-:param kwargs:
-:return:</p>
+<dd><p>Wrapper for the fit function of the keras model to flatten the data if necessary.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>array-like</em>) – Training data.</p></li>
+<li><p><strong>y</strong> (<em>array-like</em><em>, </em><em>optional</em>) – Target data (default is None).</p></li>
+<li><p><strong>validation_data</strong> (<em>tuple</em><em> or </em><em>array-like</em><em>, </em><em>optional</em>) – Data on which to evaluate the loss and any model metrics at the end of each epoch (default is None).</p></li>
+<li><p><strong>kwargs</strong> (<em>dict</em>) – Additional arguments for the fit function.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A <cite>History</cite> object. Its <cite>History.history</cite> attribute is a record of training loss values and metrics values at successive epochs.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>History</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -340,31 +541,65 @@ parts of the model
 <dl class="py method">
 <dt class="sig sig-object py" id="vindy.networks.base_model.BaseModel.get_int_loss">
 <span class="sig-name descname"><span class="pre">get_int_loss</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vindy/networks/base_model.html#BaseModel.get_int_loss"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vindy.networks.base_model.BaseModel.get_int_loss" title="Link to this definition"></a></dt>
-<dd><p>Integrate the identified dynamical system and compare the result to the true dynamics
-:param inputs:
-:return:</p>
+<dd><p>Integrate the identified dynamical system and compare the result to the true dynamics.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>inputs</strong> (<em>list</em>) – List of inputs.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Integration loss.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="vindy.networks.base_model.BaseModel.integrate">
 <span class="sig-name descname"><span class="pre">integrate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">z0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mu</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'RK45'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vindy/networks/base_model.html#BaseModel.integrate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vindy.networks.base_model.BaseModel.integrate" title="Link to this definition"></a></dt>
-<dd><p>Integrate the model using scipy.integrate.solve_ivp
-:param z0: (array-like) initial state
-:param t: time points to evaluate the solution at
-:param mu: parameters to use in the model
-:param method: integration method to use
-:return:</p>
+<dd><p>Integrate the model using <cite>scipy.integrate.solve_ivp</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>z0</strong> (<em>array-like</em>) – Initial state.</p></li>
+<li><p><strong>t</strong> (<em>array-like</em>) – Time points to evaluate the solution at.</p></li>
+<li><p><strong>mu</strong> (<em>array-like</em><em> or </em><em>callable</em><em>, </em><em>optional</em>) – Parameters to use in the model (default is None).</p></li>
+<li><p><strong>method</strong> (<em>str</em><em>, </em><em>optional</em>) – Integration method to use (default is “RK45”).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Solution of the integration.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>scipy.integrate.OdeResult</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="vindy.networks.base_model.BaseModel.load">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">load</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">aesindy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mu</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed_coeffs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kwargs_overwrite</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vindy/networks/base_model.html#BaseModel.load"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vindy.networks.base_model.BaseModel.load" title="Link to this definition"></a></dt>
-<dd><p>loads the model from the given path
-:param X: the data is needed to initialize the model
-:param mu: the parameters which were used to create the model the first time
-:param path: path to the model
-:param kwargs: additional kwargs to overwrite the config
-:return:</p>
+<dd><p>Load the model from the given path.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>aesindy</strong> (<em>class</em>) – The class of the model to be loaded.</p></li>
+<li><p><strong>x</strong> (<em>array-like</em><em>, </em><em>optional</em>) – Data needed to initialize the model (default is None).</p></li>
+<li><p><strong>mu</strong> (<em>array-like</em><em>, </em><em>optional</em>) – Parameters used to create the model the first time (default is None).</p></li>
+<li><p><strong>mask</strong> (<em>array-like</em><em>, </em><em>optional</em>) – Mask for the model (default is None).</p></li>
+<li><p><strong>fixed_coeffs</strong> (<em>array-like</em><em>, </em><em>optional</em>) – Fixed coefficients for the model (default is None).</p></li>
+<li><p><strong>path</strong> (<em>str</em><em>, </em><em>optional</em>) – Path to the model (default is None).</p></li>
+<li><p><strong>kwargs_overwrite</strong> (<em>dict</em><em>, </em><em>optional</em>) – Additional kwargs to overwrite the config (default is {}).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Loaded model.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#vindy.networks.base_model.BaseModel" title="vindy.networks.base_model.BaseModel">BaseModel</a></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -380,40 +615,77 @@ parts of the model
 <dl class="py method">
 <dt class="sig sig-object py" id="vindy.networks.base_model.BaseModel.save">
 <span class="sig-name descname"><span class="pre">save</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vindy/networks/base_model.html#BaseModel.save"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vindy.networks.base_model.BaseModel.save" title="Link to this definition"></a></dt>
-<dd><p>Saves the model weights as well as the model configuration from the initialization to a given path
-:param path: (string) path to the folder where the model should be saved
-:return:</p>
+<dd><p>Save the model weights and configuration to a given path.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>path</strong> (<em>str</em><em>, </em><em>optional</em>) – Path to the folder where the model should be saved (default is None).</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="vindy.networks.base_model.BaseModel.sindy_coeffs">
 <span class="sig-name descname"><span class="pre">sindy_coeffs</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/vindy/networks/base_model.html#BaseModel.sindy_coeffs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vindy.networks.base_model.BaseModel.sindy_coeffs" title="Link to this definition"></a></dt>
-<dd><p>returns the coefficients of the SINDy model
-:return:</p>
+<dd><p>Return the coefficients of the SINDy model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Coefficients of the SINDy model.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>array-like</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="vindy.networks.base_model.BaseModel.split_inputs">
 <span class="sig-name descname"><span class="pre">split_inputs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vindy/networks/base_model.html#BaseModel.split_inputs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vindy.networks.base_model.BaseModel.split_inputs" title="Link to this definition"></a></dt>
-<dd><p>Split the inputs into the state, its derivative, and the parameters (if present)
-:param inputs:
-:return:</p>
+<dd><p>Split the inputs into the state, its derivative, and the parameters (if present).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>inputs</strong> (<em>list</em>) – List of inputs.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Split inputs.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="vindy.networks.base_model.BaseModel.test_step">
 <span class="sig-name descname"><span class="pre">test_step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vindy/networks/base_model.html#BaseModel.test_step"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vindy.networks.base_model.BaseModel.test_step" title="Link to this definition"></a></dt>
-<dd><p>perform one test step
-:param inputs:
-:return:</p>
+<dd><p>Perform one test step.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>inputs</strong> (<em>list</em>) – List of inputs.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Dictionary of losses.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="vindy.networks.base_model.BaseModel.train_step">
 <span class="sig-name descname"><span class="pre">train_step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vindy/networks/base_model.html#BaseModel.train_step"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vindy.networks.base_model.BaseModel.train_step" title="Link to this definition"></a></dt>
-<dd><p>perform one training step
-:param inputs:
-:return:</p>
+<dd><p>Perform one training step.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>inputs</strong> (<em>list</em>) – List of inputs.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Dictionary of losses.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -424,133 +696,232 @@ parts of the model
 <dl class="py method">
 <dt class="sig sig-object py" id="vindy.networks.base_model.BaseModel.vis_modes">
 <span class="sig-name descname"><span class="pre">vis_modes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_modes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vindy/networks/base_model.html#BaseModel.vis_modes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vindy.networks.base_model.BaseModel.vis_modes" title="Link to this definition"></a></dt>
-<dd><p>Visualize the reconstruction of the reduced coefficients of the PCA modes
-:param x:
-:param n_modes:
-:return:</p>
+<dd><p>Visualize the reconstruction of the reduced coefficients of the PCA modes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>array-like</em>) – Input data.</p></li>
+<li><p><strong>n_modes</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of modes to visualize (default is 3).</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
 
-<dl class="py class" id="module-vindy.networks.sindy_network">
+</section>
+<section id="module-vindy.networks.sindy_network">
+<span id="vindy-networks-sindy-network-module"></span><h2>vindy.networks.sindy_network module<a class="headerlink" href="#module-vindy.networks.sindy_network" title="Link to this heading"></a></h2>
+<dl class="py class">
 <dt class="sig sig-object py" id="vindy.networks.sindy_network.SindyNetwork">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">SindyNetwork</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vindy/networks/sindy_network.html#SindyNetwork"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vindy.networks.sindy_network.SindyNetwork" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#vindy.networks.base_model.BaseModel" title="vindy.networks.base_model.BaseModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseModel</span></code></a></p>
+<p>Model to discover dynamics of a system using SINDy or VINDy.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="vindy.networks.sindy_network.SindyNetwork.build_loss">
 <span class="sig-name descname"><span class="pre">build_loss</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vindy/networks/sindy_network.html#SindyNetwork.build_loss"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vindy.networks.sindy_network.SindyNetwork.build_loss" title="Link to this definition"></a></dt>
-<dd><p>split input into state, its derivative and the parameters, perform the forward pass, calculate the loss,
-and update the weights
-:param inputs: list of array-like objects
-:return:</p>
+<dd><p>Split input into state, its derivative, and the parameters, perform the forward pass, calculate the loss, and update the weights.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>inputs</strong> (<em>list</em>) – List of array-like objects.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Dictionary of losses.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="vindy.networks.sindy_network.SindyNetwork.build_model">
 <span class="sig-name descname"><span class="pre">build_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">z</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mu</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vindy/networks/sindy_network.html#SindyNetwork.build_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vindy.networks.sindy_network.SindyNetwork.build_model" title="Link to this definition"></a></dt>
-<dd><p>build the model
-:param x: array-like of shape (n_samples, n_features), full state
-:param mu: array-like of shape (n_samples, n_params), parameters
-:return:</p>
+<dd><p>Build the model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>z</strong> (<em>array-like</em>) – Latent state.</p></li>
+<li><p><strong>mu</strong> (<em>array-like</em>) – Parameters.</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="vindy.networks.sindy_network.SindyNetwork.create_loss_trackers">
 <span class="sig-name descname"><span class="pre">create_loss_trackers</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/vindy/networks/sindy_network.html#SindyNetwork.create_loss_trackers"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vindy.networks.sindy_network.SindyNetwork.create_loss_trackers" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Create loss trackers for the model.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="vindy.networks.sindy_network.SindyNetwork.get_loss">
 <span class="sig-name descname"><span class="pre">get_loss</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">z</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dz_dt</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mu</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z_int</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mu_int</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vindy/networks/sindy_network.html#SindyNetwork.get_loss"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vindy.networks.sindy_network.SindyNetwork.get_loss" title="Link to this definition"></a></dt>
-<dd><p>calculate loss for first order system
-:param z: array-like of shape (n_samples, n_features), full state
-:param dz_dt: array-like of shape (n_samples, n_features), time derivative of state
-:param mu: array-like of shape (n_samples, n_features), control input
-:param z_int: array-like of shape (n_samples, n_features, n_integrationsteps), full state at {t+1,…,t+n_integrationsteps}
-:param mu_int: array-like of shape (n_samples, n_param, n_integrationsteps), control input at {t+1,…,t+n_integrationsteps}
-:return: dz_loss, int_loss, losses: individual losses</p>
+<dd><p>Calculate loss for first order system.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>z</strong> (<em>array-like</em>) – Full state.</p></li>
+<li><p><strong>dz_dt</strong> (<em>array-like</em>) – Time derivative of state.</p></li>
+<li><p><strong>mu</strong> (<em>array-like</em>) – Control input.</p></li>
+<li><p><strong>z_int</strong> (<em>array-like</em><em>, </em><em>optional</em>) – Full state at future time steps (default is None).</p></li>
+<li><p><strong>mu_int</strong> (<em>array-like</em><em>, </em><em>optional</em>) – Control input at future time steps (default is None).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Dictionary of losses.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="vindy.networks.sindy_network.SindyNetwork.get_loss_2nd">
 <span class="sig-name descname"><span class="pre">get_loss_2nd</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">z</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dz_dt</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dz_ddt</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mu</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z_int</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dz_dt_int</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mu_int</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vindy/networks/sindy_network.html#SindyNetwork.get_loss_2nd"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vindy.networks.sindy_network.SindyNetwork.get_loss_2nd" title="Link to this definition"></a></dt>
-<dd><p>calculate loss for second order system
-:param x: array-like of shape (n_samples, n_features), full state
-:param dz_dt: array-like of shape (n_samples, n_features), time derivative of state
-:param dz_ddt: array-like of shape (n_samples, n_features), second time derivative of state
-:param mu: array-like of shape (n_samples, n_param), control input
-:param z_int: array-like of shape (n_samples, n_features, n_integrationsteps), full state at {t+1,…,t+n_integrationsteps}
-:param dz_dt_int: array-like of shape (n_samples, n_features, n_integrationsteps), time derivative of state at {t+1,…,t+n_integrationsteps}
-:param mu_int: array-like of shape (n_samples, n_param, n_integrationsteps), control input at {t+1,…,t+n_integrationsteps}
-:return: rec_loss, dz_loss, dx_loss, int_loss, loss: individual losses</p>
+<dd><p>Calculate loss for second order system.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>z</strong> (<em>array-like</em>) – Full state.</p></li>
+<li><p><strong>dz_dt</strong> (<em>array-like</em>) – Time derivative of state.</p></li>
+<li><p><strong>dz_ddt</strong> (<em>array-like</em>) – Second time derivative of state.</p></li>
+<li><p><strong>mu</strong> (<em>array-like</em>) – Control input.</p></li>
+<li><p><strong>z_int</strong> (<em>array-like</em><em>, </em><em>optional</em>) – Full state at future time steps (default is None).</p></li>
+<li><p><strong>dz_dt_int</strong> (<em>array-like</em><em>, </em><em>optional</em>) – Time derivative of state at future time steps (default is None).</p></li>
+<li><p><strong>mu_int</strong> (<em>array-like</em><em>, </em><em>optional</em>) – Control input at future time steps (default is None).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Dictionary of losses.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="vindy.networks.sindy_network.SindyNetwork.get_trainable_weights">
 <span class="sig-name descname"><span class="pre">get_trainable_weights</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/vindy/networks/sindy_network.html#SindyNetwork.get_trainable_weights"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vindy.networks.sindy_network.SindyNetwork.get_trainable_weights" title="Link to this definition"></a></dt>
-<dd><p>Returns the trainable weights of the model
-:return:</p>
+<dd><p>Return the trainable weights of the model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>List of trainable weights.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>list</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
 
-<dl class="py class" id="module-vindy.networks.variational_autoencoder_sindy">
+</section>
+<section id="module-vindy.networks.variational_autoencoder_sindy">
+<span id="vindy-networks-variational-autoencoder-sindy-module"></span><h2>vindy.networks.variational_autoencoder_sindy module<a class="headerlink" href="#module-vindy.networks.variational_autoencoder_sindy" title="Link to this heading"></a></h2>
+<dl class="py class">
 <dt class="sig sig-object py" id="vindy.networks.variational_autoencoder_sindy.VAESindy">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">VAESindy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vindy/networks/variational_autoencoder_sindy.html#VAESindy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vindy.networks.variational_autoencoder_sindy.VAESindy" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#vindy.networks.autoencoder_sindy.AutoencoderSindy" title="vindy.networks.autoencoder_sindy.AutoencoderSindy"><code class="xref py py-class docutils literal notranslate"><span class="pre">AutoencoderSindy</span></code></a></p>
+<p>Model to discover low-dimensional dynamics of a high-dimensional system using variational autoencoders and SINDy/VINDy.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="vindy.networks.variational_autoencoder_sindy.VAESindy.build_encoder">
 <span class="sig-name descname"><span class="pre">build_encoder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vindy/networks/variational_autoencoder_sindy.html#VAESindy.build_encoder"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vindy.networks.variational_autoencoder_sindy.VAESindy.build_encoder" title="Link to this definition"></a></dt>
-<dd><p>Builds the variational encoder part of the model which
-:param x:
-:return:</p>
+<dd><p>Build the variational encoder part of the model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>x</strong> (<em>array-like</em>) – Input data.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Input tensor and latent variable tensor.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="vindy.networks.variational_autoencoder_sindy.VAESindy.call">
 <span class="sig-name descname"><span class="pre">call</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vindy/networks/variational_autoencoder_sindy.html#VAESindy.call"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vindy.networks.variational_autoencoder_sindy.VAESindy.call" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Perform a forward pass through the model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>inputs</strong> (<em>array-like</em>) – Input data.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Reconstructed data.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>array-like</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="vindy.networks.variational_autoencoder_sindy.VAESindy.create_loss_trackers">
 <span class="sig-name descname"><span class="pre">create_loss_trackers</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/vindy/networks/variational_autoencoder_sindy.html#VAESindy.create_loss_trackers"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vindy.networks.variational_autoencoder_sindy.VAESindy.create_loss_trackers" title="Link to this definition"></a></dt>
-<dd><p>Creates the loss trackers for the model
-:return:</p>
+<dd><p>Create loss trackers for the model.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="vindy.networks.variational_autoencoder_sindy.VAESindy.encode">
 <span class="sig-name descname"><span class="pre">encode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">training</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vindy/networks/variational_autoencoder_sindy.html#VAESindy.encode"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vindy.networks.variational_autoencoder_sindy.VAESindy.encode" title="Link to this definition"></a></dt>
-<dd><p>encode full state to latent distribution and return its mean
-:param x: array-like of shape (n_samples, n_features, n_dof_per_feature), full state
-:return: z: array-like of shape (n_samples, reduced_order), latent variable</p>
+<dd><p>Encode full state to latent distribution and return its mean.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>array-like</em><em> of </em><em>shape</em><em> (</em><em>n_samples</em><em>, </em><em>n_features</em><em>, </em><em>n_dof_per_feature</em><em>)</em>) – Full state.</p></li>
+<li><p><strong>training</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether the model is in training mode (default is False).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Latent variable.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>array-like of shape (n_samples, reduced_order)</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="vindy.networks.variational_autoencoder_sindy.VAESindy.kl_loss">
 <span class="sig-name descname"><span class="pre">kl_loss</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mean</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_var</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vindy/networks/variational_autoencoder_sindy.html#VAESindy.kl_loss"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vindy.networks.variational_autoencoder_sindy.VAESindy.kl_loss" title="Link to this definition"></a></dt>
-<dd><p>KL divergence loss for Gaussian distributions
-:param mean:
-:param log_var:
-:return:</p>
+<dd><p>Calculate the KL divergence loss for Gaussian distributions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mean</strong> (<em>tf.Tensor</em>) – Mean of the latent variable distribution.</p></li>
+<li><p><strong>log_var</strong> (<em>tf.Tensor</em>) – Log variance of the latent variable distribution.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>KL divergence loss.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tf.Tensor</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="vindy.networks.variational_autoencoder_sindy.VAESindy.reconstruction_loss">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">reconstruction_loss</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_reconstruction</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vindy/networks/variational_autoencoder_sindy.html#VAESindy.reconstruction_loss"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vindy.networks.variational_autoencoder_sindy.VAESindy.reconstruction_loss" title="Link to this definition"></a></dt>
-<dd><dl class="simple">
-<dt>Computes the reconstruction loss of the autoencoder as log(mse) as stated in</dt><dd><p><a class="reference external" href="https://arxiv.org/pdf/2006.10273.pdf">https://arxiv.org/pdf/2006.10273.pdf</a></p>
-</dd>
-</dl>
+<dd><p>Compute the reconstruction loss of the autoencoder as log(mse) as stated in <a class="reference external" href="https://arxiv.org/pdf/2006.10273.pdf">https://arxiv.org/pdf/2006.10273.pdf</a></p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>x</strong> – input</p></li>
-<li><p><strong>x_reconstruction</strong> – reconstruction</p></li>
+<li><p><strong>x</strong> (<em>array-like</em>) – Input data.</p></li>
+<li><p><strong>x_reconstruction</strong> (<em>array-like</em>) – Reconstructed data.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p></p>
+<dd class="field-even"><p>Reconstruction loss.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tf.Tensor</p>
 </dd>
 </dl>
 </dd></dl>
