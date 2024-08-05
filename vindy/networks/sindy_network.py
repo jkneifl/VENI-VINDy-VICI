@@ -7,6 +7,9 @@ logging.getLogger().setLevel(logging.INFO)
 
 
 class SindyNetwork(BaseModel):
+    """
+    Model to discover dynamics of a system using SINDy or VINDy.
+    """
 
     def __init__(
         self,
@@ -21,14 +24,28 @@ class SindyNetwork(BaseModel):
         **kwargs,
     ):
         """
-        Model to discover low-dimensional dynamics of a system using SINDy or VINDy
-        :param sindy_layer: Layer to identify the governing equatinos of the latent dynamics, must be a class inheriting
-            from SindyLayer
-        :param x: Input data
-        :param mu: parameter data
-        :param l_dz: Weight of the derivative loss
-        :param l_int: Weight of the integration loss
-        :param kwargs:
+        Initialize the SINDy network.
+
+        Parameters
+        ----------
+        sindy_layer : SindyLayer
+            Layer to identify the governing equations of the latent dynamics.
+        x : array-like
+            Input data.
+        mu : array-like, optional
+            Parameter data (default is None).
+        second_order : bool, optional
+            Whether the system is second order (default is True).
+        l_dz : float, optional
+            Weight of the derivative loss (default is 1).
+        l_int : float, optional
+            Weight of the integration loss (default is 0).
+        dt : float, optional
+            Time step (default is 0).
+        dtype : str, optional
+            Data type (default is "float32").
+        kwargs : dict
+            Additional arguments.
         """
 
         # assert that input arguments are valid
@@ -64,6 +81,9 @@ class SindyNetwork(BaseModel):
         self.create_loss_trackers()
 
     def create_loss_trackers(self):
+        """
+        Create loss trackers for the model.
+        """
         self.loss_trackers = dict()
         self.loss_trackers["loss"] = tf.keras.metrics.Mean(name="loss")
         self.loss_trackers["dz"] = tf.keras.metrics.Mean(name="dz")
@@ -75,17 +95,25 @@ class SindyNetwork(BaseModel):
 
     def get_trainable_weights(self):
         """
-        Returns the trainable weights of the model
-        :return:
+        Return the trainable weights of the model.
+
+        Returns
+        -------
+        list
+            List of trainable weights.
         """
         return self.sindy.trainable_weights
 
     def build_model(self, z, mu):
         """
-        build the model
-        :param x: array-like of shape (n_samples, n_features), full state
-        :param mu: array-like of shape (n_samples, n_params), parameters
-        :return:
+        Build the model.
+
+        Parameters
+        ----------
+        z : array-like
+            Latent state.
+        mu : array-like
+            Parameters.
         """
         z = tf.keras.Input(shape=(z.shape[1],), dtype=self.dtype_)
         # sindy
@@ -97,10 +125,17 @@ class SindyNetwork(BaseModel):
     @tf.function
     def build_loss(self, inputs):
         """
-        split input into state, its derivative and the parameters, perform the forward pass, calculate the loss,
-        and update the weights
-        :param inputs: list of array-like objects
-        :return:
+        Split input into state, its derivative, and the parameters, perform the forward pass, calculate the loss, and update the weights.
+
+        Parameters
+        ----------
+        inputs : list
+            List of array-like objects.
+
+        Returns
+        -------
+        dict
+            Dictionary of losses.
         """
 
         # second order systems dx_ddt = f(x, dx_dt, mu)
@@ -127,13 +162,25 @@ class SindyNetwork(BaseModel):
     @tf.function
     def get_loss(self, z, dz_dt, mu, z_int=None, mu_int=None):
         """
-        calculate loss for first order system
-        :param z: array-like of shape (n_samples, n_features), full state
-        :param dz_dt: array-like of shape (n_samples, n_features), time derivative of state
-        :param mu: array-like of shape (n_samples, n_features), control input
-        :param z_int: array-like of shape (n_samples, n_features, n_integrationsteps), full state at {t+1,...,t+n_integrationsteps}
-        :param mu_int: array-like of shape (n_samples, n_param, n_integrationsteps), control input at {t+1,...,t+n_integrationsteps}
-        :return: dz_loss, int_loss, losses: individual losses
+        Calculate loss for first order system.
+
+        Parameters
+        ----------
+        z : array-like
+            Full state.
+        dz_dt : array-like
+            Time derivative of state.
+        mu : array-like
+            Control input.
+        z_int : array-like, optional
+            Full state at future time steps (default is None).
+        mu_int : array-like, optional
+            Control input at future time steps (default is None).
+
+        Returns
+        -------
+        dict
+            Dictionary of losses.
         """
         losses = dict(loss=0)
 
@@ -172,15 +219,29 @@ class SindyNetwork(BaseModel):
         self, z, dz_dt, dz_ddt, mu, z_int=None, dz_dt_int=None, mu_int=None
     ):
         """
-        calculate loss for second order system
-        :param x: array-like of shape (n_samples, n_features), full state
-        :param dz_dt: array-like of shape (n_samples, n_features), time derivative of state
-        :param dz_ddt: array-like of shape (n_samples, n_features), second time derivative of state
-        :param mu: array-like of shape (n_samples, n_param), control input
-        :param z_int: array-like of shape (n_samples, n_features, n_integrationsteps), full state at {t+1,...,t+n_integrationsteps}
-        :param dz_dt_int: array-like of shape (n_samples, n_features, n_integrationsteps), time derivative of state at {t+1,...,t+n_integrationsteps}
-        :param mu_int: array-like of shape (n_samples, n_param, n_integrationsteps), control input at {t+1,...,t+n_integrationsteps}
-        :return: rec_loss, dz_loss, dx_loss, int_loss, loss: individual losses
+        Calculate loss for second order system.
+
+        Parameters
+        ----------
+        z : array-like
+            Full state.
+        dz_dt : array-like
+            Time derivative of state.
+        dz_ddt : array-like
+            Second time derivative of state.
+        mu : array-like
+            Control input.
+        z_int : array-like, optional
+            Full state at future time steps (default is None).
+        dz_dt_int : array-like, optional
+            Time derivative of state at future time steps (default is None).
+        mu_int : array-like, optional
+            Control input at future time steps (default is None).
+
+        Returns
+        -------
+        dict
+            Dictionary of losses.
         """
         losses = dict(loss=0)
 
