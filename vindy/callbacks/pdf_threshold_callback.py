@@ -7,18 +7,10 @@ class PDFThresholdCallback(tf.keras.callbacks.Callback):
     def __init__(self, freq=1, threshold=1, on_train_end=False, **kwargs):
         """
         Callback for the VINDy layer. This callback is used to set all coefficients of the VINDy layer to zero if their
-        corresponding probability density function at zero is above the threshold.
-
-        Parameters
-        ----------
-        freq : int
-            Frequency of the cancelation of the coefficients.
-        threshold : int
-            Threshold for the cancelation of the coefficients (get canceled if pdf(0) > threshold).
-        on_train_end : bool
-            Whether to cancel coefficients at the end of training.
-        kwargs : dict
-            Additional keyword arguments.
+        corresponding probability density function at zero is above the threshold
+        :param freq: frequency of the cancelation of the coefficients
+        :param threshold: threshold for the cancelation of the coefficients (get canceled if pdf(0) > threshold)
+        :param kwargs:
         """
         self.freq = freq
         self.threshold = threshold
@@ -37,11 +29,8 @@ class PDFThresholdCallback(tf.keras.callbacks.Callback):
     def cancel_coefficients(self):
         """
         Cancel the coefficients of the SINDy layer if their corresponding probability density function at zero is above
-        the threshold, i.e. if pdf(0) > self.threshold
-
-        Returns
-        -------
-        None
+        the threshhold, i.e. if pdf(0) > self.threshhold
+        :return:
         """
 
         sindy_layer = self.model.sindy_layer

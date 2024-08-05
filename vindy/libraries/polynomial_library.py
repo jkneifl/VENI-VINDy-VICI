@@ -5,24 +5,14 @@ from .base_library import BaseLibrary
 
 
 class PolynomialLibrary(BaseLibrary):
-    """
-    Library for polynomial features.
-    """
 
     def __init__(self, degree=3, x_dim=2, interaction=True, include_bias=True):
         """
         Polynomial library
-
-        Parameters
-        ----------
-        degree : int, optional
-            Polynomial degree (default: 3)
-        x_dim : int, optional
-            Dimension of the input (default: 2)
-        interaction : bool, optional
-            Include interaction terms (default: True)
-        include_bias : bool, optional
-            Include bias term (default: True)
+        :param degree: polynomial degree (default: 3)
+        :param x_dim: dimension of the input (default: 2)
+        :param interaction: include interaction terms (default: True)
+        :param include_bias: include bias term (default: True)
         """
         self.degree = degree
         self.interaction = interaction
@@ -38,17 +28,9 @@ class PolynomialLibrary(BaseLibrary):
     # @tf.function
     def __call__(self, x):
         """
-        Transform input x to polynomial features of order self.degree.
-
-        Parameters
-        ----------
-        x : array-like of shape (n_samples, 2*reduce_order)
-            Latent variable and its time derivative.
-
-        Returns
-        -------
-        array-like
-            Polynomial features.
+        transform input x to polynomial features of order self.poly_order
+        :param x: array-like of shape (n_samples, 2*reduce_order), latent variable and its time derivative
+        :return: polynomial features
         """
         # x_old = x
         if self.interaction:
@@ -80,18 +62,8 @@ class PolynomialLibrary(BaseLibrary):
 
     @tf.function
     def poly_higher_order(self, x):
-        """
-        Compute polynomial features for higher dimensional input x.
-
-        Parameters
-        ----------
-        x : array-like
-            Input data.
-
-        Returns
-        -------
-        array-like
-            Polynomial features.
+        """ "
+        Compute polynomial features for higher dimensional input x
         """
         x_poly = []
         for d in range(1, self.degree + 1):
@@ -101,17 +73,9 @@ class PolynomialLibrary(BaseLibrary):
 
     def get_names(self, x):
         """
-        Construct the names of the features for the input x.
-
-        Parameters
-        ----------
-        x : array-like of shape (n_samples, 2*reduce_order)
-            Latent variable and its time derivative.
-
-        Returns
-        -------
-        list of str
-            Names of the polynomial features.
+        construct the names of the features for the input x
+        :param x:  array-like of shape (n_samples, 2*reduce_order), latent variable and its time derivative
+        :return:
         """
         l = []
         for d in range(1, self.degree + 1):
@@ -127,27 +91,6 @@ class PolynomialLibrary(BaseLibrary):
 
     @tf.function
     def loop_rec(self, x, x_i, i, n, d):
-        """
-        Recursive helper function to compute polynomial features.
-
-        Parameters
-        ----------
-        x : array-like
-            Input data.
-        x_i : array-like
-            Intermediate result.
-        i : int
-            Current index.
-        n : int
-            Total number of features.
-        d : int
-            Current degree.
-
-        Returns
-        -------
-        list of array-like
-            Polynomial features.
-        """
         if d > 1:
             feat = []
             for j in range(i, n):
@@ -162,29 +105,6 @@ class PolynomialLibrary(BaseLibrary):
         return feat
 
     def loop_rec_names(self, x, x_i, i, n, d, l: list):
-        """
-        Recursive helper function to construct feature names.
-
-        Parameters
-        ----------
-        x : array-like
-            Input data.
-        x_i : sympy.Symbol
-            Intermediate result.
-        i : int
-            Current index.
-        n : int
-            Total number of features.
-        d : int
-            Current degree.
-        l : list of sympy.Symbol
-            List of feature names.
-
-        Returns
-        -------
-        list of sympy.Symbol
-            Feature names.
-        """
         if d > 1:
             for j in range(i, n):
                 x_j = x_i * x[j]

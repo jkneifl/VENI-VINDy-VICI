@@ -3,7 +3,7 @@ import abc
 
 class BaseLibrary(abc.ABC):
     """
-    Abstract class for feature libraries.
+    Abstract class for feature libraries
     """
 
     def __init__(self):
@@ -12,33 +12,17 @@ class BaseLibrary(abc.ABC):
     @abc.abstractmethod
     def __call__(self, x):
         """
-        Construct features for the input x.
-
-        Parameters
-        ----------
-        x : any
-            Input data.
-
-        Returns
-        -------
-        any
-            Constructed features.
+        construct features for the input x
+        :param x: input
+        :return: feature
         """
         pass
 
     @abc.abstractmethod
     def get_names(self, x):
         """
-        Construct the names of the features for the input x.
-
-        Parameters
-        ----------
-        x : any
-            Input data.
-
-        Returns
-        -------
-        list of str
-            Names of the features.
+        construct the names of the features for the input x
+        :param x: input
+        :return: feature
         """
         pass

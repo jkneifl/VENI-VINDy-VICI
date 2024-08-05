@@ -3,9 +3,6 @@ from .base_library import BaseLibrary
 
 
 class ExponentialLibrary(BaseLibrary):
-    """
-    Library for exponential features.
-    """
 
     def __init__(self, coeff=[1]):
         self.coeff = coeff
@@ -13,17 +10,9 @@ class ExponentialLibrary(BaseLibrary):
     @tf.function
     def __call__(self, x):
         """
-        Construct exponential features for the input x.
-
-        Parameters
-        ----------
-        x : any
-            Input data (n_samples, 2*reduce_order).
-
-        Returns
-        -------
-        any
-            Exponential features.
+        transform input x to exponential features
+        :param x: array-like of shape (n_samples, 2*reduce_order), latent variable and its time derivative
+        :return: polynomial features
         """
         x_exp = []
         for c in self.coeff:
@@ -33,17 +22,9 @@ class ExponentialLibrary(BaseLibrary):
 
     def get_names(self, x):
         """
-        Construct the names of the exponential features for the input x.
-
-        Parameters
-        ----------
-        x : any
-            Input data.
-
-        Returns
-        -------
-        list of str
-            Names of the exponential features.
+        construct features for the input x
+        :param x: input
+        :return: feature
         """
         # ensure that x is a list
         if not isinstance(x, list):

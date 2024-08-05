@@ -3,19 +3,8 @@ from .base_library import BaseLibrary
 
 
 class FourierLibrary(BaseLibrary):
-    """
-    Library for Fourier features.
-    """
 
     def __init__(self, freqs=[1]):
-        """
-        Initialize the Fourier library.
-
-        Parameters
-        ----------
-        freqs : list of int, optional
-            List of frequencies (default: [1])
-        """
         self.freqs = freqs
         self.fcn = [tf.sin, tf.cos, tf.math.sigmoid]
         self.fcn_names = ["sin", "cos", "sigmoid"]
@@ -23,17 +12,9 @@ class FourierLibrary(BaseLibrary):
     @tf.function
     def __call__(self, x):
         """
-        Transform input x to trigonometric features of
-
-        Parameters
-        ----------
-        x : array-like of shape (n_samples, 2*reduce_order)
-            Latent variable and its time derivative.
-
-        Returns
-        -------
-        array-like
-            Trigonometric features.
+        transform input x to trigonometric features of order self.poly_order
+        :param x: array-like of shape (n_samples, 2*reduce_order), latent variable and its time derivative
+        :return: polynomial features
         """
         x_fourier = []
         for f in self.freqs:
@@ -44,17 +25,9 @@ class FourierLibrary(BaseLibrary):
 
     def get_names(self, x):
         """
-        Construct the names of the features for the input x.
-
-        Parameters
-        ----------
-        x : array-like
-            Input data.
-
-        Returns
-        -------
-        list of str
-            Names of the trigonometric features.
+        construct features for the input x
+        :param x: input
+        :return: feature
         """
         # ensure that x is a list
         if not isinstance(x, list):

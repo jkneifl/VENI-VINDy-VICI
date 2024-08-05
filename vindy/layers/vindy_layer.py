@@ -10,31 +10,16 @@ logging.getLogger().setLevel(logging.INFO)
 
 
 class VindyLayer(SindyLayer):
-    """
-    Layer for variational identification of nonlinear dynamics (VINDy) approximation of the
-    time derivative of the latent variable. Feature libraries are applied to the latent variables and a
-    (sparse) variational inference is performed to obtain the coefficients.
-
-    Parameters
-    ----------
-    beta : float
-        Scaling factor for the KL divergence.
-    priors : BaseDistribution or list of BaseDistribution
-        Prior distribution(s) for the coefficients.
-    kwargs : dict
-        Additional keyword arguments.
-
-    Attributes
-    ----------
-    priors : BaseDistribution or list of BaseDistribution
-        Prior distribution(s) for the coefficients.
-    beta : float
-        Scaling factor for the KL divergence.
-    kl_loss_tracker : tf.keras.metrics.Mean
-        Tracker for the KL divergence loss.
-    """
 
     def __init__(self, beta=1, priors=Gaussian(0.0, 1.0), **kwargs):
+        """
+        Layer for variational identification of nonlinear dynamics (VINDy) approximation of the
+        time derivative of the latent variable. Feature libraries are applied to the latent variables and a
+        (sparse) variational inference is performed to obtain the coefficients
+        :param beta: scaling factor for the KL divergence
+        :param priors: prior distribution for the coefficients
+        :param kwargs: see SindyLayer
+        """
         super(VindyLayer, self).__init__(**kwargs)
         self.assert_additional_args(beta, priors)
         self.priors = priors
@@ -43,41 +28,31 @@ class VindyLayer(SindyLayer):
 
     def assert_additional_args(self, beta, priors):
         """
-        Assert that the additional arguments are valid.
-
-        Parameters
-        ----------
-        beta : float or int
-            Scaling factor for the KL divergence.
-        priors : BaseDistribution or list of BaseDistribution
-            Prior distribution(s) for the coefficients.
-
-        Returns
-        -------
-        None
+        Asserts that the additional arguments are valid
+        :param beta:
+        :param priors:
+        :return:
         """
+        # assert that input arguments are valid that are not checked in the super class
         assert isinstance(beta, float) or isinstance(beta, int), "beta must be a float"
+        # priors
         if isinstance(priors, list):
-            assert len(priors) == self.n_dofs, f"Number of priors must match the number of dofs ({self.n_dofs})"
+            assert (
+                len(priors) == self.n_dofs
+            ), f"Number of priors must match the number of dofs ({self.n_dofs})"
             for prior in priors:
-                assert isinstance(prior, BaseDistribution), "All priors must be an instance inheriting from BaseDistribution"
+                assert isinstance(prior, BaseDistribution), (
+                    "All priors must be an instance inheriting from " "BaseDistribution"
+                )
         else:
-            assert isinstance(priors, BaseDistribution), "priors must be a class inheriting from BaseDistribution"
+            assert isinstance(
+                priors, BaseDistribution
+            ), "priors must be a class inheriting from BaseDistribution"
 
     def init_weigths(self, kernel_regularizer):
-        """
-        Initialize the weights of the VINDy layer.
-
-        Parameters
-        ----------
-        kernel_regularizer : tf.keras.regularizers.Regularizer
-            Regularizer for the kernel weights.
-
-        Returns
-        -------
-        None
-        """
         super(VindyLayer, self).init_weigths(kernel_regularizer)
+
+        # initialize the log variance of the coefficients
         init = tf.random_uniform_initializer(minval=-1, maxval=1)
         l1, l2 = kernel_regularizer.l1, kernel_regularizer.l2
         scale_regularizer = LogVarL1L2Regularizer(l1=l1, l2=l2)
@@ -91,28 +66,18 @@ class VindyLayer(SindyLayer):
 
     @property
     def loss_trackers(self):
-        """
-        Get the loss trackers.
-
-        Returns
-        -------
-        dict
-            Dictionary of loss trackers.
-        """
         return dict(kl_sindy=self.kl_loss_tracker)
 
     @property
     def _coeffs(self):
         """
-        Get the coefficients of the SINDy layer which are sampled from a normal distribution parametrized by the
-        layer's kernel (weights).
-
-        Returns
-        -------
-        tuple
-            A tuple containing the coefficients, mean, and log scale.
+        Returns the coefficients of the SINDy layer which are sampled from a normal distribution parametrized by the
+        layer's kernel (weights)
+        :return:
         """
+        # split the kernel into mean and log variance
         coeffs_mean, coeffs_log_scale = self.kernel, self.kernel_scale
+        # draw samples from the normal distribution
         if isinstance(self.priors, list):
             trainable_coeffs = []
             for i, prior in enumerate(self.priors):
@@ -122,24 +87,18 @@ class VindyLayer(SindyLayer):
             trainable_coeffs = tf.concat(trainable_coeffs, axis=0)
         else:
             trainable_coeffs = self.priors([coeffs_mean, coeffs_log_scale])
+
+        # fill the coefficient matrix with the trainable coefficients
         coeffs = self.fill_coefficient_matrix(trainable_coeffs)
+
         return coeffs, coeffs_mean, coeffs_log_scale
 
     def kl_loss(self, mean, scale):
         """
-        Compute the KL divergence between the priors and the coefficient distributions of the VINDy layer.
-
-        Parameters
-        ----------
-        mean : tf.Tensor
-            Mean of the coefficient distributions.
-        scale : tf.Tensor
-            Scale of the coefficient distributions.
-
-        Returns
-        -------
-        tf.Tensor
-            KL divergence loss.
+        Computes the KL divergence between the priors and the coefficient distributions of the VINDy layer
+        :param mean:
+        :param scale:
+        :return:
         """
         if isinstance(self.priors, list):
             kl_loss = 0
@@ -147,90 +106,47 @@ class VindyLayer(SindyLayer):
                 kl_loss += prior.KL_divergence(mean, scale)
         else:
             kl_loss = self.priors.KL_divergence(mean, scale)
+
         return self.beta * tf.reduce_sum(kl_loss)
 
     def get_sindy_coeffs(self):
-        """
-        Get the SINDy coefficients as a numpy array.
-
-        Returns
-        -------
-        np.ndarray
-            SINDy coefficients.
-        """
         _, coeffs_mean, _ = self._coeffs
         coeffs = self.fill_coefficient_matrix(coeffs_mean)
         return coeffs.numpy()
 
+    # @tf.function
     def call(self, inputs, training=False):
         """
-        Apply the VINDy layer to the inputs.
-
-        Parameters
-        ----------
-        inputs : tf.Tensor
-            Input tensor.
-        training : bool, optional
-            Whether the layer is in training mode (default is False).
-
-        Returns
-        -------
-        tf.Tensor or list
-            Output tensor after applying the VINDy layer. If training, returns a list containing the output tensor,
-            mean, and log variance.
+        Applies the VINDy layer to the arguments, i.e. applies the feature libraries to the arguments,
+        samples the coefficients from a normal distribution parametrized by the layer's kernel (weights) and
+        computes the dot product of the features and the coefficients
+        :param inputs:
+        :param training:
+        :return:
         """
+        # todo: think about whether we want to have deterministic coefficients during inference (after training) or not
         z_features = self.tfFeat(inputs)
         coeffs, coeffs_mean, coeffs_log_var = self._coeffs
         if training:
             z_dot = z_features @ tf.transpose(coeffs)
             return [z_dot, coeffs_mean, coeffs_log_var]
         else:
+            # in case of evaluation, we use the mean of the coefficients
             z_dot = z_features @ tf.transpose(self.fill_coefficient_matrix(coeffs_mean))
             return z_dot
 
     def visualize_coefficients(self, x_range=None, z=None, mu=None):
         """
-        Visualize the coefficients of the SINDy layer as distributions.
-
-        Parameters
-        ----------
-        x_range : tuple, optional
-            Range of x values for the plot (default is None).
-        z : list of str, optional
-            Names of the states, e.g., \['z1', 'z2', ...\] (default is None).
-        mu : list of str, optional
-            Names of the parameters, e.g., \['mu1', 'mu2', ...\] (default is None).
-
-        Returns
-        -------
-        None
+        Visualizes the coefficients of the SINDy layer as distributions
+        :return:
         """
+        # get coefficient parameterization
         _, mean, log_scale = self._coeffs
-        _ = self._visualize_coefficients(mean.numpy(), log_scale.numpy(), x_range, z, mu)
-
+        _ = self._visualize_coefficients(
+            mean.numpy(), log_scale.numpy(), x_range, z, mu
+        )
 
     def _visualize_coefficients(self, mean, log_scale, x_range=None, z=None, mu=None):
-        """
-        Visualize the coefficients of the SINDy layer as distributions.
-
-        Parameters
-        ----------
-        mean : np.ndarray
-            Mean of the coefficient distributions.
-        log_scale : np.ndarray
-            Log scale of the coefficient distributions.
-        x_range : tuple, optional
-            Range of x values for the plot (default is None).
-        z : list of str, optional
-            Names of the states, e.g., \['z1', 'z2', ...\] (default is None).
-        mu : list of str, optional
-            Names of the parameters, e.g., \['mu1', 'mu2', ...\] (default is None).
-
-        Returns
-        -------
-        matplotlib.figure.Figure
-            Figure object containing the plots.
-        """
 
         # get name of the corresponding features
         feature_names = self.get_feature_names(z, mu)
@@ -270,16 +186,9 @@ class VindyLayer(SindyLayer):
     def pdf_thresholding(self, threshold: float = 1.0):
         """
         Cancel the coefficients of the SINDy layer if their corresponding probability density function at zero is above
-        the threshold, i.e., if pdf(0) > threshold.
-
-        Parameters
-        ----------
-        threshold : float, optional
-            Threshold for canceling coefficients (default is 1.0).
-
-        Returns
-        -------
-        None
+        the threshold, i.e. if pdf(0) > threshold
+        :param threshold:
+        :return:
         """
         # get current
         _, loc, log_scale = self._coeffs
@@ -303,14 +212,7 @@ class VindyLayer(SindyLayer):
 
 class LogVarL1L2Regularizer(tf.keras.regularizers.Regularizer):
     """
-    Regularizer for the log variance of the coefficients in the VINDy layer.
-
-    Parameters
-    ----------
-    l1 : float, optional
-        L1 regularization factor (default is 0.0).
-    l2 : float, optional
-        L2 regularization factor (default is 0.0).
+    Regularizer for the log variance of the coefficients in the VINDy layer
     """
 
     def __init__(self, l1=0.0, l2=0.0):
@@ -324,19 +226,6 @@ class LogVarL1L2Regularizer(tf.keras.regularizers.Regularizer):
         self.l2 = l2
 
     def __call__(self, x):
-        """
-        Apply the regularization.
-
-        Parameters
-        ----------
-        x : tf.Tensor
-            Input tensor.
-
-        Returns
-        -------
-        tf.Tensor
-            Regularization term.
-        """
         regularization = 0
         if self.l1:
             regularization += self.l1 * tf.reduce_sum(tf.abs(tf.exp(0.5 * x)))

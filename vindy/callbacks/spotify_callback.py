@@ -9,16 +9,6 @@ class SpotifyCallback(tf.keras.callbacks.Callback):
         song_link="https://open.spotify.com/track/3cHyrEgdyYRjgJKSOiOtcS?si=3281ab97ddde4286",
         n_epochs=20,
     ):
-        """
-        Callback to open a Spotify song link if the loss is going down for a specified number of epochs.
-
-        Parameters
-        ----------
-        song_link : str
-            The Spotify song link to open.
-        n_epochs : int
-            The number of epochs to wait for loss improvement before opening the song link.
-        """
 
         self.song_link = song_link
         self.loss = 0
@@ -29,16 +19,6 @@ class SpotifyCallback(tf.keras.callbacks.Callback):
         super(SpotifyCallback, self).__init__()
 
     def on_epoch_end(self, epoch, logs=None):
-        """
-        Called at the end of an epoch during training.
-
-        Parameters
-        ----------
-        epoch : int
-            The current epoch number.
-        logs : dict, optional
-            Dictionary of logs from the training process.
-        """
 
         if not self.finished:
             current_loss = logs.get("loss")
