@@ -1,6 +1,7 @@
 <!-- PROJECT SHIELDS -->
 [![arXiv][arxiv-shield]][arxiv-url]
 [![DOI][doi-shield]][doi-url]
+[![Documentation Status][docs-shield]][docs-url]
 [![MIT License][license-shield]][license-url]
 
 
@@ -94,3 +95,5 @@ It is in the `examples` folder. Please note that you'll need to have jupyter ins
 [doi-url]: https://doi.org/10.5281/zenodo.13120249
 [arxiv-shield]: https://img.shields.io/badge/arXiv-2405.20905-b31b1b.svg
 [arxiv-url]: https://doi.org/10.48550/arXiv.2405.20905
+[docs-url]: https://jkneifl.github.io/VENI-VINDy-VICI/
+[docs-shield]: https://img.shields.io/badge/docs-online-blue.svg
