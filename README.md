@@ -18,8 +18,14 @@ Run the Roessler example on Colab
 
 ## Reference
 The preprint is available on [arXiv](https://arxiv.org/abs/2405.20905).
+If you use this project for academic work, please consider citing it
 
-If you want to cite this code, use [Zenodo](https://zenodo.org/doi/10.5281/zenodo.13120248).
+>
+    Conti, P., Kneifl, J., Manzoni, A., Frangi, A., Fehr, J., Brunton, S. L., & Kutz, J. N. (2024).
+    VENI, VINDy, VICI: a variational reduced-order modeling framework with uncertainty quantification.
+    ArXiv preprint arXiv:2405.20905.  
+
+If you additionally want to cite this code, use [Zenodo](https://zenodo.org/doi/10.5281/zenodo.13120248).
 
 ## Framework
 The framework discovers probabilistic governing equations from high-dimensional data in a low-dimensional latent space. It consists of three steps:
