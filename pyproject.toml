@@ -54,4 +54,4 @@ interfaces = [
 
 [project.urls]
 Homepage = "https://github.com/jkneifl/VENI-VINDy-VICI"
-Issues = "https://github.com/jkneifl/VENI-VINDy-VICIissues"
+Issues = "https://github.com/jkneifl/VENI-VINDy-VICI/issues"
