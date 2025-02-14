@@ -55,7 +55,7 @@ class VindyLayer(SindyLayer):
         # initialize the log variance of the coefficients
         init = tf.random_uniform_initializer(minval=-1, maxval=1)
         l1, l2 = kernel_regularizer.l1, kernel_regularizer.l2
-        scale_regularizer = LogVarL1L2Regularizer(l1=l1, l2=l2)
+        scale_regularizer = LogVarL1L2Regularizer(l1=l1, l2=l2, dtype=self.dtype_)
         self.kernel_scale = self.add_weight(
             name="SINDy_log_scale",
             initializer=init,
@@ -101,7 +101,7 @@ class VindyLayer(SindyLayer):
         :return:
         """
         if isinstance(self.priors, list):
-            kl_loss = 0
+            kl_loss = tf.cast(0, self.dtype_)
             for prior in self.priors:
                 kl_loss += prior.KL_divergence(mean, scale)
         else:
@@ -114,7 +114,7 @@ class VindyLayer(SindyLayer):
         coeffs = self.fill_coefficient_matrix(coeffs_mean)
         return coeffs.numpy()
 
-    # @tf.function
+    @tf.function
     def call(self, inputs, training=False):
         """
         Applies the VINDy layer to the arguments, i.e. applies the feature libraries to the arguments,
@@ -125,7 +125,7 @@ class VindyLayer(SindyLayer):
         :return:
         """
         # todo: think about whether we want to have deterministic coefficients during inference (after training) or not
-        z_features = self.tfFeat(inputs)
+        z_features = self.features(inputs)
         coeffs, coeffs_mean, coeffs_log_var = self._coeffs
         if training:
             z_dot = z_features @ tf.transpose(coeffs)
@@ -206,8 +206,37 @@ class VindyLayer(SindyLayer):
                 # cancel the coefficient
                 loc[i].assign(0)
                 log_scale[i].assign(-10)
-                logging.info(f"Canceling coefficient {feature_names[i]}")
+                logging.info(
+                    f"Canceling coefficient {feature_names[i]} with pdf(0)={zero_density[0]}"
+                )
         self.print()
+
+    def integrate_uq(self, z0, t, mu=None, method="RK45"):
+
+        # sample new set of coefficients
+        sampled_coeffs, _, _ = self._coeffs
+
+        def sindy_fcn(t_, inputs):
+            return self.call_uq(inputs, coeffs=sampled_coeffs)
+
+        return (
+            self.integrate(z0, t, mu=mu, method=method, sindy_fcn=sindy_fcn),
+            sampled_coeffs,
+        )
+
+    def call_uq(self, inputs, coeffs):
+        """
+        Applies the VINDy layer for given coefficients so that the coefficients are not sampled from the distribution
+        :param inputs:
+        :param training:
+        :return:
+        """
+        if len(inputs.shape) == 1:
+            inputs = tf.expand_dims(inputs, 0)
+        inputs = tf.cast(inputs, dtype=self.dtype_)
+        features = self.features(inputs)
+        z_dot = features @ tf.transpose(coeffs)
+        return z_dot
 
 
 class LogVarL1L2Regularizer(tf.keras.regularizers.Regularizer):
@@ -215,18 +244,18 @@ class LogVarL1L2Regularizer(tf.keras.regularizers.Regularizer):
     Regularizer for the log variance of the coefficients in the VINDy layer
     """
 
-    def __init__(self, l1=0.0, l2=0.0):
+    def __init__(self, l1=0.0, l2=0.0, dtype=tf.float32):
         # The default value for l1 and l2 are different from the value in l1_l2
         # for backward compatibility reason. Eg, L1L2(l2=0.1) will only have l2
         # and no l1 penalty.
         l1 = 0.0 if l1 is None else l1
         l2 = 0.0 if l2 is None else l2
-
-        self.l1 = l1
-        self.l2 = l2
+        self.dtype_ = dtype
+        self.l1 = tf.convert_to_tensor(l1, dtype=dtype)
+        self.l2 = tf.convert_to_tensor(l2, dtype=dtype)
 
     def __call__(self, x):
-        regularization = 0
+        regularization = tf.convert_to_tensor(0, dtype=self.dtype_)
         if self.l1:
             regularization += self.l1 * tf.reduce_sum(tf.abs(tf.exp(0.5 * x)))
         if self.l2:

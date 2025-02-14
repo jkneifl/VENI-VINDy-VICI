@@ -156,7 +156,6 @@ class AutoencoderSindy(BaseModel):
             self.sindy_optimizer.build(trainable_weights)
         else:
             self.sindy_optimizer = tf.keras.optimizers.get(sindy_optimizer)
-        # self.reconstrution_loss = self.compiled_loss
 
     @staticmethod
     def reconstruction_loss(x, x_pred):
@@ -286,7 +285,6 @@ class AutoencoderSindy(BaseModel):
         )(x_)
         return x
 
-    @tf.function
     def build_loss(self, inputs):
         """
         split input into state, its derivative and the parameters, perform the forward pass, calculate the loss,
@@ -400,7 +398,6 @@ class AutoencoderSindy(BaseModel):
         z = self.encoder(x)
         return z, losses
 
-    @tf.function
     def get_loss_rec(self, x):
         """
         calculate reconstruction loss of autoencoder
@@ -422,7 +419,6 @@ class AutoencoderSindy(BaseModel):
 
         return losses
 
-    @tf.function
     def get_loss(self, x, dx_dt, mu, x_int=None, mu_int=None):
         """
         calculate loss for first order system
@@ -460,8 +456,8 @@ class AutoencoderSindy(BaseModel):
             dx_dz = t22.batch_jacobian(x_, z)
             # calculate first time derivative of the reconstructed state by application of the chain rule
             dxf_dt = dx_dz @ dz_dt_sindy
-            dx_loss = self.l_dx * self.compiled_loss(
-                tf.concat([dxf_dt], axis=1), tf.concat([dx_dt], axis=1)
+            dx_loss = self.l_dx * self.compute_loss(
+                None, tf.concat([dxf_dt], axis=1), tf.concat([dx_dt], axis=1)
             )
             losses["dx"] = dx_loss
             losses["loss"] += dx_loss
@@ -475,7 +471,7 @@ class AutoencoderSindy(BaseModel):
         # calculate losses
         reg_loss = tf.reduce_sum(self.losses)
         rec_loss = self.l_rec * self.reconstruction_loss(x, x_)
-        # dz_loss = self.l_dz * self.compiled_loss(tf.concat([dz_dt], axis=1),
+        # dz_loss = self.l_dz * self.compute_loss(None, tf.concat([dz_dt], axis=1),
         # tf.concat([dz_dt_sindy], axis=1))
         dz_loss = tf.math.log(
             2 * np.pi * tf.reduce_mean(tf.keras.losses.mse(dz_dt, dz_dt_sindy)) + 1
@@ -495,7 +491,6 @@ class AutoencoderSindy(BaseModel):
 
         return losses
 
-    @tf.function
     def get_loss_2nd(
         self, x, dx_dt, dx_ddt, mu, x_int=None, dx_dt_int=None, mu_int=None
     ):
@@ -561,7 +556,8 @@ class AutoencoderSindy(BaseModel):
                     @ dz_dt_sindy
                 ) + dx_dz @ dz_ddt_sindy
 
-                dx_loss = self.l_dx * self.compiled_loss(
+                dx_loss = self.l_dx * self.compute_loss(
+                    None,
                     tf.concat([dxf_dt, dxf_ddt], axis=1),
                     tf.concat([dx_dt, dx_ddt], axis=1),
                 )
@@ -583,7 +579,8 @@ class AutoencoderSindy(BaseModel):
         # calculate losses
         reg_loss = tf.reduce_sum(self.losses)
         rec_loss = self.l_rec * self.reconstruction_loss(x, x_)
-        dz_loss = self.l_dz * self.compiled_loss(
+        dz_loss = self.l_dz * self.compute_loss(
+            None,
             tf.concat([dz_dt, dz_ddt], axis=1),
             tf.concat([dz_dt_sindy, dz_ddt_sindy], axis=1),
         )
@@ -616,7 +613,6 @@ class AutoencoderSindy(BaseModel):
         x_rec = self.decoder(z)
         return self.unflatten(x_rec)
 
-    @tf.function
     def reconstruct(self, x, _=None):
         """
         reconstruct full state

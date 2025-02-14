@@ -122,7 +122,7 @@ class SindyCallback(tf.keras.callbacks.Callback):
         # %% data preparation for the seperate sindy sindy_model
 
         # apply the basis functions to the latent variable
-        z_feat = self.sindylayer.tfFeat(z_sindy)
+        z_feat = self.sindylayer.features(z_sindy)
         # apply the selection matrix to the basis functions
         z_feat = tf.matmul(z_feat, mask_selection.T)
 

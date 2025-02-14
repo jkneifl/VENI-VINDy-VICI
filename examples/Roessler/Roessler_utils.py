@@ -135,7 +135,7 @@ def data_plot(t, x, dxdt, x_test):
     axs[0].legend(["x", "y"], fontsize=14)
     axs[0].set_title("States")
     axs[1].set_xlabel("t")
-    axs[1].legend(["$\dot{x}$", "$\dot{y}$"], fontsize=14)
+    axs[1].legend([r"$\dot{x}$", r"$\dot{y}$"], fontsize=14)
     axs[1].set_title("Velocities")
 
 
@@ -182,6 +182,7 @@ def trajectory_plot(t, x_test, t_pred, x_pred, dim, nt, i_test, var_names):
     plt.legend()
     plt.tight_layout()
 
+
 def uq_plot(t, x_test, t_preds, x_pred, x_uq_mean_sampled, x_uq_std, dim, nt, i_test):
     fig, axs = plt.subplots(dim, 1, figsize=(12, 4), sharex=True)
     fig.suptitle(f"Integrated Test Trajectories")
@@ -196,7 +197,13 @@ def uq_plot(t, x_test, t_preds, x_pred, x_uq_mean_sampled, x_uq_std, dim, nt, i_
             alpha=0.3,
             label="uncertainty bound (+-3 std)",
         )
-        axs[i].plot(t, x_test[t_0: t_0 + nt, i], color="black", label="reference")
-        axs[i].plot(t_preds[i], x_pred[i], color="orange", linestyle="--", label="mean prediction")
+        axs[i].plot(t, x_test[t_0 : t_0 + nt, i], color="black", label="reference")
+        axs[i].plot(
+            t_preds[i],
+            x_pred[i],
+            color="orange",
+            linestyle="--",
+            label="mean prediction",
+        )
     plt.legend()
     plt.tight_layout()

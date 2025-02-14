@@ -1,8 +1,13 @@
 import tensorflow as tf
 import numpy as np
+import scipy
 import inspect
 from vindy.libraries import PolynomialLibrary, BaseLibrary
 from sympy import symbols
+import logging
+
+logging.basicConfig()
+logging.getLogger().setLevel(logging.INFO)
 
 
 class SindyLayer(tf.keras.layers.Layer):
@@ -60,7 +65,7 @@ class SindyLayer(tf.keras.layers.Layer):
             self.output_dim = 2 * state_dim
         else:
             self.output_dim = state_dim
-        self.n_bases_functions = self.tfFeat(
+        self.n_bases_functions = self.features(
             tf.ones((1, self.output_dim + param_dim))
         ).shape[1]
 
@@ -241,7 +246,10 @@ class SindyLayer(tf.keras.layers.Layer):
         return [self.kernel]
 
     def prune_weights(self, threshold=0.01, training=False):
-        mask = tf.math.greater(tf.math.abs(self.kernel), threshold * tf.ones_like(self.kernel, dtype=self.kernel.dtype))
+        mask = tf.math.greater(
+            tf.math.abs(self.kernel),
+            threshold * tf.ones_like(self.kernel, dtype=self.kernel.dtype),
+        )
         mask = tf.cast(mask, dtype=self.kernel.dtype)
         self.kernel.assign(tf.multiply(self.kernel, mask))
 
@@ -266,12 +274,14 @@ class SindyLayer(tf.keras.layers.Layer):
 
     @tf.function
     def call(self, inputs, training=False):
-        z_features = self.tfFeat(inputs)
+        """
+        forward pass of the SINDy layer
+        """
+        z_features = self.features(inputs)
         z_dot = z_features @ tf.transpose(self._coeffs)
         return z_dot
 
-    @tf.function
-    def tfFeat(self, inputs):
+    def features(self, inputs):
         """
         combine all features
         :param inputs:
@@ -293,7 +303,6 @@ class SindyLayer(tf.keras.layers.Layer):
                 return tf.concat([z_feat, param_feat], axis=1)
             return z_feat
 
-    @tf.function
     def concat_features(self, z, libraries):
         """
         concatenate features from different libraries
@@ -315,7 +324,7 @@ class SindyLayer(tf.keras.layers.Layer):
         if z is None:
             z = [f"z_{i}" for i in range(self.output_dim)]
         if mu is None:
-            mu = [f"\u03BC_{i}" for i in range(self.param_dim)]
+            mu = [f"\u03bc_{i}" for i in range(self.param_dim)]
 
         z = [symbols(z_) for z_ in z]
         mu = [symbols(mu_) for mu_ in mu]
@@ -360,7 +369,7 @@ class SindyLayer(tf.keras.layers.Layer):
         if z is None:
             z = [f"z{i}" for i in range(self.output_dim)]
         if mu is None:
-            mu = [f"\u03BC{i}" for i in range(self.param_dim)]
+            mu = [f"\u03bc{i}" for i in range(self.param_dim)]
         if len(z) != self.output_dim:
             raise ValueError(f"arguments should have length {self.output_dim}")
         if len(mu) != self.param_dim:
@@ -383,3 +392,60 @@ class SindyLayer(tf.keras.layers.Layer):
                     #     print(' + ', end='')
             str += "\n"
         return str
+
+    def integrate(self, z0, t, mu=None, method="RK45", sindy_fcn=None):
+        """
+        Integrate the model using scipy.integrate.solve_ivp
+        :param z0: (array-like) initial state
+        :param t: time points to evaluate the solution at
+        :param mu: parameters to use in the model
+        :param method: integration method to use
+        :return:
+        """
+
+        # tensorflow tensor form numpy
+        z0 = tf.cast(z0, dtype=self.dtype_)
+        t = tf.cast(t, dtype=self.dtype_)
+
+        if sindy_fcn is None:
+            sindy_fcn = self.rhs_
+        if mu is not None:
+            if not callable(mu):
+                mu = tf.cast(mu, dtype=self.dtype_)
+                mu_fun = scipy.interpolate.interp1d(
+                    t, mu, axis=0, kind="cubic", fill_value="extrapolate"
+                )
+                t = t[:-1]
+                logging.warning(
+                    "Last time point dropped in simulation because "
+                    "interpolation of control input was used. To avoid "
+                    "this, pass in a callable for u."
+                )
+            else:
+                mu_fun = mu
+
+            def rhs(t, x):
+                return sindy_fcn(np.concatenate(t, [x, mu_fun(t)], axis=0))[0]
+
+        else:
+
+            def rhs(t, x):
+                return sindy_fcn(t, x)[0]
+
+        sol = scipy.integrate.solve_ivp(
+            rhs,
+            t_span=[t[0], t[-1]],
+            t_eval=t,
+            y0=z0,
+            method=method,
+            # rtol=1e-6
+        )
+        return sol
+
+    def rhs_(self, t, inputs):
+        """
+        evaluate right-hand side of the ODE system z'(t) = f(z, mu) for inputs (z, mu)
+        """
+        if len(inputs.shape) == 1:
+            inputs = tf.expand_dims(inputs, 0)
+        return self(inputs)

@@ -1,5 +1,4 @@
 import numpy as np
-import scipy
 from abc import ABC
 import os
 import logging
@@ -159,60 +158,10 @@ class BaseModel(tf.keras.Model, ABC):
     def unflatten3d(self, x):
         return tf.reshape(x, [-1, self.x_shape[0], self.x_shape[1]])
 
-    def rhs_(self, t, z):
-        if len(z.shape) == 1:
-            z = tf.expand_dims(z, 0)
-        return self.sindy(z)  # .numpy()
-
     def print(self, z=None, mu=None, precision=3):
         for layer in self.sindy.layers:
             if isinstance(layer, SindyLayer):
                 layer.print(z, mu, precision)
-
-    def integrate(self, z0, t, mu=None, method="RK45"):
-        """
-        Integrate the model using scipy.integrate.solve_ivp
-        :param z0: (array-like) initial state
-        :param t: time points to evaluate the solution at
-        :param mu: parameters to use in the model
-        :param method: integration method to use
-        :return:
-        """
-        if mu is not None:
-            if not callable(mu):
-                mu_fun = scipy.interpolate.interp1d(
-                    t, mu, axis=0, kind="cubic", fill_value="extrapolate"
-                )
-                t = t[:-1]
-                logging.warning(
-                    "Last time point dropped in simulation because "
-                    "interpolation of control input was used. To avoid "
-                    "this, pass in a callable for u."
-                )
-            else:
-                mu_fun = mu
-
-            def rhs(t, x):
-                return self.rhs_(t, np.concatenate([x, mu_fun(t)], axis=0))[0]
-
-        else:
-
-            def rhs(t, x):
-                return self.rhs_(t, x)[0]
-
-        # z = tf.Tensor(z0[np.newaxis], dtype=self.dtype_)
-        # tensorflow tensor form numpy
-        z0 = tf.cast(z0, dtype=self.dtype_)
-        # %timeit self.sindy(z, dtype=self.dtype_)
-        sol = scipy.integrate.solve_ivp(
-            rhs,
-            t_span=[t[0], t[-1]],
-            t_eval=t,
-            y0=z0,
-            method=method,
-            # rtol=1e-6
-        )
-        return sol
 
     def sindy_coeffs(self):
         """
@@ -423,8 +372,8 @@ class BaseModel(tf.keras.Model, ABC):
             k4 = self.sindy(tf.concat([sol + self.dt * k3, mu_int[:, i]], axis=1))
             sol = sol + 1 / 6 * self.dt * (k1 + 2 * k2 + 2 * k3 + k4)
             sol = tf.where(tf.abs(sol) > s_max, s_max, sol)
-            int_loss += self.compiled_loss(
-                sol[:, : self.reduced_order], s[:, i, : self.reduced_order]
+            int_loss += self.compute_loss(
+                None, sol[:, : self.reduced_order], s[:, i, : self.reduced_order]
             )
 
         # todo: this is only working in eager execution due to scipy interpolation of the input parameters
@@ -529,4 +478,13 @@ class BaseModel(tf.keras.Model, ABC):
         axs[i].legend(["Original", "Reconstructed"])
         plt.show()
 
-    # @tf.function
+    def integrate(self, z0, t, mu=None, method="RK45", sindy_fcn=None):
+        """
+        Integrate the model using scipy.integrate.solve_ivp
+        :param z0: (array-like) initial state
+        :param t: time points to evaluate the solution at
+        :param mu: parameters to use in the model
+        :param method: integration method to use
+        :return:
+        """
+        return self.sindy_layer.integrate(z0, t, mu, method, sindy_fcn)

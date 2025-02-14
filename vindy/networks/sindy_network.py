@@ -94,7 +94,6 @@ class SindyNetwork(BaseModel):
         # build the models
         self.sindy = tf.keras.Model(inputs=z_sindy, outputs=z_dot, name="sindy")
 
-    @tf.function
     def build_loss(self, inputs):
         """
         split input into state, its derivative and the parameters, perform the forward pass, calculate the loss,
@@ -124,7 +123,6 @@ class SindyNetwork(BaseModel):
 
         return losses
 
-    @tf.function
     def get_loss(self, z, dz_dt, mu, z_int=None, mu_int=None):
         """
         calculate loss for first order system
@@ -152,8 +150,8 @@ class SindyNetwork(BaseModel):
 
         # calculate losses
         reg_loss = tf.reduce_sum(self.losses)
-        dz_loss = self.l_dz * self.compiled_loss(
-            tf.concat([dz_dt], axis=1), tf.concat([dz_dt_sindy], axis=1)
+        dz_loss = self.l_dz * self.compute_loss(
+            None, tf.concat([dz_dt], axis=1), tf.concat([dz_dt_sindy], axis=1)
         )
         losses["reg"] = reg_loss
         losses["dz"] = dz_loss
@@ -167,7 +165,6 @@ class SindyNetwork(BaseModel):
 
         return losses
 
-    @tf.function
     def get_loss_2nd(
         self, z, dz_dt, dz_ddt, mu, z_int=None, dz_dt_int=None, mu_int=None
     ):
@@ -210,7 +207,8 @@ class SindyNetwork(BaseModel):
 
         # calculate losses
         reg_loss = tf.reduce_sum(self.losses)
-        dz_loss = self.l_dz * self.compiled_loss(
+        dz_loss = self.l_dz * self.compute_loss(
+            None,
             tf.concat([dz_dt, dz_ddt], axis=1),
             tf.concat([dz_dt_sindy, dz_ddt_sindy], axis=1),
         )
