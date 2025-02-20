@@ -85,10 +85,6 @@ class AutoencoderSindy(BaseModel):
         # create loss tracker
         self.create_loss_trackers()
 
-    @property
-    def _scaling_methods(self):
-        return ["individual", "global", "individual_sqrt", "none"]
-
     def assert_arguments(self, arguments):
         """
         Asserts that the arguments passed to the model are valid
@@ -200,49 +196,6 @@ class AutoencoderSindy(BaseModel):
         self.encoder = tf.keras.Model(inputs=x_input, outputs=z, name="encoder")
         self.decoder = tf.keras.Model(inputs=z, outputs=x, name="decoder")
         self.sindy = tf.keras.Model(inputs=z_sindy, outputs=z_dot, name="sindy")
-
-    def define_scaling(self, x):
-        """
-        define the scaling factor for given training data
-        :param x:
-        :return:
-        """
-        # scale the data if requested
-        if self.scaling == "individual":
-            # scale by squareroot of individual max value
-            self.scale_factor = 1 / (tf.reduce_max(tf.abs(x), axis=0))
-            # self.model_noise_factor = 1 / (tf.reduce_max(tf.abs(x), axis=0))
-            # replace inf with ones to avoid division by zero
-            self.scale_factor = tf.where(
-                tf.math.is_inf(self.scale_factor),
-                tf.ones_like(self.scale_factor),
-                self.scale_factor,
-            )
-        elif self.scaling == "individual_sqrt":
-            # scale by squareroot of individual max value
-            self.scale_factor = 1 / tf.sqrt(tf.reduce_max(tf.abs(x), axis=0))
-            # self.model_noise_factor = 1 / (tf.reduce_max(tf.abs(x), axis=0))
-            # replace inf with ones to avoid division by zero
-            self.scale_factor = tf.where(
-                tf.math.is_inf(self.scale_factor),
-                tf.ones_like(self.scale_factor),
-                self.scale_factor,
-            )
-        elif self.scaling == "global":
-            # scale all features by global  max value
-            self.scale_factor = 1.0 / tf.reduce_max(tf.abs(x))
-        else:
-            self.scale_factor = 1.0
-
-    def scale(self, x):
-        # scale the data
-        x = x * self.scale_factor
-        return x
-
-    def rescale(self, x):
-        # rescale the data
-        x = x / self.scale_factor
-        return x
 
     def build_encoder(self, x):
         """

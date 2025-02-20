@@ -13,6 +13,7 @@ class SindyNetwork(BaseModel):
         sindy_layer,
         x,
         mu=None,
+        scaling="individual",
         second_order=True,
         l_dz: float = 1,
         l_int: float = 0,
@@ -46,6 +47,7 @@ class SindyNetwork(BaseModel):
         # weighting of the different losses
         self.l_dz, self.l_int = l_dz, l_int
         self.dt = dt
+        self.scaling = scaling
 
         # create the model
         self.x_shape = x.shape[1:]

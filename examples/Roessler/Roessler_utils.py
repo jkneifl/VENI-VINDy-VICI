@@ -15,23 +15,55 @@ def data_generation(
     seed,
     model_noise_factor,
     measurement_noise_factor,
+    model="roessler",
 ):
 
-    # time vectore
-    t0, T, nt = 0, 24, 2000
-    t = np.linspace(t0, T, nt)
-
     # Roessler system parameters
-    a = 0.2
-    b = 0.2
-    c = 5.7
-    # initial conditions
-    x0 = -5
-    y0 = -5
-    z0 = 0
-    ic = [x0, y0, z0]
-    dim = 3
-    var_names = ["z_1", "z_2", "z_3"]
+    if model == "roessler":
+        # time vectore
+        t0, T, nt = 0, 24, 2000
+        t = np.linspace(t0, T, nt)
+        a = 0.2
+        b = 0.2
+        c = 5.7
+        # initial conditions
+        x0 = -5
+        y0 = -5
+        z0 = 0
+        ic = [x0, y0, z0]
+        dim = 3
+        var_names = ["z_1", "z_2", "z_3"]
+    elif model == "lotka_volterra":
+        # time vectore
+        t0, T, nt = 0, 24, 2000
+        t = np.linspace(t0, T, nt)
+        # equation parameters
+        a = 1.0
+        b = 0.1
+        c = 1.5
+        d = 0.075
+        # initial conditions
+        x0 = 12
+        y0 = 6
+        ic = [x0, y0]
+        dim = 2
+        include_bias = False
+        var_names = ["x", "y"]
+    elif model == "lorenz":
+        # time vectore
+        t0, T, nt = 0, 8, 800
+        t = np.linspace(t0, T, nt)
+        # equation parameters
+        a = 10  # sigma
+        b = 28  # rho
+        c = 8 / 3  # beta
+        # initial conditions
+        x0 = -8
+        y0 = 7
+        z0 = 27
+        ic = [x0, y0, z0]
+        dim = 3
+        var_names = ["z_1", "z_2", "z_3"]
 
     # Generate initial conditions and parameters
     if random_IC:
@@ -137,6 +169,7 @@ def data_plot(t, x, dxdt, x_test):
     axs[1].set_xlabel("t")
     axs[1].legend([r"$\dot{x}$", r"$\dot{y}$"], fontsize=14)
     axs[1].set_title("Velocities")
+    plt.show(block=False)
 
 
 def training_plot(sindy_layer, trainhist, var_names):
@@ -148,14 +181,14 @@ def training_plot(sindy_layer, trainhist, var_names):
     plt.legend(["loss", "dz", "kl_sindy"])
     plt.xlabel("Epoch")
     plt.ylabel("Loss")
-    plt.show()
+    plt.show(block=False)
 
     plt.figure()
     plt.title("VINDy Coefficients over epochs")
     plt.plot(np.array(trainhist.history["coeffs_mean"]).squeeze())
     plt.xlabel("Epoch")
     plt.ylabel("Coefficient")
-    plt.show()
+    plt.show(block=False)
 
     equation = sindy_layer.model_equation_to_str(z=var_names, precision=3)
     sindy_layer.visualize_coefficients(x_range=[-1.6, 1.6], z=var_names, mu=None)
