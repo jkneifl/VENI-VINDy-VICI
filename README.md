@@ -97,8 +97,8 @@ It is in the `examples` folder. Please note that you'll need to have jupyter ins
 
 [license-shield]: https://img.shields.io/github/license/jkneifl/VENI-VINDy-VICI.svg
 [license-url]: https://github.com/jkneifl/VENI-VINDy-VICI/blob/main/LICENSE
-[doi-shield]: https://zenodo.org/badge/DOI/10.5281/zenodo.13120249.svg
-[doi-url]: https://doi.org/10.5281/zenodo.13120249
+[doi-shield]: https://zenodo.org/badge/DOI/10.5281/zenodo.13120248.svg
+[doi-url]: https://doi.org/10.5281/zenodo.13120248
 [arxiv-shield]: https://img.shields.io/badge/arXiv-2405.20905-b31b1b.svg
 [arxiv-url]: https://doi.org/10.48550/arXiv.2405.20905
 [docs-url]: https://jkneifl.github.io/VENI-VINDy-VICI/
