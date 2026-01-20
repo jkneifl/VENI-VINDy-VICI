@@ -89,7 +89,7 @@ It is in the `examples` folder. Please note that you'll need to have jupyter ins
 
 ## References
 
-[1] Paolo Conti, Jonas Kneifl, Andrea Manzoni, Attilio Frangi, Jörg Fehr, Steven L. Brunton, J. Nathan Kutz. VENI, VINDy, VICI -- a variational reduced-order modeling framework with uncertainty quantification. Arxiv preprint: 2405.20905. [doi:10.48550/ARXIV.2405.20905](https://doi.org/10.48550/ARXIV.2405.20905).
+[1] Paolo Conti, Jonas Kneifl, Andrea Manzoni, Attilio Frangi, Jörg Fehr, Steven L. Brunton, J. Nathan Kutz. VENI, VINDy, VICI -- a generative reduced-order modeling framework with uncertainty quantification. Neural Networks, 2026. [doi.org/10.1016/j.neunet.2026.108543](https://doi.org/10.1016/j.neunet.2026.108543).
 
 [2] S. L. Brunton, J. L. Proctor, J. N. Kutz, Discovering governing equations from data by sparse identification of nonlinear dynamical systems, Proceedings of the national academy of sciences 113 (15) (2016) 3932–3937. [doi:10.1073/pnas.1517384113](https://doi.org/10.1073/pnas.1517384113).
 
