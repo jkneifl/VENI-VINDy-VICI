@@ -1,9 +1,8 @@
 <!-- PROJECT SHIELDS -->
-[![arXiv][arxiv-shield]][arxiv-url]
-[![DOI][doi-shield]][doi-url]
+[![Publication][paper-shield]][paper-url]
+[![DOI][code-shield]][code-url]
 [![Documentation Status][docs-shield]][docs-url]
 [![MIT License][license-shield]][license-url]
-
 
 > :warning: **More examples will be available soon**
 
@@ -95,11 +94,15 @@ It is in the `examples` folder. Please note that you'll need to have jupyter ins
 
 [3] Champion, K., Lusch, B., Kutz, J. N., & Brunton, S. L. (2019). Data-driven discovery of coordinates and governing equations. Proceedings of the National Academy of Sciences, 116(45), 22445-22451. [doi:10.1073/pnas.1906995116](https://doi.org/10.1073/pnas.1906995116). 
 
-[license-shield]: https://img.shields.io/github/license/jkneifl/VENI-VINDy-VICI.svg
-[license-url]: https://github.com/jkneifl/VENI-VINDy-VICI/blob/main/LICENSE
-[doi-shield]: https://zenodo.org/badge/DOI/10.5281/zenodo.13120248.svg
-[doi-url]: https://doi.org/10.5281/zenodo.13120248
-[arxiv-shield]: https://img.shields.io/badge/arXiv-2405.20905-b31b1b.svg
-[arxiv-url]: https://doi.org/10.48550/arXiv.2405.20905
+
+[paper-shield]: https://img.shields.io/badge/Paper-DOI%3A10.1016%2Fj.neunet.2026.108543-b31b1b
+[paper-url]: https://doi.org/10.1016/j.neunet.2026.108543
+
+[code-shield]: https://img.shields.io/badge/Code-Zenodo-blue
+[code-url]: https://doi.org/10.5281/zenodo.13120248
+
+[docs-shield]: https://img.shields.io/badge/Docs-Online-blue
 [docs-url]: https://jkneifl.github.io/VENI-VINDy-VICI/
-[docs-shield]: https://img.shields.io/badge/docs-online-blue.svg
+
+[license-shield]: https://img.shields.io/github/license/jkneifl/VENI-VINDy-VICI
+[license-url]: https://github.com/jkneifl/VENI-VINDy-VICI/blob/main/LICENSE
