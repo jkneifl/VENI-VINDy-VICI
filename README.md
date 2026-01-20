@@ -16,7 +16,7 @@ Run the Roessler example on Colab
 [Tutorial Roessler](https://colab.research.google.com/drive/1Tvk93iU5kh7i7ffkOwfMUPwxT1rhhoW0)
 
 ## Reference
-The journal paper is avaiable on [Neural Networks](https://doi.org/10.1016/j.neunet.2026.108543), while you can find the preprint version on [arXiv](https://arxiv.org/abs/2405.20905).
+The journal paper is available on [Neural Networks](https://doi.org/10.1016/j.neunet.2026.108543), while you can find the preprint version on [arXiv](https://arxiv.org/abs/2405.20905).
 If you use this project for academic work, please consider citing it
 
 >
