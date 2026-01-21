@@ -16,27 +16,31 @@ Run the Roessler example on Colab
 [Tutorial Roessler](https://colab.research.google.com/drive/1Tvk93iU5kh7i7ffkOwfMUPwxT1rhhoW0)
 
 ## Reference
-The preprint is available on [arXiv](https://arxiv.org/abs/2405.20905).
+The journal paper is available on [Neural Networks](https://doi.org/10.1016/j.neunet.2026.108543), while you can find the preprint version on [arXiv](https://arxiv.org/abs/2405.20905).
 If you use this project for academic work, please consider citing it
 
 >
-    Conti, P., Kneifl, J., Manzoni, A., Frangi, A., Fehr, J., Brunton, S. L., & Kutz, J. N. (2024).
-    VENI, VINDy, VICI: a variational reduced-order modeling framework with uncertainty quantification.
-    ArXiv preprint arXiv:2405.20905.  
+    @article{conti2026veni,
+      title={VENI, VINDy, VICI: a generative reduced-order modeling framework with uncertainty quantification},
+      author={Conti, Paolo and Kneifl, Jonas and Manzoni, Andrea and Frangi, Attilio and Fehr, J{\"o}rg and Brunton, Steven L and Kutz, J Nathan},
+      journal={Neural Networks},
+      pages={108543},
+      year={2026},
+      publisher={Elsevier}
+    }
+     
 
 If you additionally want to cite this code, use [Zenodo](https://zenodo.org/doi/10.5281/zenodo.13120248).
 
 ## Framework
 The framework discovers probabilistic governing equations from high-dimensional data in a low-dimensional latent space. It consists of three steps:
 
-#### VENI (Variational Encoding of Noisy Inputs)
-A generative model utilizing variational autoencoders (VAEs) is applied to transform high-dimensional, noisy data into a low-dimensional latent space representation that is suitable to describe the dynamics of the system.
-
-#### VINDy (Variational Identification of Nonlinear Dynamics)
-On the time series data expressed in the new set of latent coordinates, a probabilistic dynamical model of the system is learned by a variational version of SINDy (Sparse Identification of Nonlinear Dynamics) [2].
-
-#### VICI (Variational Inference with Certainty Intervals) 
-The resulting ROM allows to evolve the temporal system solution by variational inference on both the latent variable distribution and the dynamic model, given new parameter/force values and initial conditions. This, naturally, provides an estimate of the reliability of the prediction through certainty intervals.
+- **VENI (Variational Encoding of Noisy Inputs)**:
+a generative model utilizing variational autoencoders (VAEs) is applied to transform high-dimensional, noisy data into a low-dimensional latent space representation that is suitable to describe the dynamics of the system.
+- **VINDy (Variational Identification of Nonlinear Dynamics)**:
+on the time series data expressed in the new set of latent coordinates, a probabilistic dynamical model of the system is learned by a variational version of SINDy (Sparse Identification of Nonlinear Dynamics) [2].
+- **VICI (Variational Inference with Certainty Intervals)**:
+the resulting ROM allows to evolve the temporal system solution by variational inference on both the latent variable distribution and the dynamic model, given new parameter/force values and initial conditions. This, naturally, provides an estimate of the reliability of the prediction through certainty intervals.
 
 ## Features
 This repository implements the classic SINDy autoencoders [3] as well as its variational extension: the newly proposed VENI, VINDy, VICI framework [1].
