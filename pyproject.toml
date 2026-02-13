@@ -11,7 +11,7 @@ authors = [
 ]
 description = "AESINDy is a Python package for automated system identification of low-dimensional systems combining autoencoders and SINDy."
 readme = "README.md"
-requires-python = ">=3.12"
+requires-python = ">=3.11"
 dependencies = [
     "matplotlib>=3.10",
     "numpy>=1.26",
