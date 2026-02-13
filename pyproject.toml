@@ -13,16 +13,15 @@ description = "AESINDy is a Python package for automated system identification o
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
-    "matplotlib>=3.10",
-    "numpy>=1.26",
+    "matplotlib>=3.8",
+    "numpy>=1.26,<2.0",
     "scikit_learn>=1.2",
     "scipy>=1.13",
     "sympy>=1.12",
-    "pysindy>=1.7",
-    "tensorflow>=2.18",
-    "tensorflow_probability>=0.25",
+    "tensorflow>=2.15,<2.19",
+    "tensorflow_probability>=0.23",
     "tensorflow_model_optimization>=0.8",
-    "tf-keras>=2.18",
+    "tf-keras>=2.15",
     "imageio>=2.30",
 ]
 keywords = [
