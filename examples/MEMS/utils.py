@@ -6,13 +6,6 @@ from sklearn.decomposition import PCA
 from vindy.utils import *
 import pickle
 
-import mat73
-import scipy.io
-from sklearn.utils import extmath
-import datetime
-from sklearn.model_selection import train_test_split
-import time
-
 # Add the examples folder to the Python path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 

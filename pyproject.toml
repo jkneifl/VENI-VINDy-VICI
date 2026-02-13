@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "vindy"
-version = "0.1.8"
+version = "1.0.0"
 authors = [
   { name="Jonas Kneifl", email="jonas.kneifl@itm.uni-stuttgart.com" },
   { name="Paolo Conti", email="paolo.conti@polimi.it" },
@@ -23,6 +23,7 @@ dependencies = [
     "tensorflow_probability>=0.25",
     "tensorflow_model_optimization>=0.8",
     "tf-keras>=2.18",
+    "imageio>=2.30",
 ]
 keywords = [
     "model order reduction",
@@ -42,7 +43,6 @@ classifiers = [
 [project.optional-dependencies]
 gui = [
     "visualizer-3d",
-    "imageio",
 ]
 interfaces = [
 ]

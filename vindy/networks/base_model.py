@@ -259,7 +259,7 @@ class BaseModel(tf.keras.Model, ABC):
 
         # first order systems dx_dt = f(x, mu)
         else:
-            if len(inputs[0]) =z_feat = tf.concat(features, axis=-1)= 5:
+            if len(inputs[0]) == 5:
                 [x, dx_dt, x_int, mu, mu_int] = inputs[0]
             # first order system with parameter / arguments
             if len(inputs[0]) == 3:
