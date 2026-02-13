@@ -41,7 +41,7 @@ def preprocess_data(noise_level=0.02, reduced_order=32, plots=False):
         n_sims,
         n_timesteps,
     ) = load_mems_data(
-        config.beam,
+        config.mems,
         nth_time_step=1,
         pca_order=4,
     )
