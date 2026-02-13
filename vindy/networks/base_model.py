@@ -216,7 +216,7 @@ class BaseModel(tf.keras.Model, ABC):
         if mu is not None:
             quantities_to_concatenate.append(mu)
         # concatenate the state and the parameters to the input of the SINDy layer
-        z_sindy = keras.layers.Concatenate(axis=1)(quantities_to_concatenate)
+        z_sindy = keras.layers.Concatenate(axis=-1)(quantities_to_concatenate)
         return z_sindy
 
     def build_sindy(self, z, mu):
@@ -259,7 +259,7 @@ class BaseModel(tf.keras.Model, ABC):
 
         # first order systems dx_dt = f(x, mu)
         else:
-            if len(inputs[0]) == 5:
+            if len(inputs[0]) =z_feat = tf.concat(features, axis=-1)= 5:
                 [x, dx_dt, x_int, mu, mu_int] = inputs[0]
             # first order system with parameter / arguments
             if len(inputs[0]) == 3:

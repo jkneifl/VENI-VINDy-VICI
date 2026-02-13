@@ -49,6 +49,7 @@ class PolynomialLibrary(BaseLibrary):
 
         # no interactions
         else:
+            x_poly = x
             for i in range(1, self.degree):
                 x_new = x ** (i + 1)
                 x_poly = tf.concat([x_poly, x_new], axis=1)

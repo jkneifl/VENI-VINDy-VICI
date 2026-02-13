@@ -310,7 +310,7 @@ class SindyLayer(tf.keras.layers.Layer):
         :param libraries: list of libraries
         """
         features = [library(z) for library in libraries]
-        z_feat = tf.concat(features, axis=1)
+        z_feat = tf.concat(features, axis=-1)
         return z_feat
 
     def get_feature_names(self, z=None, mu=None):
