@@ -211,9 +211,7 @@ def switch_data_format(
             target_format == "auto" and data.ndim == 3 and spatial_shape is None
         ):
             return data
-        if target_format == "2d" or (
-            target_format == "auto" and data.ndim == 3 and spatial_shape is None
-        ):
+        if target_format == "2d":
             return data.reshape(-1, data.shape[-1])
         # convert to 5D
         features = data.shape[2]
