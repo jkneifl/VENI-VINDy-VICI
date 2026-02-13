@@ -23,7 +23,7 @@ from vindy.libraries import PolynomialLibrary, ForceLibrary
 from vindy.layers import SindyLayer, VindyLayer
 from vindy.distributions import Laplace
 from vindy.callbacks import SaveCoefficientsCallback
-from vindy.utils import switch_data_format
+from vindy.utils import switch_data_format, coefficient_distribution_gif
 from examples.MEMS.utils import load_mems_data
 
 # Import shared utilities
@@ -41,12 +41,12 @@ from examples.utils import (
 # Import configuration (data paths)
 config = get_config()
 
-
 # Configure logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(message)s")
 
 # Constants
 LOAD_MODEL = True
+CREATE_GIF = False
 BETA_VINDY = 1e-8  # VINDy prior weight
 BETA_VAE = 1e-8  # VAE KL loss weight
 L_REC = 1e-3  # reconstruction loss weight
@@ -384,6 +384,15 @@ def main():
     )
 
     training_plots(trainhist, result_dir, x_train_scaled, x_test_scaled, veni)
+
+    # coefficients gif
+    if CREATE_GIF:
+        coefficient_distribution_gif(
+            trainhist["coeffs_mean"],
+            trainhist["coeffs_scale"],
+            veni.sindy_layer,
+            os.path.join(result_dir, f"{MODEL_NAME}/coefficients")
+        )
 
     # Sparsification of the identified model
     veni.sindy_layer.pdf_thresholding(threshold=PDF_THRESHOLD)

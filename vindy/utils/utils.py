@@ -59,7 +59,7 @@ def coefficient_distributions_to_csv(sindy_layer, outdir, var_names=[], param_na
 
 
 def coefficient_distribution_gif(
-    mean_over_epochs, scale_over_epochs, sindy_layer, outdir, model_name, config
+    mean_over_epochs, scale_over_epochs, sindy_layer, outdir
 ):
     """
     Create a gif showing how the coefficient distributions evolve over time
