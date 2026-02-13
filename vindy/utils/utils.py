@@ -88,7 +88,7 @@ def coefficient_distribution_gif(
             imageio.imread(os.path.join(outdir, "coefficients", f"coeffs_{i}.png"))
         )
     imageio.mimsave(
-        os.path.join(config.outdir, "coefficients", "coeffs.gif"),
+        os.path.join(outdir, "coefficients", "coeffs.gif"),
         images,
         duration=100,
     )
