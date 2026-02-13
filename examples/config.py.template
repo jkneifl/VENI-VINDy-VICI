@@ -1,0 +1,4 @@
+# Configuration file for simulation data paths
+mems = "YOURPATH/mems.npy"
+reaction_diffusion = "YOURPATH/rd.npy"
+

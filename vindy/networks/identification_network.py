@@ -6,7 +6,7 @@ logging.basicConfig()
 logging.getLogger().setLevel(logging.INFO)
 
 
-class SindyNetwork(BaseModel):
+class IdentificationNetwork(BaseModel):
 
     def __init__(
         self,
@@ -37,7 +37,7 @@ class SindyNetwork(BaseModel):
 
         tf.keras.backend.set_floatx(dtype)
         self.dtype_ = dtype
-        super(SindyNetwork, self).__init__(**kwargs)
+        super(IdentificationNetwork, self).__init__(**kwargs)
 
         if not hasattr(self, "config"):
             self._init_to_config(locals())

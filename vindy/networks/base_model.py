@@ -97,7 +97,7 @@ class BaseModel(tf.keras.Model, ABC):
                 f"results/saved_models/{self.__class__.__name__}/"
                 f'{datetime.datetime.now().strftime("%Y_%m_%d-%H:%M:%S")}/'
             )
-        weights_path = os.path.join(path, "weights/")
+        weights_path = os.path.join(path, ".weights.h5") #os.path.join(path, "weights/")
         model_path = os.path.join(path, f"model_config.pkl")
         self.save_weights(weights_path)
         # self.config['class_name'] = self.__class__.__name__

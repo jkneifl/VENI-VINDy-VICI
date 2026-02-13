@@ -148,22 +148,22 @@ class SindyLayer(tf.keras.layers.Layer):
             assert (
                 arguments["fixed_coeffs"].shape[0] == arguments["state_dim"]
             ), "fixed_coeffs must have shape (state_dim, x)"
-        # assert that feature_libraries is a list of aesindy.libraries objects
+        # assert that feature_libraries is a list of veni.libraries objects
         assert isinstance(
             arguments["feature_libraries"], list
         ), "feature_libraries must be a list"
         for lib in arguments["feature_libraries"]:
             assert isinstance(
                 lib, BaseLibrary
-            ), "feature_libraries must be a list of aesindy.libraries objects"
-        # assert that param_feature_libraries is a list of aesindy.libraries objects
+            ), "feature_libraries must be a list of veni.libraries objects"
+        # assert that param_feature_libraries is a list of veni.libraries objects
         assert isinstance(
             arguments["param_feature_libraries"], list
         ), "param_feature_libraries must be a list"
         for lib in arguments["param_feature_libraries"]:
             assert isinstance(
                 lib, BaseLibrary
-            ), "param_feature_libraries must be a list of aesindy.libraries objects"
+            ), "param_feature_libraries must be a list of veni.libraries objects"
         # assert that second_order and x_mu_interaction are booleans
         assert isinstance(
             arguments["second_order"], bool
@@ -425,7 +425,7 @@ class SindyLayer(tf.keras.layers.Layer):
                 mu_fun = mu
 
             def rhs(t, x):
-                return sindy_fcn(np.concatenate(t, [x, mu_fun(t)], axis=0))[0]
+                return sindy_fcn(t, np.concatenate([x, mu_fun(t)], axis=0))[0]
 
         else:
 
