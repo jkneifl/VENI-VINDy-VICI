@@ -3,6 +3,7 @@
 [![DOI][code-shield]][code-url]
 [![Documentation Status][docs-shield]][docs-url]
 [![MIT License][license-shield]][license-url]
+[![Data][data-shield]][data-url]
 
 > :warning: **More examples will be available soon**
 
@@ -14,6 +15,9 @@ A variational reduced-order modeling framework with uncertainty quantification [
 ## Tutorial Notebook 
 Run the Roessler example on Colab 
 [Tutorial Roessler](https://colab.research.google.com/drive/1Tvk93iU5kh7i7ffkOwfMUPwxT1rhhoW0)
+
+## Data
+Data for the reaction diffusion and Micro-Electro-Mechanical Systems (MEMS) example can be found in [Zenodo](data-url).
 
 ## Reference
 The journal paper is available on [Neural Networks](https://doi.org/10.1016/j.neunet.2026.108543), while you can find the preprint version on [arXiv](https://arxiv.org/abs/2405.20905).
@@ -110,3 +114,6 @@ It is in the `examples` folder. Please note that you'll need to have jupyter ins
 
 [license-shield]: https://img.shields.io/github/license/jkneifl/VENI-VINDy-VICI
 [license-url]: https://github.com/jkneifl/VENI-VINDy-VICI/blob/main/LICENSE
+
+[data-shield]: https://img.shields.io/badge/Data-DOI%3A10.5281/zenodo.18313843-green
+[data-url]: [https://doi.org/10.1016/j.neunet.2026.108543](https://doi.org/10.5281/zenodo.18313843)
