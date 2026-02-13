@@ -454,7 +454,7 @@ def perform_forward_uq(
         )
         # mean initial condition (using mean prediction from encoder)
         ic = get_latent_initial_conditions(
-            veni, x0, dx0dt0, dx0ddt0, mean_or_sample="sample"
+            veni, x0, dx0dt0, dx0ddt0, mean_or_sample="mean"
         )
 
         sol_mean = veni.integrate(ic, tvec, mu=mu)

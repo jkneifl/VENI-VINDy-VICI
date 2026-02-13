@@ -26,7 +26,7 @@ def preprocess_data(noise_level=0.02, reduced_order=32, plots=False):
         n_sims,
         n_timesteps,
     ) = load_mems_data(
-        config.beam,
+        config.mems,
         nth_time_step=1,
         pca_order=4,
     )
@@ -131,7 +131,6 @@ def preprocess_data(noise_level=0.02, reduced_order=32, plots=False):
 
         # relative error norm
         rel_error = np.linalg.norm(X - X_pca) / np.linalg.norm(X)
-        rel_error_n = np.linalg.norm(X_ - X_pca) / np.linalg.norm(X_)
         rel_error_test = np.linalg.norm(X_test - X_pca_test) / np.linalg.norm(
             X_pca_test
         )

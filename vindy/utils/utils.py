@@ -65,28 +65,30 @@ def coefficient_distribution_gif(
     Create a gif showing how the coefficient distributions evolve over time
     """
     os.makedirs(os.path.join(outdir, "coefficients"), exist_ok=True)
+    # determine how many frames to generate (capped at 401 frames: indices 0-400)
+    max_frames = min(len(mean_over_epochs), len(scale_over_epochs), 401)
     # create gif showing how the coefficient distributions evolve over time
     for i, (mean_, scale_) in enumerate(zip(mean_over_epochs, scale_over_epochs)):
-        # if i % 10 == 0:
-        if i <= 400:
-            x_range = 1.5  # - (1.5 * i / len(mean_over_epochs))
-            # dont show figure
-            fig = sindy_layer._visualize_coefficients(
-                mean_, scale_, x_range=[-x_range, x_range], y_range=[0, 6]
-            )
-            # fig title
-            fig.suptitle(f"Epoch {i}")
-            # save fig as frame for gif
-            fig.savefig(os.path.join(outdir, "coefficients", f"coeffs_{i}.png"))
-            plt.close(fig)
+        if i >= max_frames:
+            break
+        x_range = 1.5  # - (1.5 * i / len(mean_over_epochs))
+        # dont show figure
+        fig = sindy_layer._visualize_coefficients(
+            mean_, scale_, x_range=[-x_range, x_range], y_range=[0, 6]
+        )
+        # fig title
+        fig.suptitle(f"Epoch {i}")
+        # save fig as frame for gif
+        fig.savefig(os.path.join(outdir, "coefficients", f"coeffs_{i}.png"))
+        plt.close(fig)
     # make gif from frames
     images = []
-    for i in range(0, 400, 1):
+    for i in range(max_frames):
         images.append(
             imageio.imread(os.path.join(outdir, "coefficients", f"coeffs_{i}.png"))
         )
     imageio.mimsave(
-        os.path.join(config.outdir, "coefficients", "coeffs.gif"),
+        os.path.join(outdir, "coefficients", "coeffs.gif"),
         images,
         duration=100,
     )
@@ -209,9 +211,7 @@ def switch_data_format(
             target_format == "auto" and data.ndim == 3 and spatial_shape is None
         ):
             return data
-        if target_format == "2d" or (
-            target_format == "auto" and data.ndim == 3 and spatial_shape is None
-        ):
+        if target_format == "2d":
             return data.reshape(-1, data.shape[-1])
         # convert to 5D
         features = data.shape[2]
