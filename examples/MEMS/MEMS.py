@@ -27,7 +27,7 @@ from vindy.utils import switch_data_format, coefficient_distribution_gif
 from examples.MEMS.utils import load_mems_data
 
 # Import shared utilities
-from examples.utils import (
+from vindy.utils import (
     set_seed,
     plot_train_history,
     plot_coefficients_train_history,

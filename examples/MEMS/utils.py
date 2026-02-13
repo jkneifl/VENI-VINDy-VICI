@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from sklearn.decomposition import PCA
 import pickle
 import numpy as np
-from examples.utils import get_config
+from vindy.utils import get_config
 config = get_config()
 
 def preprocess_data(noise_level=0.02, reduced_order=32, plots=False):

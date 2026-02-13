@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "vindy"
 version = "1.0.0"
 authors = [
-  { name="Jonas Kneifl", email="jonas.kneifl@itm.uni-stuttgart.com" },
+  { name="Jonas Kneifl", email="jonas@kneifl.eu" },
   { name="Paolo Conti", email="paolo.conti@polimi.it" },
 ]
 description = "AESINDy is a Python package for automated system identification of low-dimensional systems combining autoencoders and SINDy."
@@ -16,7 +16,7 @@ dependencies = [
     "matplotlib>=3.10",
     "numpy>=1.26",
     "scikit_learn>=1.2",
-    "scipy>=1.17",
+    "scipy>=1.13",
     "sympy>=1.12",
     "pysindy>=1.7",
     "tensorflow>=2.18",
