@@ -1,26 +1,11 @@
 import logging
-import sys
 import os
 import matplotlib.pyplot as plt
 from sklearn.decomposition import PCA
-from vindy.utils import *
 import pickle
-
-# Add the examples folder to the Python path
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-
-# Import shared utilities and config
-try:
-    from utils import get_config
-
-    config = get_config()
-except ImportError:
-    # Fallback config import if utils.py not available
-    try:
-        import config
-    except ImportError:
-        config = None
-
+import numpy as np
+from examples.utils import get_config
+config = get_config()
 
 def preprocess_data(noise_level=0.02, reduced_order=32, plots=False):
 
