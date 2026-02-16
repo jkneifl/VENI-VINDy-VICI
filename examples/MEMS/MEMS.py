@@ -18,7 +18,7 @@ import tensorflow as tf
 import datetime
 import matplotlib.pyplot as plt
 
-from vindy import VENI
+from vindy import VENI, AutoencoderSindy
 from vindy.libraries import PolynomialLibrary, ForceLibrary
 from vindy.layers import SindyLayer, VindyLayer
 from vindy.distributions import Laplace
@@ -45,7 +45,7 @@ config = get_config()
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(message)s")
 
 # Constants
-LOAD_MODEL = True
+LOAD_MODEL = False
 CREATE_GIF = False
 BETA_VINDY = 1e-8  # VINDy prior weight
 BETA_VAE = 1e-8  # VAE KL loss weight
@@ -58,7 +58,7 @@ IDENTIFICATION_LAYER = "vindy"  # 'vindy' or 'sindy'
 REDUCED_ORDER = 1  # latent space dimension
 PCA_ORDER = 3  # PCA order for data preprocessing
 NTH_TIME_STEP = 3  # use every nth time step for training
-EPOCHS = 500  # number of training epochs
+EPOCHS = 50  # number of training epochs
 BATCH_SIZE = 256  # training batch size
 LEARNING_RATE = 2e-3  # learning rate
 SECOND_ORDER = True  # use second order dynamics
@@ -176,20 +176,14 @@ def create_model(x, params, dt, n_dof):
         fixed_coeffs=None,
     )
 
-    if IDENTIFICATION_LAYER == "vindy":
-        sindy_layer = VindyLayer(
-            beta=BETA_VINDY,
-            priors=Laplace(0.0, 1.0),
-            **layer_params,
-        )
-    elif IDENTIFICATION_LAYER == "sindy":
-        sindy_layer = SindyLayer(**layer_params)
-    else:
-        raise ValueError('IDENTIFICATION_LAYER must be either "vindy" or "sindy"')
+    vindy = VindyLayer(
+        beta=BETA_VINDY,
+        priors=Laplace(0.0, 1.0),
+        **layer_params,
+    )
 
-    return VENI(
-        sindy_layer=sindy_layer,
-        beta=BETA_VAE * REDUCED_ORDER / n_dof,
+    return AutoencoderSindy(
+        sindy_layer=vindy,
         reduced_order=REDUCED_ORDER,
         x=x,
         mu=params,
@@ -200,8 +194,24 @@ def create_model(x, params, dt, n_dof):
         l_rec=L_REC,
         l_dz=L_DZ,
         l_dx=L_DX,
-        dt=dt,
+        dt=dt
     )
+
+    # return VENI(
+    #     sindy_layer=vindy,
+    #     beta=BETA_VAE * REDUCED_ORDER / n_dof,
+    #     reduced_order=REDUCED_ORDER,
+    #     x=x,
+    #     mu=params,
+    #     scaling="individual_sqrt",
+    #     second_order=SECOND_ORDER,
+    #     layer_sizes=[32, 32, 32],
+    #     activation="elu",
+    #     l_rec=L_REC,
+    #     l_dz=L_DZ,
+    #     l_dx=L_DX,
+    #     dt=dt,
+    # )
 
 
 def train_model(veni, x_input, x_input_val, weights_path, log_dir, train_histdir):

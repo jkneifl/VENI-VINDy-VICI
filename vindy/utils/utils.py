@@ -278,7 +278,8 @@ def get_config():
     Import and return the config module.
 
     This function handles the import of the examples config module with proper
-    error handling. Use this in your scripts to avoid repetitive import logic.
+    fallbacks so the examples can be run both when `examples` is a package and
+    when it's just a directory with `config.py` next to the example scripts.
 
     Returns:
         module: The config module object.
@@ -287,17 +288,69 @@ def get_config():
         ImportError: If config.py doesn't exist or can't be imported.
     """
 
+    # 1) Preferred: examples is a package (examples/__init__.py exists)
     try:
         import examples.config as config
 
         return config
-    except ImportError:
-        raise ImportError(
-            "Could not import config. "
-            "Please ensure that the examples/config.py file exists and is correctly configured. "
-            "You can copy examples/config.py.template to examples/config.py and customize it "
-            "with the correct data paths and parameters for your setup."
+    except Exception:
+        pass
+
+    # 2) If running the example from inside the examples folder, a top-level
+    #    `import config` may work (e.g. python MEMS.py when cwd is examples/MEMS)
+    try:
+        import config as config
+
+        return config
+    except Exception:
+        pass
+
+    # 3) Fallback: try to locate examples/config.py on disk and import it by path
+    import importlib.util
+    from pathlib import Path
+
+    candidates = []
+
+    # a) examples/config.py relative to project root (assume repo layout)
+    try:
+        repo_root = Path(__file__).resolve().parents[2]
+        candidates.append(repo_root / "examples" / "config.py")
+    except Exception:
+        pass
+
+    # b) examples/config.py relative to current working directory
+    candidates.append(Path.cwd() / "examples" / "config.py")
+
+    # c) examples/config.py next to this utils file (edge case)
+    candidates.append(Path(__file__).resolve().parent.parent / "examples" / "config.py")
+
+    # d) direct config.py in cwd
+    candidates.append(Path.cwd() / "config.py")
+
+    for candidate in candidates:
+        try:
+            candidate = candidate.resolve()
+        except Exception:
+            continue
+        if candidate.exists() and candidate.is_file():
+            try:
+                spec = importlib.util.spec_from_file_location("examples_config", str(candidate))
+                module = importlib.util.module_from_spec(spec)
+                spec.loader.exec_module(module)
+                return module
+            except Exception:
+                # try next candidate
+                continue
+
+    # Nothing worked: raise a helpful error
+    raise ImportError(
+        "Could not import examples config. Please ensure that there is a file named 'config.py' in the examples/ folder. "
+        "You can copy examples/config.py.template to examples/config.py and customize it with the correct data paths and parameters for your setup. "
+        "Checked locations: {}".format(
+            ", ".join(str(p) for p in candidates)
         )
+    )
+
 
 
 def set_seed(seed: int):
