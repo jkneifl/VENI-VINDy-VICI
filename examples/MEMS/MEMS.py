@@ -182,8 +182,9 @@ def create_model(x, params, dt, n_dof):
         **layer_params,
     )
 
-    return AutoencoderSindy(
+    return VENI(
         sindy_layer=vindy,
+        beta=BETA_VAE * REDUCED_ORDER / n_dof,
         reduced_order=REDUCED_ORDER,
         x=x,
         mu=params,
@@ -194,24 +195,8 @@ def create_model(x, params, dt, n_dof):
         l_rec=L_REC,
         l_dz=L_DZ,
         l_dx=L_DX,
-        dt=dt
+        dt=dt,
     )
-
-    # return VENI(
-    #     sindy_layer=vindy,
-    #     beta=BETA_VAE * REDUCED_ORDER / n_dof,
-    #     reduced_order=REDUCED_ORDER,
-    #     x=x,
-    #     mu=params,
-    #     scaling="individual_sqrt",
-    #     second_order=SECOND_ORDER,
-    #     layer_sizes=[32, 32, 32],
-    #     activation="elu",
-    #     l_rec=L_REC,
-    #     l_dz=L_DZ,
-    #     l_dx=L_DX,
-    #     dt=dt,
-    # )
 
 
 def train_model(veni, x_input, x_input_val, weights_path, log_dir, train_histdir):
