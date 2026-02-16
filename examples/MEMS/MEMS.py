@@ -24,7 +24,7 @@ from vindy.layers import SindyLayer, VindyLayer
 from vindy.distributions import Laplace
 from vindy.callbacks import SaveCoefficientsCallback
 from vindy.utils import switch_data_format, coefficient_distribution_gif
-from examples.MEMS.utils import load_mems_data
+from utils import load_mems_data
 
 # Import shared utilities
 from vindy.utils import (
