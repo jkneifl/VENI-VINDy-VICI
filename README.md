@@ -116,4 +116,4 @@ It is in the `examples` folder. Please note that you'll need to have jupyter ins
 [license-url]: https://github.com/jkneifl/VENI-VINDy-VICI/blob/main/LICENSE
 
 [data-shield]: https://img.shields.io/badge/Data-DOI%3A10.5281/zenodo.18313843-green
-[data-url]: [https://doi.org/10.1016/j.neunet.2026.108543](https://doi.org/10.5281/zenodo.18313843)
+[data-url]: https://doi.org/10.5281/zenodo.18313843
