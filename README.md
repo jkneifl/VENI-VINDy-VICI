@@ -64,7 +64,6 @@ This repository implements the classic SINDy autoencoders [3] as well as its var
   * Fix certain weights
   * Model your system as second order system dx/ddt = f(x, xdt, mu)
 * Several callbacks
-  * Update governing equation coefficients with separate SINDy optimization schemes (using pysindy)
   * Thresholding coefficents w.r.t their magnitude or their probability density function around zero
   * Log the coefficients during training to monitor convergence
 
