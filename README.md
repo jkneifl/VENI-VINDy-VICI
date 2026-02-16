@@ -5,16 +5,21 @@
 [![MIT License][license-shield]][license-url]
 [![Data][data-shield]][data-url]
 
-> :warning: **More examples will be available soon**
-
 # VENI-VINDy-VICI
 A variational reduced-order modeling framework with uncertainty quantification [1].
 
 ![graphical_abstract_gif](https://github.com/jkneifl/VENI-VINDy-VICI/assets/51111500/15ee2081-65e1-4e96-b182-91b52ff7271c)
 
-## Tutorial Notebook 
-Run the Roessler example on Colab 
+## Examples
+Tutorial notebook: Run the Roessler example on Colab 
 [Tutorial Roessler](https://colab.research.google.com/drive/1Tvk93iU5kh7i7ffkOwfMUPwxT1rhhoW0)
+
+For the other examples:
+1. Clone the repository and install the package locally (see installation instructions below)
+2. Download the data from [Zenodo](data-url) 
+3. Copy the config.py.template file to config.py and adjust the paths to the data
+4. Then you can run the notebooks in the `examples` folder.
+
 
 ## Data
 Data for the reaction diffusion and Micro-Electro-Mechanical Systems (MEMS) example can be found in [Zenodo](data-url).
@@ -59,7 +64,6 @@ This repository implements the classic SINDy autoencoders [3] as well as its var
   * Fix certain weights
   * Model your system as second order system dx/ddt = f(x, xdt, mu)
 * Several callbacks
-  * Update governing equation coefficients with separate SINDy optimization schemes (using pysindy)
   * Thresholding coefficents w.r.t their magnitude or their probability density function around zero
   * Log the coefficients during training to monitor convergence
 

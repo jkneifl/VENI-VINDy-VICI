@@ -141,3 +141,5 @@ results/
 examples/Roessler/Roessler.py
 
 examples/Roessler/LV.py
+
+examples/config.py

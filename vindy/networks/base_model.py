@@ -97,7 +97,7 @@ class BaseModel(tf.keras.Model, ABC):
                 f"results/saved_models/{self.__class__.__name__}/"
                 f'{datetime.datetime.now().strftime("%Y_%m_%d-%H:%M:%S")}/'
             )
-        weights_path = os.path.join(path, "weights/")
+        weights_path = os.path.join(path, ".weights.h5")
         model_path = os.path.join(path, f"model_config.pkl")
         self.save_weights(weights_path)
         # self.config['class_name'] = self.__class__.__name__
@@ -124,7 +124,7 @@ class BaseModel(tf.keras.Model, ABC):
         :return:
         """
 
-        weights_path = os.path.join(path, "weights/")
+        weights_path = os.path.join(path, ".weights.h5")
         model_path = os.path.join(path, f"model_config.pkl")
         with open(model_path, "rb") as file:  # Overwrites any existing file.
             init_dict = pickle.load(file)
@@ -216,7 +216,7 @@ class BaseModel(tf.keras.Model, ABC):
         if mu is not None:
             quantities_to_concatenate.append(mu)
         # concatenate the state and the parameters to the input of the SINDy layer
-        z_sindy = keras.layers.Concatenate(axis=1)(quantities_to_concatenate)
+        z_sindy = keras.layers.Concatenate(axis=-1)(quantities_to_concatenate)
         return z_sindy
 
     def build_sindy(self, z, mu):

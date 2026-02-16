@@ -143,10 +143,21 @@ class VindyLayer(SindyLayer):
         # get coefficient parameterization
         _, mean, log_scale = self._coeffs
         _ = self._visualize_coefficients(
-            mean.numpy(), log_scale.numpy(), x_range, z, mu
+            mean.numpy(), log_scale.numpy(), x_range=x_range, z=z, mu=mu
         )
+        plt.show()
 
-    def _visualize_coefficients(self, mean, log_scale, x_range=None, z=None, mu=None):
+    def _visualize_coefficients(
+        self,
+        mean,
+        log_scale,
+        x_range=None,
+        y_range=None,
+        z=None,
+        mu=None,
+        figsize=None,
+        y_ticks=True,
+    ):
 
         # get name of the corresponding features
         feature_names = self.get_feature_names(z, mu)
@@ -156,16 +167,16 @@ class VindyLayer(SindyLayer):
         log_scale = log_scale.reshape(n_variables, n_plots).T
         # create a plot with one subplot for each (trainablie) coefficient
         # for j in range(n_figures):
-        fig, axs = plt.subplots(
-            n_plots, n_variables, figsize=(n_variables * 10, 10), sharex=True
-        )
+        if figsize is None:
+            figsize = (n_variables * 10, 10)
+        fig, axs = plt.subplots(n_plots, n_variables, figsize=figsize, sharex=True)
         # in case of a one-dimensional system, we append a dimension to axs
         if n_variables == 1:
             axs = axs[:, np.newaxis]
         for j in range(n_variables):
             for i in range(n_plots):
                 # draw a vertical line at 0
-                axs[i][j].axvline(x=0, color="black", linestyle="--")
+                axs[i][j].axvline(x=0, color="gray", linestyle="-")
                 # plot the distribution of the coefficients
                 if isinstance(self.priors, list):
                     distribution = self.priors[i]
@@ -174,10 +185,18 @@ class VindyLayer(SindyLayer):
                 scale = distribution.reverse_log(log_scale[i, j])
                 distribution.plot(mean[i, j], scale, ax=axs[i][j])
                 # put feature name as ylabel
-                axs[i][j].set_ylabel(f"${feature_names[i]}$", rotation=90, labelpad=10)
+                if j == 0:
+                    axs[i][j].set_ylabel(
+                        f"${feature_names[i]}$", rotation=90, labelpad=10
+                    )
                 # set x range
                 if x_range is not None:
                     axs[i][j].set_xlim(x_range)
+                # set y range
+                if y_range is not None:
+                    axs[i][j].set_ylim(y_range)
+                if not y_ticks:
+                    axs[i][j].set_yticks([])
         plt.tight_layout()
         # ensure that ylabel don't overlap with axis ticks
         plt.subplots_adjust(left=0.1)
@@ -224,9 +243,10 @@ class VindyLayer(SindyLayer):
             sampled_coeffs,
         )
 
+    @tf.function
     def call_uq(self, inputs, coeffs):
         """
-        Applies the VINDy layer for given coefficients so that the coefficients are not sampled from the distribution
+        Applies the VINDy layer for given coefficients so that not the mean coefficients of the distribution are taken
         :param inputs:
         :param training:
         :return:

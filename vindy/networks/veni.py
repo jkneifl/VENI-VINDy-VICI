@@ -8,7 +8,7 @@ logging.basicConfig()
 logging.getLogger().setLevel(logging.INFO)
 
 
-class VAESindy(AutoencoderSindy):
+class VENI(AutoencoderSindy):
 
     def __init__(self, beta, **kwargs):
         """
@@ -21,14 +21,14 @@ class VAESindy(AutoencoderSindy):
             self._init_to_config(locals())
         assert isinstance(beta, float) or isinstance(beta, int), "beta must be a float"
         self.beta = beta
-        super(VAESindy, self).__init__(**kwargs)
+        super(VENI, self).__init__(**kwargs)
 
     def create_loss_trackers(self):
         """
         Creates the loss trackers for the model
         :return:
         """
-        super(VAESindy, self).create_loss_trackers()
+        super(VENI, self).create_loss_trackers()
         self.loss_trackers["kl"] = tf.keras.metrics.Mean(name="kl_loss")
 
     def build_encoder(self, x):
@@ -92,15 +92,20 @@ class VAESindy(AutoencoderSindy):
         losses["loss"] += kl_loss
         return z, losses
 
-    def encode(self, x, training=False):
+    def encode(self, x, training=False, mean_or_sample="mean"):
         """
         encode full state to latent distribution and return its mean
         :param x: array-like of shape (n_samples, n_features, n_dof_per_feature), full state
         :return: z: array-like of shape (n_samples, reduced_order), latent variable
         """
         x = self.flatten(x)
-        z_mean, _, _ = self.variational_encoder(x)
-        return z_mean
+        z_mean, _, z = self.variational_encoder(x)
+        if mean_or_sample == "mean":
+            return z_mean
+        elif mean_or_sample == "sample":
+            return z
+        else:
+            raise ValueError("mean_or_sample must be either 'mean' or 'sample'")
 
     def call(self, inputs, _=None):
         z_mean, z_log_var, z = self.encode(inputs)

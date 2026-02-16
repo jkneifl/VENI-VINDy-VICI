@@ -286,13 +286,17 @@ class AutoencoderSindy(BaseModel):
 
         return losses
 
-    def calc_latent_time_derivatives(self, x, dx_dt, dx_ddt=None):
+    def calc_latent_time_derivatives(
+        self, x, dx_dt, dx_ddt=None, mean_or_sample="mean"
+    ):
         """
         Calculate time derivatives of latent variables given the time derivatives of the input variables
             (used for comparison with SINDy)
         :param x: array-like of shape (n_samples, n_features), full state
         :param dx_dt: array-like of shape (n_samples, n_features), time derivative of state
         :param dx_ddt: array-like of shape (n_samples, n_features), second time derivative of state
+        :param mean_or_sample: whether to use the mean or a sample of the latent distribution,
+            only relevant for variational autoencoders
         :return: z, dz_dt, dz_ddt: array-like of shape (n_samples, n_latent), latent variables and their time derivatives
         """
         # in case the variables are not vectorized but in their physical geometrical description flatten them
@@ -313,13 +317,13 @@ class AutoencoderSindy(BaseModel):
             with tf.GradientTape() as t11:
                 with tf.GradientTape() as t12:
                     t12.watch(x)
-                    z = self.encode(x)
+                    z = self.encode(x, mean_or_sample=mean_or_sample)
                 dz_dx = t12.batch_jacobian(z, x)
             dz_ddx = t11.batch_jacobian(dz_dx, x)
         else:
             with tf.GradientTape() as t12:
                 t12.watch(x)
-                z = self.encode(x)
+                z = self.encode(x, mean_or_sample=mean_or_sample)
             dz_dx = t12.batch_jacobian(z, x)
 
         # calculate first time derivative of the latent variable by application of the chain rule
@@ -546,10 +550,12 @@ class AutoencoderSindy(BaseModel):
         return losses
 
     # @tf.function
-    def encode(self, x):
+    def encode(self, x, training=False, mean_or_sample="mean"):
         """
         encode full state
         :param x: array-like of shape (n_samples, n_features, n_dof_per_feature), full state
+        :param mean_or_sample: whether to use the mean or a sample of the latent distribution,
+            only relevant for variational autoencoders
         :return: z: array-like of shape (n_samples, reduced_order), latent variable
         """
         x = self.flatten(x)
