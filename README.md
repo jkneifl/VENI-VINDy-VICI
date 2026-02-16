@@ -12,7 +12,7 @@ A variational reduced-order modeling framework with uncertainty quantification [
 
 ## Examples
 Tutorial notebook: Run the Roessler example on Colab 
-[Tutorial Roessler](https://colab.research.google.com/drive/1Tvk93iU5kh7i7ffkOwfMUPwxT1rhhoW0)
+[Tutorial Roessler](https://colab.research.google.com/drive/1ny4l2PJK1K1mOO7WRwUCNsvdNHtvragS?usp=sharing)
 
 For the other examples:
 1. Clone the repository and install the package locally (see installation instructions below)
