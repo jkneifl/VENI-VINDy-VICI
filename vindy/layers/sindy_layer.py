@@ -603,13 +603,3 @@ class SindyLayer(tf.keras.layers.Layer):
         if len(inputs.shape) == 1:
             inputs = tf.expand_dims(inputs, 0)
         return self(inputs)
-
-
-# Provide an explicit signature for Sphinx autodoc so the class constructor
-# parameters are rendered even if the tensorflow module is mocked during doc builds.
-try:
-    SindyLayer.__signature__ = inspect.signature(SindyLayer.__init__)
-except Exception:
-    # fallback silently if signature cannot be created in constrained environments
-    pass
-

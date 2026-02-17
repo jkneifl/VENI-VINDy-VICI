@@ -25,22 +25,6 @@ Docstrings in the project are written in NumPy style and parsed by
 Sphinx using the napoleon extension.
 """
 
-# Avoid expensive imports at package import time to make Sphinx autodoc
-# and lightweight tooling more robust. Consumers can import symbols
-# from submodules explicitly, e.g. `from vindy.networks import VENI`.
-__all__ = [
-    # networks
-    'networks',
-    # callbacks
-    'callbacks',
-    # distributions
-    'distributions',
-    # layers
-    'layers',
-    # utilities
-    'utils',
-]
-
 from .networks import AutoencoderSindy, VENI, IdentificationNetwork
 
 # backwards compatibility

@@ -1,9 +1,9 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import tensorflow as tf
-from abc import abstractmethod
+from abc import abstractmethod, ABC
 
-class BaseDistribution(tf.keras.layers.Layer):
+class BaseDistribution(tf.keras.layers.Layer, ABC):
     """
     Base class for probabilistic distributions used in variational encoders.
 
