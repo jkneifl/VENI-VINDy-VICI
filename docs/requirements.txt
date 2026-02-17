@@ -1,0 +1,18 @@
+# Sphinx documentation requirements
+sphinx>=7.0
+sphinx_rtd_theme>=2.0
+numpydoc>=1.6
+myst-parser>=2.0
+
+# Package dependencies needed for building docs
+# (These are mocked in conf.py, but we need them available for import checking)
+# Uncomment if you want full type hints in docs instead of mocking:
+# tensorflow>=2.15,<2.19
+# tensorflow-probability>=0.23
+# tensorflow-model-optimization>=0.8
+# numpy>=1.26,<2.0
+# scipy>=1.13
+# matplotlib>=3.8
+# sympy>=1.12
+# scikit-learn>=1.2
+# imageio>=2.30

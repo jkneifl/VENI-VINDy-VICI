@@ -143,3 +143,7 @@ examples/Roessler/Roessler.py
 examples/Roessler/LV.py
 
 examples/config.py
+
+DOCS_QUICKSTART.md
+
+docs/DOCUMENTATION_SETUP.md
