@@ -15,22 +15,6 @@ class BaseDistribution(tf.keras.layers.Layer):
         Return samples and any auxiliary outputs (e.g. mean/logvar).
     """
 
-    def __init__(self, name: str = None, dtype: str | None = None, **kwargs):
-        """
-        Initialize the base distribution layer.
-
-        Parameters
-        ----------
-        name : str, optional
-            Optional name for the layer.
-        dtype : str, optional
-            Keras dtype for the layer (e.g. 'float32'). If None, the default
-            Keras floatx is used.
-        **kwargs
-            Additional keyword arguments forwarded to ``tf.keras.layers.Layer``.
-        """
-        super().__init__(name=name, dtype=dtype, **kwargs)
-
     @abstractmethod
     def call(self, inputs):
         """
