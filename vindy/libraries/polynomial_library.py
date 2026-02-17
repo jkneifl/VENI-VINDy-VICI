@@ -8,11 +8,18 @@ class PolynomialLibrary(BaseLibrary):
 
     def __init__(self, degree=3, x_dim=2, interaction=True, include_bias=True):
         """
-        Polynomial library
-        :param degree: polynomial degree (default: 3)
-        :param x_dim: dimension of the input (default: 2)
-        :param interaction: include interaction terms (default: True)
-        :param include_bias: include bias term (default: True)
+        Polynomial library.
+
+        Parameters
+        ----------
+        degree : int, default=3
+            Polynomial degree.
+        x_dim : int, default=2
+            Dimension of the input.
+        interaction : bool, default=True
+            Include interaction terms.
+        include_bias : bool, default=True
+            Include bias term.
         """
         self.degree = degree
         self.interaction = interaction
@@ -28,9 +35,17 @@ class PolynomialLibrary(BaseLibrary):
     # @tf.function
     def __call__(self, x):
         """
-        transform input x to polynomial features of order self.poly_order
-        :param x: array-like of shape (n_samples, 2*reduce_order), latent variable and its time derivative
-        :return: polynomial features
+        Transform input x to polynomial features of order self.poly_order.
+
+        Parameters
+        ----------
+        x : array-like of shape (n_samples, 2*reduce_order)
+            Latent variable and its time derivative.
+
+        Returns
+        -------
+        x_poly : tf.Tensor
+            Polynomial features.
         """
         # x_old = x
         if self.interaction:
@@ -63,8 +78,18 @@ class PolynomialLibrary(BaseLibrary):
 
     @tf.function
     def poly_higher_order(self, x):
-        """ "
-        Compute polynomial features for higher dimensional input x
+        """
+        Compute polynomial features for higher dimensional input x.
+
+        Parameters
+        ----------
+        x : tf.Tensor
+            Input tensor.
+
+        Returns
+        -------
+        x_poly : tf.Tensor
+            Polynomial features for higher dimensional input.
         """
         x_poly = []
         for d in range(1, self.degree + 1):
@@ -74,9 +99,17 @@ class PolynomialLibrary(BaseLibrary):
 
     def get_names(self, x):
         """
-        construct the names of the features for the input x
-        :param x:  array-like of shape (n_samples, 2*reduce_order), latent variable and its time derivative
-        :return:
+        Construct the names of the features for the input x.
+
+        Parameters
+        ----------
+        x : array-like of shape (n_samples, 2*reduce_order)
+            Latent variable and its time derivative.
+
+        Returns
+        -------
+        list of str
+            List of feature names.
         """
         l = []
         for d in range(1, self.degree + 1):

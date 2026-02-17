@@ -10,9 +10,17 @@ class ForceLibrary(BaseLibrary):
     @tf.function
     def __call__(self, x):
         """
-        transform input x to force features following force = amplitude * sin(omega * t)
-        :param x: array-like of shape (n_samples, 2*reduce_order), latent variable and its time derivative
-        :return: polynomial features
+        Transform input x to force features following force = amplitude * sin(omega * t).
+
+        Parameters
+        ----------
+        x : array-like of shape (n_samples, 2*reduce_order)
+            Latent variable and its time derivative.
+
+        Returns
+        -------
+        x_force : tf.Tensor
+            Force features.
         """
         x_force = []
         for func in self.functions:
@@ -23,9 +31,17 @@ class ForceLibrary(BaseLibrary):
 
     def get_names(self, x):
         """
-        construct features for the input x
-        :param x: input
-        :return: feature
+        Construct features for the input x.
+
+        Parameters
+        ----------
+        x : array-like
+            Input data.
+
+        Returns
+        -------
+        list of str
+            Feature names for force features.
         """
         x_force = []
         for func in self.functions:

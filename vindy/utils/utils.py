@@ -5,17 +5,39 @@ import imageio
 
 
 def add_lognormal_noise(trajectory, sigma):
+    """
+    Add lognormal noise to a trajectory.
+
+    Parameters
+    ----------
+    trajectory : array-like
+        The trajectory data to add noise to.
+    sigma : float
+        Standard deviation parameter for the lognormal distribution.
+
+    Returns
+    -------
+    tuple of array-like
+        Tuple containing (noisy_trajectory, noise).
+    """
     noise = np.random.lognormal(mean=0, sigma=sigma, size=trajectory.shape)
     return trajectory * noise, noise
 
 
 def coefficient_distributions_to_csv(sindy_layer, outdir, var_names=[], param_names=[]):
     """
-    Save the coefficient distributions of the SINDy layer to csv files
-    :param sindy_layer:
-    :param outdir:
-    :param var_names:
-    :return:
+    Save the coefficient distributions of the SINDy layer to CSV files.
+
+    Parameters
+    ----------
+    sindy_layer : SindyLayer
+        SINDy layer containing coefficient distributions.
+    outdir : str
+        Output directory for CSV files.
+    var_names : list of str, optional
+        Names of state variables (default is []).
+    param_names : list of str, optional
+        Names of parameters (default is []).
     """
     if not var_names:
         var_names = [f"z{i}" for i in range(1, sindy_layer.output_dim + 1)]
@@ -62,7 +84,18 @@ def coefficient_distribution_gif(
     mean_over_epochs, scale_over_epochs, sindy_layer, outdir
 ):
     """
-    Create a gif showing how the coefficient distributions evolve over time
+    Create a GIF showing how coefficient distributions evolve over epochs.
+
+    Parameters
+    ----------
+    mean_over_epochs : list of array-like
+        Mean values of coefficients at each epoch.
+    scale_over_epochs : list of array-like
+        Scale values of coefficients at each epoch.
+    sindy_layer : SindyLayer
+        SINDy layer instance with visualization methods.
+    outdir : str
+        Output directory for saving frames and the GIF.
     """
     os.makedirs(os.path.join(outdir, "coefficients"), exist_ok=True)
     # determine how many frames to generate (capped at 401 frames: indices 0-400)
@@ -96,10 +129,16 @@ def coefficient_distribution_gif(
 
 def plot_train_history(history, outdir, validation: bool = True):
     """
-    Plot the training history
-    :param history:
-    :param outdir:
-    :return:
+    Plot the training history.
+
+    Parameters
+    ----------
+    history : dict or keras.callbacks.History
+        Training history object or dictionary.
+    outdir : str
+        Output directory path for saving plots.
+    validation : bool, default=True
+        Whether to plot validation metrics.
     """
     os.makedirs(outdir, exist_ok=True)
     # plot training history
@@ -121,10 +160,14 @@ def plot_train_history(history, outdir, validation: bool = True):
 
 def plot_coefficients_train_history(history, outdir):
     """
-    Plot the coefficient training history
-    :param history:
-    :param outdir:
-    :return:
+    Plot the coefficient training history.
+
+    Parameters
+    ----------
+    history : dict
+        Training history containing 'coeffs_mean' and 'coeffs_scale'.
+    outdir : str
+        Output directory path for saving plots.
     """
     mean_over_epochs = np.array(history["coeffs_mean"]).squeeze()
     scale_over_epochs = np.array(history["coeffs_scale"]).squeeze()
@@ -281,11 +324,15 @@ def get_config():
     fallbacks so the examples can be run both when `examples` is a package and
     when it's just a directory with `config.py` next to the example scripts.
 
-    Returns:
-        module: The config module object.
+    Returns
+    -------
+    module
+        The config module object.
 
-    Raises:
-        ImportError: If config.py doesn't exist or can't be imported.
+    Raises
+    ------
+    ImportError
+        If config.py doesn't exist or can't be imported.
     """
 
     # 1) Preferred: examples is a package (examples/__init__.py exists)
@@ -357,8 +404,10 @@ def set_seed(seed: int):
     """
     Set seed for reproducibility in TensorFlow, NumPy, and Python's random module.
 
-    Args:
-        seed (int): The seed value to set.
+    Parameters
+    ----------
+    seed : int
+        The seed value to set.
     """
     tf.random.set_seed(seed)
     np.random.seed(seed)
@@ -369,12 +418,17 @@ def validate_data_path(data_path: str, zenodo_doi: str = "10.5281/zenodo.1831384
     """
     Validate that a data file exists and provide a helpful error message if not.
 
-    Args:
-        data_path (str): Path to the data file.
-        zenodo_doi (str): Zenodo DOI for downloading the data (default: 10.5281/zenodo.18313843).
+    Parameters
+    ----------
+    data_path : str
+        Path to the data file.
+    zenodo_doi : str, optional
+        Zenodo DOI for downloading the data (default is "10.5281/zenodo.18313843").
 
-    Raises:
-        FileNotFoundError: If the data file does not exist.
+    Raises
+    ------
+    FileNotFoundError
+        If the data file does not exist.
     """
     if not os.path.isfile(data_path):
         raise FileNotFoundError(
@@ -388,10 +442,14 @@ def plot_train_history(trainhist, result_dir, validation=True):
     """
     Plot training history including loss curves.
 
-    Args:
-        trainhist (dict): Training history dictionary containing loss values.
-        result_dir (str): Directory to save the plot.
-        validation (bool): Whether to include validation loss in the plot.
+    Parameters
+    ----------
+    trainhist : dict
+        Training history dictionary containing loss values.
+    result_dir : str
+        Directory to save the plot.
+    validation : bool, optional
+        Whether to include validation loss in the plot (default is True).
     """
     try:
         os.makedirs(result_dir, exist_ok=True)
@@ -431,9 +489,12 @@ def plot_coefficients_train_history(trainhist, result_dir):
     """
     Plot the evolution of SINDy coefficients during training.
 
-    Args:
-        trainhist (dict): Training history dictionary.
-        result_dir (str): Directory to save the plot.
+    Parameters
+    ----------
+    trainhist : dict
+        Training history dictionary.
+    result_dir : str
+        Directory to save the plot.
     """
     os.makedirs(result_dir, exist_ok=True)
 
@@ -474,12 +535,17 @@ def create_result_directory(base_dir: str, model_name: str) -> str:
     """
     Create a result directory for saving model outputs.
 
-    Args:
-        base_dir (str): Base directory for results.
-        model_name (str): Name of the model/experiment.
+    Parameters
+    ----------
+    base_dir : str
+        Base directory for results.
+    model_name : str
+        Name of the model/experiment.
 
-    Returns:
-        str: Path to the created result directory.
+    Returns
+    -------
+    str
+        Path to the created result directory.
     """
     result_dir = os.path.join(base_dir, model_name)
     os.makedirs(result_dir, exist_ok=True)
@@ -491,9 +557,12 @@ def log_model_summary(veni, result_dir: str = None):
     """
     Log a summary of the VENI model architecture.
 
-    Args:
-        veni: The VENI model instance.
-        result_dir (str, optional): Directory to save the summary text file.
+    Parameters
+    ----------
+    veni : VENI
+        The VENI model instance.
+    result_dir : str, optional
+        Directory to save the summary text file (default is None).
     """
     try:
         logging.info("=" * 60)
@@ -527,15 +596,28 @@ def log_model_summary(veni, result_dir: str = None):
 
 def get_latent_initial_conditions(veni, x, dxdt, dxddt, mean_or_sample):
     """
-    Compute the initial conditions in the latent space for integration based on the provided state and its derivatives.
+    Compute the initial conditions in latent space for integration.
 
-    Args:
-    veni: The VENI model instance.
-    X: The state data array.
-    DXDT: The first time derivative of the state data array.
-    DXDDT: The second time derivative of the state data array (can be None if
-        not available).
-    mean_or_sample: Whether to compute the mean initial condition or sample from the distribution ("mean" or "sample").
+    Computes initial conditions based on the provided state and its derivatives.
+
+    Parameters
+    ----------
+    veni : VENI
+        The VENI model instance.
+    x : array-like
+        The state data array.
+    dxdt : array-like
+        The first time derivative of the state data array.
+    dxddt : array-like or None
+        The second time derivative of the state data array (can be None if not available).
+    mean_or_sample : str
+        Whether to compute the mean initial condition or sample from the distribution
+        ("mean" or "sample").
+
+    Returns
+    -------
+    array-like
+        Initial conditions in latent space.
     """
     if veni.second_order:
         z0, dz0, _ = veni.calc_latent_time_derivatives(
@@ -566,18 +648,30 @@ def perform_inference(
     """
     Perform inference on test trajectories and plot the results.
 
-    Args:
-        veni: The trained VENI model.
-        x: Scaled test data.
-        dxdt: Scaled test data derivatives.
-        t: Test time steps.
-        params: Test parameters.
-        sim_ids: List of test trajectory indices.
-        n_sims: Number of simulations.
-        n_timesteps: Number of timesteps in each test trajectory.
+    Parameters
+    ----------
+    veni : VENI
+        The trained VENI model.
+    sim_ids : list of int
+        List of test trajectory indices.
+    n_sims : int
+        Number of simulations.
+    n_timesteps : int
+        Number of timesteps in each test trajectory.
+    t : array-like
+        Test time steps.
+    x : array-like
+        Scaled test data.
+    dxdt : array-like, optional
+        Scaled test data derivatives (default is None).
+    params : array-like, optional
+        Test parameters (default is None).
 
-    Returns:
-        Tuple: Predicted trajectories and their corresponding time steps.
+    Returns
+    -------
+    tuple
+        Tuple containing (t_preds, z_preds) - predicted trajectories and their
+        corresponding time steps.
     """
     # Reshape data into simulation-wise format
     T = switch_data_format(t, n_sims, n_timesteps, target_format="3d")
@@ -613,6 +707,24 @@ def perform_inference(
 
 
 def plot_inference_results(t_preds, z_preds, T, Z, sim_ids, state_id=0):
+    """
+    Plot inference results for test trajectories.
+
+    Parameters
+    ----------
+    t_preds : list of array-like
+        Predicted time steps for each trajectory.
+    z_preds : list of array-like
+        Predicted latent states for each trajectory.
+    T : array-like
+        True time steps.
+    Z : array-like
+        True latent states.
+    sim_ids : list of int
+        List of simulation indices to plot.
+    state_id : int, optional
+        Index of the state variable to plot (default is 0).
+    """
 
     # Plot inference results
     fig, axs = plt.subplots(len(sim_ids), 1, figsize=(12, 12), sharex=True)
@@ -648,27 +760,42 @@ def perform_forward_uq(
     sigma=3,
 ):
     """
-    Perform forward uncertainty quantification by sampling trajectories from the SINDy model.
-    The function is flexible with optional `dxddt` and `params` (pass None if not available).
+    Perform forward uncertainty quantification by sampling trajectories.
 
-    Args:
-        veni: The VENI model instance.
-        sim_ids: List of simulation indices to process.
-        n_traj: Number of trajectories to sample for each simulation.
-        n_sims: Total number of simulations in the dataset.
-        n_timesteps: Number of timesteps in each simulation.
-        t: Time vector
-        x: State data
-        dxdt: First time derivative of state data.
-        dxddt: Second time derivative of state data (optional).
-        params: Additional parameters for integration (optional).
-        sigma: Number of standard deviations for confidence intervals.
+    Samples trajectories from the SINDy model. The function is flexible with optional
+    `dxddt` and `params` (pass None if not available).
 
+    Parameters
+    ----------
+    veni : VENI
+        The VENI model instance.
+    sim_ids : list of int
+        List of simulation indices to process.
+    n_traj : int
+        Number of trajectories to sample for each simulation.
+    n_sims : int
+        Total number of simulations in the dataset.
+    n_timesteps : int
+        Number of timesteps in each simulation.
+    t : array-like
+        Time vector.
+    x : array-like
+        State data.
+    dxdt : array-like
+        First time derivative of state data.
+    dxddt : array-like, optional
+        Second time derivative of state data (default is None).
+    params : array-like, optional
+        Additional parameters for integration (default is None).
+    sigma : float, optional
+        Number of standard deviations for confidence intervals (default is 3).
 
-    Returns a dictionary with keys identical to the MEMS implementation:
-    sampled_times, sampled_latent_trajectories, mean_latent_samples,
-    std_latent_samples, mean_latent, lower_bound_latent, upper_bound_latent,
-    z, dzdt_test
+    Returns
+    -------
+    dict
+        Dictionary with keys: sampled_times, latent_trajectories_samples,
+        mean_latent_samples, std_latent_samples, mean_latent, lower_bound_latent,
+        upper_bound_latent, z, dzdt.
     """
 
     second_order = veni.second_order
@@ -814,16 +941,26 @@ def uq_plots(
     state_id=0,
 ):
     """
-    Generate UQ plots.
+    Generate uncertainty quantification plots.
 
-    Args:
-        sampled_times (list): Time points for sampled UQ trajectories.
-        mean_latent (list): Mean trajectories from deterministic integration.
-        mean_latent_samples (list): Mean of sampled trajectories.
-        std_latent_samples (list): Standard deviation of sampled trajectories.
-        t_test (np.ndarray): Test time steps.
-        z_test (np.ndarray): Latent states for test data.
-        test_ids (list): List of test trajectory indices to plot.
+    Parameters
+    ----------
+    sampled_times : list of array-like
+        Time points for sampled UQ trajectories.
+    mean_latent : array-like
+        Mean trajectories from deterministic integration.
+    mean_latent_samples : array-like
+        Mean of sampled trajectories.
+    std_latent_samples : array-like
+        Standard deviation of sampled trajectories.
+    t_test : array-like
+        Test time steps.
+    z_test : array-like
+        Latent states for test data.
+    test_ids : list of int
+        List of test trajectory indices to plot.
+    state_id : int, optional
+        Index of the state variable to plot (default is 0).
     """
     n_test = len(test_ids)
     # plot the mean and 3*std of the trajectories

@@ -12,17 +12,33 @@ class BaseLibrary(abc.ABC):
     @abc.abstractmethod
     def __call__(self, x):
         """
-        construct features for the input x
-        :param x: input
-        :return: feature
+        Construct features for the input x.
+
+        Parameters
+        ----------
+        x : array-like
+            Input data.
+
+        Returns
+        -------
+        array-like
+            Feature representation.
         """
         pass
 
     @abc.abstractmethod
     def get_names(self, x):
         """
-        construct the names of the features for the input x
-        :param x: input
-        :return: feature
+        Construct the names of the features for the input x.
+
+        Parameters
+        ----------
+        x : array-like
+            Input data.
+
+        Returns
+        -------
+        list of str
+            Feature names.
         """
         pass

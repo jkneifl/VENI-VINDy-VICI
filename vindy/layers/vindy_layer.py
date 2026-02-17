@@ -13,12 +13,20 @@ class VindyLayer(SindyLayer):
 
     def __init__(self, beta=1, priors=Gaussian(0.0, 1.0), **kwargs):
         """
-        Layer for variational identification of nonlinear dynamics (VINDy) approximation of the
-        time derivative of the latent variable. Feature libraries are applied to the latent variables and a
-        (sparse) variational inference is performed to obtain the coefficients
-        :param beta: scaling factor for the KL divergence
-        :param priors: prior distribution for the coefficients
-        :param kwargs: see SindyLayer
+        Layer for variational identification of nonlinear dynamics (VINDy).
+
+        Approximates the time derivative of the latent variable. Feature libraries are
+        applied to the latent variables and a (sparse) variational inference is performed
+        to obtain the coefficients.
+
+        Parameters
+        ----------
+        beta : float or int, default=1
+            Scaling factor for the KL divergence.
+        priors : BaseDistribution or list of BaseDistribution, default=Gaussian(0.0, 1.0)
+            Prior distribution(s) for the coefficients.
+        **kwargs
+            Additional keyword arguments, see SindyLayer.
         """
         super(VindyLayer, self).__init__(**kwargs)
         self.assert_additional_args(beta, priors)
@@ -28,10 +36,14 @@ class VindyLayer(SindyLayer):
 
     def assert_additional_args(self, beta, priors):
         """
-        Asserts that the additional arguments are valid
-        :param beta:
-        :param priors:
-        :return:
+        Validate that the additional arguments are correct.
+
+        Parameters
+        ----------
+        beta : float or int
+            Scaling factor for the KL divergence.
+        priors : BaseDistribution or list of BaseDistribution
+            Prior distribution(s) for the coefficients.
         """
         # assert that input arguments are valid that are not checked in the super class
         assert isinstance(beta, float) or isinstance(beta, int), "beta must be a float"
@@ -71,9 +83,15 @@ class VindyLayer(SindyLayer):
     @property
     def _coeffs(self):
         """
-        Returns the coefficients of the SINDy layer which are sampled from a normal distribution parametrized by the
-        layer's kernel (weights)
-        :return:
+        Get the coefficients of the SINDy layer sampled from the defined distribution.
+
+        Returns the coefficients sampled from the defined distribution parametrized by the
+        layer's kernel (weights).
+
+        Returns
+        -------
+        tuple of tf.Tensor
+            Tuple containing (coeffs, coeffs_mean, coeffs_log_scale).
         """
         # split the kernel into mean and log variance
         coeffs_mean, coeffs_log_scale = self.kernel, self.kernel_scale
@@ -95,10 +113,19 @@ class VindyLayer(SindyLayer):
 
     def kl_loss(self, mean, scale):
         """
-        Computes the KL divergence between the priors and the coefficient distributions of the VINDy layer
-        :param mean:
-        :param scale:
-        :return:
+        Compute the KL divergence between the priors and coefficient distributions.
+
+        Parameters
+        ----------
+        mean : tf.Tensor
+            Mean of the coefficient distributions.
+        scale : tf.Tensor
+            Scale (log variance) of the coefficient distributions.
+
+        Returns
+        -------
+        tf.Tensor
+            Scaled KL divergence loss.
         """
         if isinstance(self.priors, list):
             kl_loss = tf.cast(0, self.dtype_)
@@ -117,12 +144,24 @@ class VindyLayer(SindyLayer):
     @tf.function
     def call(self, inputs, training=False):
         """
-        Applies the VINDy layer to the arguments, i.e. applies the feature libraries to the arguments,
-        samples the coefficients from a normal distribution parametrized by the layer's kernel (weights) and
-        computes the dot product of the features and the coefficients
-        :param inputs:
-        :param training:
-        :return:
+        Apply the VINDy layer to the inputs.
+
+        Applies the feature libraries to the inputs, samples the coefficients from a
+        normal distribution parametrized by the layer's kernel (weights), and computes
+        the dot product of the features and the coefficients.
+
+        Parameters
+        ----------
+        inputs : tf.Tensor
+            Input tensor.
+        training : bool, default=False
+            Whether the model is in training mode.
+
+        Returns
+        -------
+        tf.Tensor or list of tf.Tensor
+            If training: [z_dot, coeffs_mean, coeffs_log_var]
+            If not training: z_dot
         """
         # todo: think about whether we want to have deterministic coefficients during inference (after training) or not
         z_features = self.features(inputs)
@@ -137,8 +176,16 @@ class VindyLayer(SindyLayer):
 
     def visualize_coefficients(self, x_range=None, z=None, mu=None):
         """
-        Visualizes the coefficients of the SINDy layer as distributions
-        :return:
+        Visualize the coefficients of the SINDy layer as distributions.
+
+        Parameters
+        ----------
+        x_range : tuple, optional
+            Range for x-axis.
+        z : array-like, optional
+            Latent state variable names.
+        mu : array-like, optional
+            Parameter variable names.
         """
         # get coefficient parameterization
         _, mean, log_scale = self._coeffs
@@ -204,10 +251,15 @@ class VindyLayer(SindyLayer):
 
     def pdf_thresholding(self, threshold: float = 1.0):
         """
-        Cancel the coefficients of the SINDy layer if their corresponding probability density function at zero is above
-        the threshold, i.e. if pdf(0) > threshold
-        :param threshold:
-        :return:
+        Cancel coefficients based on their probability density function at zero.
+
+        Cancels the coefficients of the SINDy layer if their corresponding probability
+        density function at zero is above the threshold, i.e., if pdf(0) > threshold.
+
+        Parameters
+        ----------
+        threshold : float, default=1.0
+            Threshold value for cancelling coefficients.
         """
         # get current
         _, loc, log_scale = self._coeffs
@@ -246,10 +298,22 @@ class VindyLayer(SindyLayer):
     @tf.function
     def call_uq(self, inputs, coeffs):
         """
-        Applies the VINDy layer for given coefficients so that not the mean coefficients of the distribution are taken
-        :param inputs:
-        :param training:
-        :return:
+        Apply the VINDy layer with given coefficients for uncertainty quantification.
+
+        Applies the VINDy layer for given coefficients so that not the mean coefficients
+        of the distribution are taken.
+
+        Parameters
+        ----------
+        inputs : tf.Tensor
+            Input tensor.
+        coeffs : tf.Tensor
+            Coefficients to use for the computation.
+
+        Returns
+        -------
+        tf.Tensor
+            Time derivative z_dot.
         """
         if len(inputs.shape) == 1:
             inputs = tf.expand_dims(inputs, 0)

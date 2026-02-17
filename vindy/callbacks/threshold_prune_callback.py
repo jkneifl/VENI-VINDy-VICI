@@ -5,12 +5,21 @@ class ThresholdPruneCallback(tf.keras.callbacks.Callback):
 
     def __init__(self, freq=1, threshold=0.01, on_train_end=False, start_epoch=0):
         """
-        Callback for the SINDy layer. This callback is used to set all coefficients of the SINDy layer to zero if their
-        value is below a certain threshold
-        :param freq: frequency of the cancellation of the coefficients (every freq-th epochs)
-        :param threshold: for the cancellation of the coefficients (get canceled if value < threshold)
-        :param on_train_end: perform thresholding at end of training
-        :param start_epoch: first epoch for which the thresholding is applied
+        Callback for thresholding SINDy coefficients during training.
+
+        This callback sets all coefficients of the SINDy layer to zero if their
+        value is below a certain threshold.
+
+        Parameters
+        ----------
+        freq : int, default=1
+            Frequency of coefficient cancellation (every freq-th epochs).
+        threshold : float, default=0.01
+            Threshold for cancellation (coefficients with |value| < threshold are zeroed).
+        on_train_end : bool, default=False
+            Perform thresholding at end of training.
+        start_epoch : int, default=0
+            First epoch for which the thresholding is applied.
         """
         self.freq = freq
         self.threshold = threshold

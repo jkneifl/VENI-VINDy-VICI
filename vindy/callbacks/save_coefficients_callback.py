@@ -5,9 +5,14 @@ class SaveCoefficientsCallback(tf.keras.callbacks.Callback):
 
     def __init__(self, freq=1, **kwargs):
         """
-        Callback for the SINDy layer. This callback is used to log the coefficients during training
-        :param freq: frequency of the saving of the coefficients
-        :param kwargs:
+        Callback for logging SINDy coefficients during training.
+
+        Parameters
+        ----------
+        freq : int, default=1
+            Frequency of saving the coefficients (every freq-th epoch).
+        **kwargs
+            Additional keyword arguments passed to ``tf.keras.callbacks.Callback``.
         """
         self.freq = freq
         super().__init__(**kwargs)

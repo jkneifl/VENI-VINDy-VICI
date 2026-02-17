@@ -11,13 +11,44 @@ logging.getLogger().setLevel(logging.INFO)
 
 
 class SindyLayer(tf.keras.layers.Layer):
+    """
+    Sparse Identification of Nonlinear Dynamics (SINDy) layer.
+
+    This layer evaluates a library of candidate functions on latent inputs and
+    performs sparse regression to recover governing coefficients.
+
+    Parameters
+    ----------
+    state_dim : int
+        Number of latent variables (dimension of the latent state z).
+    param_dim : int, optional
+        Number of parameters (mu). Default is 0.
+    feature_libraries : list of BaseLibrary, optional
+        Feature libraries applied to the latent variables (e.g. PolynomialLibrary).
+    param_feature_libraries : list of BaseLibrary, optional
+        Feature libraries applied to parameters (mu).
+    second_order : bool, optional
+        If True, enforce second-order structure for dynamics (include z_dot features).
+    kernel_regularizer : tf.keras.regularizers.Regularizer, optional
+        Regularizer applied to the learned coefficient kernel.
+    x_mu_interaction : bool, optional
+        If True, include interaction features between state and parameters.
+    mask : array-like, optional
+        Mask to fix or remove certain coefficients from training.
+    fixed_coeffs : array-like, optional
+        Values for coefficients that are fixed (applied after masking).
+    dtype : str, optional
+        Data type used by the layer (e.g. 'float32').
+    **kwargs
+        Additional keyword arguments passed to ``tf.keras.layers.Layer``.
+    """
 
     def __init__(
         self,
         state_dim,
         param_dim=0,
-        feature_libraries: list = [],
-        param_feature_libraries: list = [],
+        feature_libraries=None,
+        param_feature_libraries=None,
         second_order=True,
         kernel_regularizer=tf.keras.regularizers.L1L2(l1=1e-3, l2=0),
         x_mu_interaction=True,
@@ -27,24 +58,24 @@ class SindyLayer(tf.keras.layers.Layer):
         **kwargs,
     ):
         """
-        Layer for SINDy approximation of the time derivative of the latent variable
-        feature libraries are applied to the latent variable and its time derivative and a sparse regression is performed
-        :param state_dim: (int) number of latent variables
-        :param param_dim: (int) number of parameters
-        :param feature_libraries: (list) list of feature libraries for the latent variables
-        :param param_feature_libraries: (list) list of feature libraries for the parameters
-        :param second_order: (bool) if True, enforce 2nd order structure,
-                    i.e. d/dt [z, z_d] = [z_dot, Theta(z, z_dot)@Xi] where Theta(z, z_dot) is a feature library and
-                    Xi are the coefficients to be identified
-        :param kernel_regularizer: (tf.keras.regularizers.Regularizer) regularizer for the kernel
-        :param x_mu_interaction: (bool) if True, interaction between latent variables and parameters
-        :param mask: (array-like) If required certain coefficients of the latent governing equations can be fixed
-                    and are consequently masked out for training
-        :param fixed_coeffs: (array-like) values for the coefficients that are masked out during training
-        :param dtype: (str) data type of the layer
-        :param kwargs: additional arguments for the tensorflow layer class
+        Layer for SINDy approximation of the time derivative of the latent variable.
+
+        Feature libraries are applied to the latent variable and its time derivative,
+        and a sparse regression is performed to obtain the governing coefficients.
+
+        Notes
+        -----
+        This initializer validates arguments, constructs default feature libraries
+        when none are provided and prepares internal bookkeeping variables used
+        by the layer (masks, coefficient shapes, etc.).
         """
         super(SindyLayer, self).__init__(**kwargs)
+
+        # default libraries
+        if feature_libraries is None:
+            feature_libraries = [PolynomialLibrary(degree=3)]
+        if param_feature_libraries is None:
+            param_feature_libraries = []
 
         # assert that input arguments are valid
         self.assert_arguments(locals())
@@ -98,15 +129,24 @@ class SindyLayer(tf.keras.layers.Layer):
     @property
     def loss_trackers(self):
         """
-        Returns the loss trackers of the layer if any. The standard sindy layer has no loss trackers.
-        :return:
+        Return loss trackers used by the layer.
+
+        Returns
+        -------
+        dict
+            Mapping of loss names to Keras Metric objects. By default the SINDy
+            layer does not add separate loss trackers and returns an empty dict.
         """
         return dict()
 
     def _init_to_config(self, init_locals):
         """
-        In order to save the model, we save the parameters with which the model was initialized except for the data itself
-        :param init_locals: local variables from the __init__ function
+        Save initializer arguments into ``self.config`` for serialization.
+
+        Parameters
+        ----------
+        init_locals : dict
+            The locals() mapping from the initializer; used to persist init args.
         """
 
         sig = inspect.signature(self.__init__)
@@ -117,9 +157,12 @@ class SindyLayer(tf.keras.layers.Layer):
 
     def assert_arguments(self, arguments):
         """
-        Asserts that the arguments passed to the layer are valid
-        :param arguments:
-        :return:
+        Validate initializer arguments and raise informative assertions.
+
+        Parameters
+        ----------
+        arguments : dict
+            Mapping from argument name to value (typically ``locals()`` from __init__).
         """
         assert arguments["dtype"] in [
             "float32",
@@ -182,8 +225,12 @@ class SindyLayer(tf.keras.layers.Layer):
     @property
     def kernel_shape(self):
         """
-        Returns the dimension of the kernel (weights) of the SINDy layer
-        :return:
+        Return the shape of the internal kernel (trainable coefficients).
+
+        Returns
+        -------
+        tuple
+            Kernel shape as (n_dofs, 1).
         """
         return (self.n_dofs, 1)
 
@@ -204,6 +251,22 @@ class SindyLayer(tf.keras.layers.Layer):
         )
 
     def set_mask(self, mask, fixed_coeffs=None):
+        """
+        Normalize and pad mask and fixed coefficient arrays to the expected shape.
+
+        Parameters
+        ----------
+        mask : array-like or None
+            Mask specifying which coefficients are trainable (1) or disabled (0).
+        fixed_coeffs : array-like or None
+            Fixed coefficient values to be applied for masked entries.
+
+        Returns
+        -------
+        tuple
+            ``(mask, fixed_coeffs)`` both cast to the layer dtype and padded to the
+            proper coefficient matrix shape.
+        """
         if mask is None:
             mask = tf.ones([self.state_dim, self.n_bases_functions])
         if fixed_coeffs is None:
@@ -230,8 +293,12 @@ class SindyLayer(tf.keras.layers.Layer):
     @property
     def _coeffs(self):
         """
-        Returns the coefficients of the SINDy layer as a matrix
-        :return:
+        Get the coefficients of the SINDy layer as a matrix.
+
+        Returns
+        -------
+        tf.Tensor
+            Coefficient matrix with shape (output_dim, n_bases_functions).
         """
         # fill the coefficient matrix with the trainable coefficients
         coeffs = self.fill_coefficient_matrix(self.kernel)
@@ -255,9 +322,17 @@ class SindyLayer(tf.keras.layers.Layer):
 
     def fill_coefficient_matrix(self, trainable_coeffs):
         """
-        fill the coefficient matrix with the trainable coefficients
-        :param trainable_coeffs: (array-like) trainable coefficients
-        :return:
+        Insert the trainable coefficients into the full coefficient matrix.
+
+        Parameters
+        ----------
+        trainable_coeffs : array-like
+            Trainable coefficients arranged to match the active DOFs.
+
+        Returns
+        -------
+        tf.Tensor
+            Full coefficient matrix with fixed coefficients applied.
         """
         # create a zero matrix for the coefficients with the correct shape
         coeffs = tf.zeros(self.coefficient_matrix_shape)
@@ -275,7 +350,19 @@ class SindyLayer(tf.keras.layers.Layer):
     @tf.function
     def call(self, inputs, training=False):
         """
-        forward pass of the SINDy layer
+        Forward pass of the SINDy layer: evaluate features and compute prediction.
+
+        Parameters
+        ----------
+        inputs : tf.Tensor
+            Latent variables, shape ``(batch_size, latent_dim)``.
+        training : bool, optional
+            Whether the call is in training mode.
+
+        Returns
+        -------
+        tf.Tensor
+            Predicted derivatives with shape ``(batch_size, output_dim)``.
         """
         z_features = self.features(inputs)
         z_dot = z_features @ tf.transpose(self._coeffs)
@@ -283,9 +370,17 @@ class SindyLayer(tf.keras.layers.Layer):
 
     def features(self, inputs):
         """
-        combine all features
-        :param inputs:
-        :return:
+        Compute concatenated features from configured libraries.
+
+        Parameters
+        ----------
+        inputs : tf.Tensor
+            Input tensor that contains state and (optionally) parameter values.
+
+        Returns
+        -------
+        tf.Tensor
+            Concatenated feature matrix for the SINDy regression.
         """
         # in case we want interaction between parameters and states
         if self.x_mu_interaction:
@@ -305,9 +400,19 @@ class SindyLayer(tf.keras.layers.Layer):
 
     def concat_features(self, z, libraries):
         """
-        concatenate features from different libraries
-        :param z: input
-        :param libraries: list of libraries
+        Concatenate outputs of several feature libraries.
+
+        Parameters
+        ----------
+        z : tf.Tensor
+            Input to the feature libraries.
+        libraries : list
+            Iterable of library objects that are callable on ``z``.
+
+        Returns
+        -------
+        tf.Tensor
+            Concatenated feature outputs along the last axis.
         """
         features = [library(z) for library in libraries]
         z_feat = tf.concat(features, axis=-1)
@@ -315,10 +420,19 @@ class SindyLayer(tf.keras.layers.Layer):
 
     def get_feature_names(self, z=None, mu=None):
         """
-        construct features names for states and parameters
-        :param z: (list of strings) names of the states, e.g. ['z1', 'z2', ...]
-        :param mu: (list of strings) names of the parameters, e.g. ['mu1', 'mu2', ...]
-        :return:
+        Construct human-readable feature names for states and parameters.
+
+        Parameters
+        ----------
+        z : list of str, optional
+            Names for the state variables. If None, default names are generated.
+        mu : list of str, optional
+            Names for parameter variables. If None, default names are generated.
+
+        Returns
+        -------
+        list of sympy.Symbol or str
+            Feature names in the order produced by ``features``.
         """
 
         if z is None:
@@ -350,21 +464,36 @@ class SindyLayer(tf.keras.layers.Layer):
 
     def print(self, z=None, mu=None, precision: int = 3):
         """
-        print the model equation
-        :param z: (list of strings) names of the states, e.g. ['z1', 'z2', ...]
-        :param mu: (list of strings) names of the parameters, e.g. ['mu1', 'mu2', ...]
-        :param precision: (int) number of decimal places
-        :return:
+        Print the discovered SINDy equations to stdout.
+
+        Parameters
+        ----------
+        z : list of str, optional
+            Variable names for states.
+        mu : list of str, optional
+            Variable names for parameters.
+        precision : int, optional
+            Number of decimal places when formatting coefficients.
         """
         print(self.model_equation_to_str(z, mu, precision))
 
     def model_equation_to_str(self, z=None, mu=None, precision: int = 3):
         """
-        convert coefficients and feature names into a readble equation
-        :param z:  (list of strings) names of the states, e.g. ['z1', 'z2', ...]
-        :param mu: (list of strings) names of the parameters, e.g. ['mu1', 'mu2', ...]
-        :param precision: (int) number of decimal places
-        :return:
+        Convert coefficients and feature names into a human-readable equation string.
+
+        Parameters
+        ----------
+        z : list of str, optional
+            Names of the state variables.
+        mu : list of str, optional
+            Names of the parameter variables.
+        precision : int, optional
+            Decimal precision for printing coefficients.
+
+        Returns
+        -------
+        str
+            Multi-line string with one equation per latent state.
         """
         if z is None:
             z = [f"z{i}" for i in range(self.output_dim)]
@@ -395,12 +524,25 @@ class SindyLayer(tf.keras.layers.Layer):
 
     def integrate(self, z0, t, mu=None, method="RK45", sindy_fcn=None):
         """
-        Integrate the model using scipy.integrate.solve_ivp
-        :param z0: (array-like) initial state
-        :param t: time points to evaluate the solution at
-        :param mu: parameters to use in the model
-        :param method: integration method to use
-        :return:
+        Integrate the SINDy model forward in time using scipy.integrate.solve_ivp.
+
+        Parameters
+        ----------
+        z0 : array-like
+            Initial state for integration.
+        t : array-like
+            Time points at which to evaluate the solution.
+        mu : array-like or callable, optional
+            Parameter trajectory (or callable) to pass to the model.
+        method : str, optional
+            Integration method for solve_ivp (e.g. 'RK45').
+        sindy_fcn : callable, optional
+            Callable implementing the right-hand side. If None, uses ``self.rhs_``.
+
+        Returns
+        -------
+        OdeResult
+            The object returned by scipy.integrate.solve_ivp.
         """
 
         # tensorflow tensor form numpy
@@ -444,7 +586,19 @@ class SindyLayer(tf.keras.layers.Layer):
 
     def rhs_(self, t, inputs):
         """
-        evaluate right-hand side of the ODE system z'(t) = f(z, mu) for inputs (z, mu)
+        Evaluate the right-hand side z'(t) = f(z, mu) for provided inputs.
+
+        Parameters
+        ----------
+        t : float
+            Current time (unused by default but present for compatibility).
+        inputs : array-like
+            Flattened inputs (state or state+param) for the RHS function.
+
+        Returns
+        -------
+        tf.Tensor or ndarray
+            Time derivative evaluated at the given inputs.
         """
         if len(inputs.shape) == 1:
             inputs = tf.expand_dims(inputs, 0)

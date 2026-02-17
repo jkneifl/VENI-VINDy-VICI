@@ -22,14 +22,30 @@ class IdentificationNetwork(BaseModel):
         **kwargs,
     ):
         """
-        Model to discover low-dimensional dynamics of a system using SINDy or VINDy
-        :param sindy_layer: Layer to identify the governing equatinos of the latent dynamics, must be a class inheriting
-            from SindyLayer
-        :param x: Input data
-        :param mu: parameter data
-        :param l_dz: Weight of the derivative loss
-        :param l_int: Weight of the integration loss
-        :param kwargs:
+        Identification network using a SINDy layer.
+
+        Parameters
+        ----------
+        sindy_layer : SindyLayer
+            SINDy-compatible layer used to model system dynamics.
+        x : array-like
+            Example input data used to infer shapes.
+        mu : array-like, optional
+            Optional control/parameter inputs.
+        scaling : str, optional
+            Scaling strategy for inputs.
+        second_order : bool, optional
+            Whether the underlying system is second-order.
+        l_dz : float, optional
+            Weight for latent derivative loss.
+        l_int : float, optional
+            Weight for integration consistency loss.
+        dt : float, optional
+            Time-step for finite differences.
+        dtype : str, optional
+            Keras float dtype.
+        **kwargs
+            Forwarded to the base model.
         """
 
         # assert that input arguments are valid
@@ -66,6 +82,9 @@ class IdentificationNetwork(BaseModel):
         self.create_loss_trackers()
 
     def create_loss_trackers(self):
+        """
+        Initialize loss trackers used during training.
+        """
         self.loss_trackers = dict()
         self.loss_trackers["loss"] = tf.keras.metrics.Mean(name="loss")
         self.loss_trackers["dz"] = tf.keras.metrics.Mean(name="dz")
@@ -77,17 +96,25 @@ class IdentificationNetwork(BaseModel):
 
     def get_trainable_weights(self):
         """
-        Returns the trainable weights of the model
-        :return:
+        Return trainable variables for the identification-only model.
+
+        Returns
+        -------
+        list
+            List of trainable TensorFlow variables (SINDy weights).
         """
         return self.sindy.trainable_weights
 
     def build_model(self, z, mu):
         """
-        build the model
-        :param x: array-like of shape (n_samples, n_features), full state
-        :param mu: array-like of shape (n_samples, n_params), parameters
-        :return:
+        Build the SINDy model mapping latent variables to their derivatives.
+
+        Parameters
+        ----------
+        z : array-like
+            Example latent input used to infer shapes.
+        mu : array-like, optional
+            Parameter/control inputs for SINDy.
         """
         z = tf.keras.Input(shape=(z.shape[1],), dtype=self.dtype_)
         # sindy
@@ -98,10 +125,17 @@ class IdentificationNetwork(BaseModel):
 
     def build_loss(self, inputs):
         """
-        split input into state, its derivative and the parameters, perform the forward pass, calculate the loss,
-        and update the weights
-        :param inputs: list of array-like objects
-        :return:
+        Compute training loss from inputs and apply optimizer steps.
+
+        Parameters
+        ----------
+        inputs : list
+            List containing state, derivatives, and optional parameter/integration data.
+
+        Returns
+        -------
+        dict
+            Dictionary with individual loss components and total loss under key 'loss'.
         """
 
         # second order systems dx_ddt = f(x, dx_dt, mu)
@@ -127,13 +161,25 @@ class IdentificationNetwork(BaseModel):
 
     def get_loss(self, z, dz_dt, mu, z_int=None, mu_int=None):
         """
-        calculate loss for first order system
-        :param z: array-like of shape (n_samples, n_features), full state
-        :param dz_dt: array-like of shape (n_samples, n_features), time derivative of state
-        :param mu: array-like of shape (n_samples, n_features), control input
-        :param z_int: array-like of shape (n_samples, n_features, n_integrationsteps), full state at {t+1,...,t+n_integrationsteps}
-        :param mu_int: array-like of shape (n_samples, n_param, n_integrationsteps), control input at {t+1,...,t+n_integrationsteps}
-        :return: dz_loss, int_loss, losses: individual losses
+        Calculate loss for first order system.
+
+        Parameters
+        ----------
+        z : array-like of shape (n_samples, n_features)
+            Full state.
+        dz_dt : array-like of shape (n_samples, n_features)
+            Time derivative of state.
+        mu : array-like of shape (n_samples, n_features)
+            Control input.
+        z_int : array-like of shape (n_samples, n_features, n_integrationsteps), optional
+            Full state at {t+1,...,t+n_integrationsteps}.
+        mu_int : array-like of shape (n_samples, n_param, n_integrationsteps), optional
+            Control input at {t+1,...,t+n_integrationsteps}.
+
+        Returns
+        -------
+        dict
+            Dictionary of individual losses including 'loss', 'dz', 'int', 'reg'.
         """
         losses = dict(loss=0)
 
@@ -171,15 +217,29 @@ class IdentificationNetwork(BaseModel):
         self, z, dz_dt, dz_ddt, mu, z_int=None, dz_dt_int=None, mu_int=None
     ):
         """
-        calculate loss for second order system
-        :param x: array-like of shape (n_samples, n_features), full state
-        :param dz_dt: array-like of shape (n_samples, n_features), time derivative of state
-        :param dz_ddt: array-like of shape (n_samples, n_features), second time derivative of state
-        :param mu: array-like of shape (n_samples, n_param), control input
-        :param z_int: array-like of shape (n_samples, n_features, n_integrationsteps), full state at {t+1,...,t+n_integrationsteps}
-        :param dz_dt_int: array-like of shape (n_samples, n_features, n_integrationsteps), time derivative of state at {t+1,...,t+n_integrationsteps}
-        :param mu_int: array-like of shape (n_samples, n_param, n_integrationsteps), control input at {t+1,...,t+n_integrationsteps}
-        :return: rec_loss, dz_loss, dx_loss, int_loss, loss: individual losses
+        Calculate loss for second order system.
+
+        Parameters
+        ----------
+        z : array-like of shape (n_samples, n_features)
+            Full state.
+        dz_dt : array-like of shape (n_samples, n_features)
+            Time derivative of state.
+        dz_ddt : array-like of shape (n_samples, n_features)
+            Second time derivative of state.
+        mu : array-like of shape (n_samples, n_param)
+            Control input.
+        z_int : array-like of shape (n_samples, n_features, n_integrationsteps), optional
+            Full state at {t+1,...,t+n_integrationsteps}.
+        dz_dt_int : array-like of shape (n_samples, n_features, n_integrationsteps), optional
+            Time derivative of state at {t+1,...,t+n_integrationsteps}.
+        mu_int : array-like of shape (n_samples, n_param, n_integrationsteps), optional
+            Control input at {t+1,...,t+n_integrationsteps}.
+
+        Returns
+        -------
+        dict
+            Dictionary of individual losses including 'loss', 'dz', 'int', 'reg'.
         """
         losses = dict(loss=0)
 
