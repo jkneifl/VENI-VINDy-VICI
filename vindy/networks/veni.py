@@ -9,13 +9,21 @@ logging.getLogger().setLevel(logging.INFO)
 
 
 class VENI(AutoencoderSindy):
+    """Variational Encoder Network for system identification.
+
+    The VENI model combines a variational autoencoder with a SINDy
+    layer to discover low-dimensional dynamics from high-dimensional
+    observations.
+
+    Parameters
+    ----------
+    beta : float
+        Weight of the KL divergence term in the loss function.
+    **kwargs
+        Additional keyword arguments forwarded to ``AutoencoderSindy``.
+    """
 
     def __init__(self, beta, **kwargs):
-        """
-        Model to discover low-dimensional dynamics of a high-dimensional system using autoencoders and SINDy
-        :param beta: float, weight of the KL divergence term in the loss function
-        :param kwargs: arguments for AutoencoderSindy
-        """
         # assert that input arguments are valid
         if not hasattr(self, "config"):
             self._init_to_config(locals())
@@ -24,18 +32,27 @@ class VENI(AutoencoderSindy):
         super(VENI, self).__init__(**kwargs)
 
     def create_loss_trackers(self):
-        """
-        Creates the loss trackers for the model
-        :return:
+        """Create loss trackers used during training.
+
+        Extends the base trackers by adding a tracker for the KL loss.
         """
         super(VENI, self).create_loss_trackers()
         self.loss_trackers["kl"] = tf.keras.metrics.Mean(name="kl_loss")
 
     def build_encoder(self, x):
-        """
-        Builds the variational encoder part of the model which
-        :param x:
-        :return:
+        """Build the variational encoder network.
+
+        Parameters
+        ----------
+        x : array-like
+            Example input array used to infer input shapes.
+
+        Returns
+        -------
+        x_input : tf.keras.Input
+            The encoder input tensor.
+        z : tf.Tensor
+            Sampled latent variable from the learned Gaussian.
         """
         x_input = tf.keras.Input(shape=(x.shape[1],), dtype=self.dtype_)
         z_ = x_input
@@ -67,11 +84,19 @@ class VENI(AutoencoderSindy):
         return x_input, z
 
     def kl_loss(self, mean, log_var):
-        """
-        KL divergence loss for Gaussian distributions
-        :param mean:
-        :param log_var:
-        :return:
+        """Compute the KL divergence between the learned Gaussian and the unit Gaussian.
+
+        Parameters
+        ----------
+        mean : tf.Tensor
+            Mean of the approximate posterior.
+        log_var : tf.Tensor
+            Log-variance of the approximate posterior.
+
+        Returns
+        -------
+        tf.Tensor
+            Scalar KL divergence loss scaled by ``self.beta``.
         """
         kl_loss = -0.5 * (1 + log_var - tf.square(mean) - tf.exp(log_var))
         # sum over the latent dimension is correct as it reflects the kl divergence for a multivariate isotropic Gaussian
@@ -80,11 +105,20 @@ class VENI(AutoencoderSindy):
         return kl_loss
 
     def _training_encoding(self, x, losses):
-        """
-        For compatibility with the parent class we need a method that only returns the latent variable
-        but not the mean and log variance. The mean and log variance are used to calculate the KL divergence
-        :param x:
-        :return:
+        """Get latent encoding used during training and accumulate KL loss.
+
+        Parameters
+        ----------
+        x : array-like
+            Input observations.
+        losses : dict
+            Mutable dict where computed losses are stored/accumulated.
+
+        Returns
+        -------
+        tuple
+            (z, losses) where ``z`` is the sampled latent variable and
+            ``losses`` includes the KL contribution.
         """
         z_mean, z_log_var, z = self.variational_encoder(x)
         kl_loss = self.kl_loss(z_mean, z_log_var)
@@ -93,10 +127,21 @@ class VENI(AutoencoderSindy):
         return z, losses
 
     def encode(self, x, training=False, mean_or_sample="mean"):
-        """
-        encode full state to latent distribution and return its mean
-        :param x: array-like of shape (n_samples, n_features, n_dof_per_feature), full state
-        :return: z: array-like of shape (n_samples, reduced_order), latent variable
+        """Encode input to latent space and return mean or sample.
+
+        Parameters
+        ----------
+        x : array-like
+            Full state observations with shape ``(n_samples, n_features, ...)``.
+        training : bool, optional
+            If True, run in training mode (unused here).
+        mean_or_sample : {'mean', 'sample'}, optional
+            Return the mean of the posterior or a sample from it.
+
+        Returns
+        -------
+        tf.Tensor
+            Latent representation (mean or sample) of shape ``(n_samples, reduced_order)``.
         """
         x = self.flatten(x)
         z_mean, _, z = self.variational_encoder(x)
@@ -114,12 +159,22 @@ class VENI(AutoencoderSindy):
 
     @staticmethod
     def reconstruction_loss(x, x_reconstruction):
-        """
-        Computes the reconstruction loss of the autoencoder as log(mse) as stated in
-            https://arxiv.org/pdf/2006.10273.pdf
-        :param x: input
-        :param x_reconstruction: reconstruction
-        :return:
+        """Reconstruction loss used for the variational autoencoder.
+
+        The implementation follows the log-MSE variant referenced in the
+        VINDy paper.
+
+        Parameters
+        ----------
+        x : array-like
+            Original inputs.
+        x_reconstruction : array-like
+            Reconstructed inputs from the decoder.
+
+        Returns
+        -------
+        tf.Tensor
+            Scalar reconstruction loss.
         """
         return tf.math.log(
             2 * np.pi * tf.reduce_mean(tf.keras.losses.mse(x, x_reconstruction)) + 1

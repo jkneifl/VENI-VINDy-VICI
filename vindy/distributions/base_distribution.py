@@ -1,50 +1,100 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import tensorflow as tf
-from abc import ABC, abstractmethod
+from abc import abstractmethod
 
-class BaseDistribution(tf.keras.layers.Layer, ABC):
+class BaseDistribution(tf.keras.layers.Layer):
     """
-    Base class for distribution layers implementing a call function to sample from the distribution and a
-    KL divergence function to compute the KL divergence between two distributions.
+    Base class for probabilistic distributions used in variational encoders.
+
+    Subclasses should implement sampling and log-probability computations.
+
+    Methods
+    -------
+    call(inputs)
+        Return samples and any auxiliary outputs (e.g. mean/logvar).
     """
+
+    def __init__(self, name: str = None, dtype: str | None = None, **kwargs):
+        """
+        Initialize the base distribution layer.
+
+        Parameters
+        ----------
+        name : str, optional
+            Optional name for the layer.
+        dtype : str, optional
+            Keras dtype for the layer (e.g. 'float32'). If None, the default
+            Keras floatx is used.
+        **kwargs
+            Additional keyword arguments forwarded to ``tf.keras.layers.Layer``.
+        """
+        super().__init__(name=name, dtype=dtype, **kwargs)
 
     @abstractmethod
     def call(self, inputs):
         """
-        Sample from the distribution
-        :param inputs:
-        :return:
+        Sample from the distribution.
+
+        Parameters
+        ----------
+        inputs : array-like
+            Inputs used to parameterize the distribution (for instance mean/logvar).
+
+        Returns
+        -------
+        tuple or tf.Tensor
+            Samples (and optionally auxiliary statistics).
         """
         pass
 
     @abstractmethod
     def KL_divergence(self):
         """
-        Compute the KL divergence between two distributions
-        :return:
+        Compute the KL divergence between two distributions.
+
+        Returns
+        -------
+        tf.Tensor
+            Scalar KL divergence.
         """
         pass
 
     @abstractmethod
     def prob_density_fcn(self, x, mean, scale):
         """
-        Probability density function
-        :param x: input
-        :param loc: mean
-        :param scale: scale
-        :return:
+        Probability density function.
+
+        Parameters
+        ----------
+        x : array-like
+            Points at which to evaluate the density.
+        mean : float or array-like
+            Distribution mean/loc parameter.
+        scale : float or array-like
+            Scale parameter (std, scale, etc.).
+
+        Returns
+        -------
+        array-like
+            Density values at x.
         """
         pass
 
     @abstractmethod
     def variance(self, scale):
         """
-        Probability density function
-        :param x: input
-        :param loc: mean
-        :param scale: scale
-        :return:
+        Variance as a function of the distribution scale parameter.
+
+        Parameters
+        ----------
+        scale : float or array-like
+            Scale parameter of the distribution.
+
+        Returns
+        -------
+        float or array-like
+            Variance corresponding to the provided scale.
         """
         pass
 
@@ -52,15 +102,31 @@ class BaseDistribution(tf.keras.layers.Layer, ABC):
         """
         Converts the log scale to scale following
             s = exp(log(s)) = exp(log_scale)
-        :param log_scale:
-        :return:
+
+        Parameters
+        ----------
+        log_scale : array-like
+            Logarithm of the scale parameter.
+
+        Returns
+        -------
+        array-like
+            Scale (exp(log_scale)).
         """
         return tf.exp(log_scale)
 
     def plot(self, mean, scale, ax=None):
         """
-        Plots the probability density function of the Laplace distribution
-        :return:
+        Plots the probability density function of the distribution.
+
+        Parameters
+        ----------
+        mean : float or array-like
+            Mean/loc of the distribution.
+        scale : float or array-like
+            Scale parameter.
+        ax : matplotlib.axes.Axes, optional
+            Axis to draw on. If None, uses current axis.
         """
         if ax is None:
             ax = plt.gca()
