@@ -60,7 +60,7 @@ def main():
     print("\n🌐 To view locally, run:")
     print(f"   open {docs_dir / 'build' / 'html' / 'index.html'}")
 
-    return 0 if not warnings else 0  # Return 0 even with warnings (they're often not critical)
+    return 0  # Return 0 even with warnings (they're often not critical)
 
 if __name__ == "__main__":
     sys.exit(main())
