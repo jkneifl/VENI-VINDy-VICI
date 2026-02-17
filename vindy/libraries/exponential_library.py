@@ -10,9 +10,17 @@ class ExponentialLibrary(BaseLibrary):
     @tf.function
     def __call__(self, x):
         """
-        transform input x to exponential features
-        :param x: array-like of shape (n_samples, 2*reduce_order), latent variable and its time derivative
-        :return: polynomial features
+        Transform input x to exponential features.
+
+        Parameters
+        ----------
+        x : array-like of shape (n_samples, 2*reduce_order)
+            Latent variable and its time derivative.
+
+        Returns
+        -------
+        x_exp : tf.Tensor
+            Exponential features.
         """
         x_exp = []
         for c in self.coeff:
@@ -22,9 +30,17 @@ class ExponentialLibrary(BaseLibrary):
 
     def get_names(self, x):
         """
-        construct features for the input x
-        :param x: input
-        :return: feature
+        Construct features for the input x.
+
+        Parameters
+        ----------
+        x : array-like
+            Input data.
+
+        Returns
+        -------
+        list of str
+            Feature names in exponential form.
         """
         # ensure that x is a list
         if not isinstance(x, list):

@@ -18,8 +18,15 @@ class BaseModel(tf.keras.Model, ABC):
 
     def _init_to_config(self, init_locals):
         """
-        In order to save the model, we save the parameters with which the model was initialized except for the data itself
-        :param init_locals: local variables from the __init__ function
+        Save model initialization parameters to config.
+
+        In order to save the model, we save the parameters with which the model
+        was initialized except for the data itself.
+
+        Parameters
+        ----------
+        init_locals : dict
+            Local variables from the __init__ function.
         """
 
         # ! broken due to tf (can't copy layer https://github.com/keras-team/keras/issues/19383)
@@ -45,9 +52,12 @@ class BaseModel(tf.keras.Model, ABC):
 
     def assert_arguments(self, arguments):
         """
-        Asserts that the arguments passed to the model are valid
-        :param arguments: all arguments passed to the model
-        :return:
+        Validate that the arguments passed to the model are valid.
+
+        Parameters
+        ----------
+        arguments : dict
+            All arguments passed to the model.
         """
         # assert that sindy_layer is of correct class
         assert type(arguments["x"]) in (
@@ -88,9 +98,13 @@ class BaseModel(tf.keras.Model, ABC):
 
     def save(self, path: str = None):
         """
-        Saves the model weights as well as the model configuration from the initialization to a given path
-        :param path: (string) path to the folder where the model should be saved
-        :return:
+        Save the model weights and configuration to a given path.
+
+        Parameters
+        ----------
+        path : str, optional
+            Path to the folder where the model should be saved. If None, a default
+            path with timestamp is created.
         """
         if path is None:
             path = (
@@ -116,12 +130,29 @@ class BaseModel(tf.keras.Model, ABC):
         kwargs_overwrite: dict = {},
     ):
         """
-        loads the model from the given path
-        :param X: the data is needed to initialize the model
-        :param mu: the parameters which were used to create the model the first time
-        :param path: path to the model
-        :param kwargs: additional kwargs to overwrite the config
-        :return:
+        Load a model from the given path.
+
+        Parameters
+        ----------
+        aesindy : class
+            The model class to instantiate.
+        x : array-like, optional
+            Data needed to initialize the model.
+        mu : array-like, optional
+            Parameters used to create the model.
+        mask : array-like, optional
+            Mask for coefficients.
+        fixed_coeffs : array-like, optional
+            Fixed coefficient values.
+        path : str, optional
+            Path to the saved model.
+        kwargs_overwrite : dict, default={}
+            Additional kwargs to overwrite the config.
+
+        Returns
+        -------
+        BaseModel
+            Loaded model instance.
         """
 
         weights_path = os.path.join(path, ".weights.h5")
@@ -165,19 +196,34 @@ class BaseModel(tf.keras.Model, ABC):
 
     def sindy_coeffs(self):
         """
-        returns the coefficients of the SINDy model
-        :return:
+        Return the coefficients of the SINDy model.
+
+        Returns
+        -------
+        array-like
+            SINDy coefficient matrix.
         """
         return self.sindy_layer.get_sindy_coeffs()
 
     def fit(self, x, y=None, validation_data=None, **kwargs):
         """
-        wrapper for the fit function of the keras model to flatten the data if necessary
-        :param x:
-        :param y:
-        :param validation_data:
-        :param kwargs:
-        :return:
+        Wrapper for the fit function to flatten the data if necessary.
+
+        Parameters
+        ----------
+        x : array-like
+            Training data.
+        y : array-like, optional
+            Target data.
+        validation_data : tuple or array-like, optional
+            Validation data.
+        **kwargs
+            Additional keyword arguments passed to ``tf.keras.Model.fit``.
+
+        Returns
+        -------
+        History
+            Training history object.
         """
         # flatten and cast the input
         for i, x_ in enumerate(x):
@@ -204,11 +250,21 @@ class BaseModel(tf.keras.Model, ABC):
 
     def concatenate_sindy_input(self, z, dzdt=None, mu=None):
         """
-        concatenate the state, (its derivative), and the parameters to the input of the SINDy layer
-        :param z:
-        :param dzdt:
-        :param mu:
-        :return:
+        Concatenate state, derivative, and parameters for SINDy layer input.
+
+        Parameters
+        ----------
+        z : tf.Tensor
+            Latent state.
+        dzdt : tf.Tensor, optional
+            Time derivative of latent state.
+        mu : tf.Tensor, optional
+            Parameters.
+
+        Returns
+        -------
+        tf.Tensor
+            Concatenated input tensor for SINDy layer.
         """
         quantities_to_concatenate = [z]
         if dzdt is not None:
@@ -221,9 +277,19 @@ class BaseModel(tf.keras.Model, ABC):
 
     def build_sindy(self, z, mu):
         """
-        Build the model for the forward pass of the SINDy layer
-        :param z: array-like of shape (n_samples, reduced_order), latent state
-        :param mu: array-like of shape (n_samples, n_params), parameters
+        Build the model for the forward pass of the SINDy layer.
+
+        Parameters
+        ----------
+        z : array-like of shape (n_samples, reduced_order)
+            Latent state.
+        mu : array-like of shape (n_samples, n_params), optional
+            Parameters.
+
+        Returns
+        -------
+        tuple of tf.Tensor
+            (z_sindy, z_dot) - SINDy input and predicted derivative.
         """
         # sindy
         dzdt = None
@@ -239,9 +305,17 @@ class BaseModel(tf.keras.Model, ABC):
 
     def split_inputs(self, inputs):
         """
-        Split the inputs into the state, its derivative, and the parameters (if present)
-        :param inputs:
-        :return:
+        Split the inputs into state, derivative, and parameters.
+
+        Parameters
+        ----------
+        inputs : list
+            Input data containing state and optional derivatives/parameters.
+
+        Returns
+        -------
+        tuple
+            (x, dx_dt, dx_ddt, x_int, dx_int, mu, mu_int) with unpacked components.
         """
         # initialize variables as None
         x, dx_dt, dx_ddt, x_int, dx_int, mu, mu_int = [None] * 7
@@ -273,9 +347,17 @@ class BaseModel(tf.keras.Model, ABC):
     @tf.function
     def train_step(self, inputs):
         """
-        perform one training step
-        :param inputs:
-        :return:
+        Perform one training step.
+
+        Parameters
+        ----------
+        inputs : list
+            Input data for the training step.
+
+        Returns
+        -------
+        dict
+            Dictionary of loss values.
         """
 
         # perform forwad pass, calculate loss and update weights
@@ -293,9 +375,17 @@ class BaseModel(tf.keras.Model, ABC):
     @tf.function
     def test_step(self, inputs):
         """
-        perform one test step
-        :param inputs:
-        :return:
+        Perform one test/validation step.
+
+        Parameters
+        ----------
+        inputs : list
+            Input data for the validation step.
+
+        Returns
+        -------
+        dict
+            Dictionary of loss values.
         """
         # perform forwad pass, calculate loss for validation data
         losses = self.build_loss(inputs)
@@ -309,9 +399,17 @@ class BaseModel(tf.keras.Model, ABC):
     @tf.function
     def get_int_loss(self, inputs):
         """
-        Integrate the identified dynamical system and compare the result to the true dynamics
-        :param inputs:
-        :return:
+        Integrate the identified dynamical system and compare to true dynamics.
+
+        Parameters
+        ----------
+        inputs : list
+            Input data containing state trajectories and parameters.
+
+        Returns
+        -------
+        tf.Tensor
+            Integration consistency loss.
         """
         # todo: use tensorflow's built in ode solver
 
@@ -417,11 +515,22 @@ class BaseModel(tf.keras.Model, ABC):
 
     def evaluate_sindy_layer(self, z, dz_dt, mu):
         """
-        Evaluate the SINDy layer
-        :param z: latent variable
-        :param dzdt: time derivative of the latent variable (only required for second order models)
-        :param mu:
-        :return:
+        Evaluate the SINDy layer.
+
+        Parameters
+        ----------
+        z : tf.Tensor
+            Latent variable.
+        dz_dt : tf.Tensor, optional
+            Time derivative of the latent variable (only for second order models).
+        mu : tf.Tensor, optional
+            Parameters.
+
+        Returns
+        -------
+        tuple
+            (sindy_pred, sindy_mean, sindy_log_var) - prediction and optional
+            variational parameters.
         """
         # sindy approximation of the time derivative of the latent variable
         if mu is None:
@@ -456,10 +565,14 @@ class BaseModel(tf.keras.Model, ABC):
 
     def vis_modes(self, x, n_modes=3):
         """
-        Visualize the reconstruction of the reduced coefficients of the PCA modes
-        :param x:
-        :param n_modes:
-        :return:
+        Visualize the reconstruction of the reduced coefficients.
+
+        Parameters
+        ----------
+        x : array-like
+            Input data.
+        n_modes : int, default=3
+            Number of modes to visualize.
         """
         n_modes = min(n_modes, x.shape[1])
         z = self.encoder(self.flatten(x))
@@ -480,12 +593,25 @@ class BaseModel(tf.keras.Model, ABC):
 
     def integrate(self, z0, t, mu=None, method="RK45", sindy_fcn=None):
         """
-        Integrate the model using scipy.integrate.solve_ivp
-        :param z0: (array-like) initial state
-        :param t: time points to evaluate the solution at
-        :param mu: parameters to use in the model
-        :param method: integration method to use
-        :return:
+        Integrate the model using scipy.integrate.solve_ivp.
+
+        Parameters
+        ----------
+        z0 : array-like
+            Initial state.
+        t : array-like
+            Time points to evaluate the solution at.
+        mu : array-like or callable, optional
+            Parameters to use in the model.
+        method : str, default='RK45'
+            Integration method to use.
+        sindy_fcn : callable, optional
+            Custom SINDy function.
+
+        Returns
+        -------
+        OdeResult
+            Solution from scipy.integrate.solve_ivp.
         """
         return self.sindy_layer.integrate(z0, t, mu, method, sindy_fcn)
 
@@ -495,9 +621,12 @@ class BaseModel(tf.keras.Model, ABC):
 
     def define_scaling(self, x):
         """
-        define the scaling factor for given training data
-        :param x:
-        :return:
+        Define the scaling factor for given training data.
+
+        Parameters
+        ----------
+        x : tf.Tensor
+            Training data.
         """
         # scale the data if requested
         if self.scaling == "individual":

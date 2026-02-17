@@ -11,11 +11,18 @@ def add_lognormal_noise(trajectory, sigma):
 
 def coefficient_distributions_to_csv(sindy_layer, outdir, var_names=[], param_names=[]):
     """
-    Save the coefficient distributions of the SINDy layer to csv files
-    :param sindy_layer:
-    :param outdir:
-    :param var_names:
-    :return:
+    Save the coefficient distributions of the SINDy layer to CSV files.
+
+    Parameters
+    ----------
+    sindy_layer : SindyLayer
+        SINDy layer containing coefficient distributions.
+    outdir : str
+        Output directory for CSV files.
+    var_names : list of str, optional
+        Names of state variables (default is []).
+    param_names : list of str, optional
+        Names of parameters (default is []).
     """
     if not var_names:
         var_names = [f"z{i}" for i in range(1, sindy_layer.output_dim + 1)]
@@ -96,10 +103,16 @@ def coefficient_distribution_gif(
 
 def plot_train_history(history, outdir, validation: bool = True):
     """
-    Plot the training history
-    :param history:
-    :param outdir:
-    :return:
+    Plot the training history.
+
+    Parameters
+    ----------
+    history : dict or keras.callbacks.History
+        Training history object or dictionary.
+    outdir : str
+        Output directory path for saving plots.
+    validation : bool, default=True
+        Whether to plot validation metrics.
     """
     os.makedirs(outdir, exist_ok=True)
     # plot training history
@@ -121,10 +134,14 @@ def plot_train_history(history, outdir, validation: bool = True):
 
 def plot_coefficients_train_history(history, outdir):
     """
-    Plot the coefficient training history
-    :param history:
-    :param outdir:
-    :return:
+    Plot the coefficient training history.
+
+    Parameters
+    ----------
+    history : dict
+        Training history containing 'coeffs_mean' and 'coeffs_scale'.
+    outdir : str
+        Output directory path for saving plots.
     """
     mean_over_epochs = np.array(history["coeffs_mean"]).squeeze()
     scale_over_epochs = np.array(history["coeffs_scale"]).squeeze()

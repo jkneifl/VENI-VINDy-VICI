@@ -161,13 +161,25 @@ class IdentificationNetwork(BaseModel):
 
     def get_loss(self, z, dz_dt, mu, z_int=None, mu_int=None):
         """
-        calculate loss for first order system
-        :param z: array-like of shape (n_samples, n_features), full state
-        :param dz_dt: array-like of shape (n_samples, n_features), time derivative of state
-        :param mu: array-like of shape (n_samples, n_features), control input
-        :param z_int: array-like of shape (n_samples, n_features, n_integrationsteps), full state at {t+1,...,t+n_integrationsteps}
-        :param mu_int: array-like of shape (n_samples, n_param, n_integrationsteps), control input at {t+1,...,t+n_integrationsteps}
-        :return: dz_loss, int_loss, losses: individual losses
+        Calculate loss for first order system.
+
+        Parameters
+        ----------
+        z : array-like of shape (n_samples, n_features)
+            Full state.
+        dz_dt : array-like of shape (n_samples, n_features)
+            Time derivative of state.
+        mu : array-like of shape (n_samples, n_features)
+            Control input.
+        z_int : array-like of shape (n_samples, n_features, n_integrationsteps), optional
+            Full state at {t+1,...,t+n_integrationsteps}.
+        mu_int : array-like of shape (n_samples, n_param, n_integrationsteps), optional
+            Control input at {t+1,...,t+n_integrationsteps}.
+
+        Returns
+        -------
+        dict
+            Dictionary of individual losses including 'loss', 'dz', 'int', 'reg'.
         """
         losses = dict(loss=0)
 
@@ -205,15 +217,29 @@ class IdentificationNetwork(BaseModel):
         self, z, dz_dt, dz_ddt, mu, z_int=None, dz_dt_int=None, mu_int=None
     ):
         """
-        calculate loss for second order system
-        :param x: array-like of shape (n_samples, n_features), full state
-        :param dz_dt: array-like of shape (n_samples, n_features), time derivative of state
-        :param dz_ddt: array-like of shape (n_samples, n_features), second time derivative of state
-        :param mu: array-like of shape (n_samples, n_param), control input
-        :param z_int: array-like of shape (n_samples, n_features, n_integrationsteps), full state at {t+1,...,t+n_integrationsteps}
-        :param dz_dt_int: array-like of shape (n_samples, n_features, n_integrationsteps), time derivative of state at {t+1,...,t+n_integrationsteps}
-        :param mu_int: array-like of shape (n_samples, n_param, n_integrationsteps), control input at {t+1,...,t+n_integrationsteps}
-        :return: rec_loss, dz_loss, dx_loss, int_loss, loss: individual losses
+        Calculate loss for second order system.
+
+        Parameters
+        ----------
+        z : array-like of shape (n_samples, n_features)
+            Full state.
+        dz_dt : array-like of shape (n_samples, n_features)
+            Time derivative of state.
+        dz_ddt : array-like of shape (n_samples, n_features)
+            Second time derivative of state.
+        mu : array-like of shape (n_samples, n_param)
+            Control input.
+        z_int : array-like of shape (n_samples, n_features, n_integrationsteps), optional
+            Full state at {t+1,...,t+n_integrationsteps}.
+        dz_dt_int : array-like of shape (n_samples, n_features, n_integrationsteps), optional
+            Time derivative of state at {t+1,...,t+n_integrationsteps}.
+        mu_int : array-like of shape (n_samples, n_param, n_integrationsteps), optional
+            Control input at {t+1,...,t+n_integrationsteps}.
+
+        Returns
+        -------
+        dict
+            Dictionary of individual losses including 'loss', 'dz', 'int', 'reg'.
         """
         losses = dict(loss=0)
 

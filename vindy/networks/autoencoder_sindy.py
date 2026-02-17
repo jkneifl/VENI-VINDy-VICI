@@ -255,8 +255,17 @@ class AutoencoderSindy(BaseModel):
 
     def build_encoder(self, x):
         """
-        build a fully connected encoder with layers of size layer_sizes
-        :param x: input to the autoencoder
+        Build a fully connected encoder with layers of specified sizes.
+
+        Parameters
+        ----------
+        x : tf.Tensor or array-like
+            Input to the autoencoder.
+
+        Returns
+        -------
+        tuple of tf.Tensor
+            Tuple containing (x_input, z) where x_input is the input layer and z is the latent representation.
         """
         x_input = tf.keras.Input(shape=(x.shape[1],), dtype=self.dtype_)
         z = x_input
@@ -275,9 +284,17 @@ class AutoencoderSindy(BaseModel):
 
     def build_decoder(self, z):
         """
-        Build a fully connected decoder with layers of reversed sizes in layer_sizes
-        :param z:
-        :return:
+        Build a fully connected decoder with reversed layer sizes.
+
+        Parameters
+        ----------
+        z : tf.Tensor
+            Latent representation.
+
+        Returns
+        -------
+        tf.Tensor
+            Reconstructed output.
         """
         # new decoder
         x_ = z
@@ -296,10 +313,20 @@ class AutoencoderSindy(BaseModel):
 
     def build_loss(self, inputs):
         """
-        split input into state, its derivative and the parameters, perform the forward pass, calculate the loss,
-        and update the weights
-        :param inputs: list of array-like objects
-        :return:
+        Build and compute the loss for the autoencoder-SINDy model.
+
+        Splits input into state, its derivative and the parameters, performs the forward pass,
+        calculates the loss, and updates the weights.
+
+        Parameters
+        ----------
+        inputs : list of array-like
+            List of input arrays containing states, derivatives, and parameters.
+
+        Returns
+        -------
+        dict
+            Dictionary of computed losses.
         """
 
         # second order systems dx_ddt = f(x, dx_dt, mu)
@@ -411,20 +438,40 @@ class AutoencoderSindy(BaseModel):
 
     def _training_encoding(self, x, losses):
         """
-        For compatibility with the class we need a method that only returns the latent variable
-        but not the mean and log variance. The mean and log variance are stored in the class attributes so that they
-        can be accessed by the get_loss method.
-        :param x:
-        :return:
+        Encode input to latent representation during training.
+
+        For compatibility with the class, this method only returns the latent variable
+        but not the mean and log variance. The mean and log variance are stored in the
+        class attributes so that they can be accessed by the get_loss method.
+
+        Parameters
+        ----------
+        x : tf.Tensor or array-like
+            Input data.
+        losses : dict
+            Dictionary to store losses.
+
+        Returns
+        -------
+        tuple
+            Tuple containing (z, losses) where z is the latent representation.
         """
         z = self.encoder(x)
         return z, losses
 
     def get_loss_rec(self, x):
         """
-        calculate reconstruction loss of autoencoder
-        :param x: array-like of shape (n_samples, n_features), full state
-        :return:
+        Calculate reconstruction loss of autoencoder.
+
+        Parameters
+        ----------
+        x : array-like of shape (n_samples, n_features)
+            Full state.
+
+        Returns
+        -------
+        dict
+            Dictionary of losses including 'rec', 'reg', and 'loss'.
         """
         losses = dict(loss=0)
         z, losses = self._training_encoding(x, losses)
@@ -443,13 +490,25 @@ class AutoencoderSindy(BaseModel):
 
     def get_loss(self, x, dx_dt, mu, x_int=None, mu_int=None):
         """
-        calculate loss for first order system
-        :param x: array-like of shape (n_samples, n_features), full state
-        :param dx_dt: array-like of shape (n_samples, n_features), time derivative of state
-        :param mu: array-like of shape (n_samples, n_features), control input
-        :param x_int: array-like of shape (n_samples, n_features, n_integrationsteps), full state at {t+1,...,t+n_integrationsteps}
-        :param mu_int: array-like of shape (n_samples, n_param, n_integrationsteps), control input at {t+1,...,t+n_integrationsteps}
-        :return: rec_loss, dz_loss, dx_loss, int_loss, loss: individual losses
+        Calculate loss for first order system.
+
+        Parameters
+        ----------
+        x : array-like of shape (n_samples, n_features)
+            Full state.
+        dx_dt : array-like of shape (n_samples, n_features)
+            Time derivative of state.
+        mu : array-like of shape (n_samples, n_features)
+            Control input.
+        x_int : array-like of shape (n_samples, n_features, n_integrationsteps), optional
+            Full state at {t+1,...,t+n_integrationsteps}.
+        mu_int : array-like of shape (n_samples, n_param, n_integrationsteps), optional
+            Control input at {t+1,...,t+n_integrationsteps}.
+
+        Returns
+        -------
+        dict
+            Dictionary of individual losses (rec_loss, dz_loss, dx_loss, int_loss, loss).
         """
         losses = dict(loss=0)
 
@@ -517,15 +576,29 @@ class AutoencoderSindy(BaseModel):
         self, x, dx_dt, dx_ddt, mu, x_int=None, dx_dt_int=None, mu_int=None
     ):
         """
-        calculate loss for second order system
-        :param x: array-like of shape (n_samples, n_features), full state
-        :param dx_dt: array-like of shape (n_samples, n_features), time derivative of state
-        :param dx_ddt: array-like of shape (n_samples, n_features), second time derivative of state
-        :param mu: array-like of shape (n_samples, n_param), control input
-        :param x_int: array-like of shape (n_samples, n_features, n_integrationsteps), full state at {t+1,...,t+n_integrationsteps}
-        :param dx_dt_int: array-like of shape (n_samples, n_features, n_integrationsteps), time derivative of state at {t+1,...,t+n_integrationsteps}
-        :param mu_int: array-like of shape (n_samples, n_param, n_integrationsteps), control input at {t+1,...,t+n_integrationsteps}
-        :return: rec_loss, dz_loss, dx_loss, int_loss, loss: individual losses
+        Calculate loss for second order system.
+
+        Parameters
+        ----------
+        x : array-like of shape (n_samples, n_features)
+            Full state.
+        dx_dt : array-like of shape (n_samples, n_features)
+            Time derivative of state.
+        dx_ddt : array-like of shape (n_samples, n_features)
+            Second time derivative of state.
+        mu : array-like of shape (n_samples, n_param)
+            Control input.
+        x_int : array-like of shape (n_samples, n_features, n_integrationsteps), optional
+            Full state at {t+1,...,t+n_integrationsteps}.
+        dx_dt_int : array-like of shape (n_samples, n_features, n_integrationsteps), optional
+            Time derivative of state at {t+1,...,t+n_integrationsteps}.
+        mu_int : array-like of shape (n_samples, n_param, n_integrationsteps), optional
+            Control input at {t+1,...,t+n_integrationsteps}.
+
+        Returns
+        -------
+        dict
+            Dictionary of individual losses (rec_loss, dz_loss, dx_loss, int_loss, loss).
         """
         losses = dict(loss=0)
 
@@ -640,9 +713,17 @@ class AutoencoderSindy(BaseModel):
     # @tf.function
     def decode(self, z):
         """
-        decode latent variable
-        :param z: array-like of shape (n_samples, reduced_order), latent variable
-        :return: x: array-like of shape (n_samples, n_features, n_dof_per_feature), full state
+        Decode latent variable to full state.
+
+        Parameters
+        ----------
+        z : array-like of shape (n_samples, reduced_order)
+            Latent variable.
+
+        Returns
+        -------
+        array-like of shape (n_samples, n_features, n_dof_per_feature)
+            Reconstructed full state.
         """
         x_rec = self.decoder(z)
         return self.unflatten(x_rec)

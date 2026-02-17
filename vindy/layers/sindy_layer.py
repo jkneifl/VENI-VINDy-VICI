@@ -293,8 +293,12 @@ class SindyLayer(tf.keras.layers.Layer):
     @property
     def _coeffs(self):
         """
-        Returns the coefficients of the SINDy layer as a matrix
-        :return:
+        Get the coefficients of the SINDy layer as a matrix.
+
+        Returns
+        -------
+        tf.Tensor
+            Coefficient matrix with shape (output_dim, n_bases_functions).
         """
         # fill the coefficient matrix with the trainable coefficients
         coeffs = self.fill_coefficient_matrix(self.kernel)
