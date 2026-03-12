@@ -1,9 +1,10 @@
 import matplotlib.pyplot as plt
 import numpy as np
-import tensorflow as tf
+import torch
+import torch.nn as nn
 from abc import abstractmethod, ABC
 
-class BaseDistribution(tf.keras.layers.Layer, ABC):
+class BaseDistribution(nn.Module, ABC):
     """
     Base class for probabilistic distributions used in variational encoders.
 
@@ -11,12 +12,12 @@ class BaseDistribution(tf.keras.layers.Layer, ABC):
 
     Methods
     -------
-    call(inputs)
+    forward(inputs)
         Return samples and any auxiliary outputs (e.g. mean/logvar).
     """
 
     @abstractmethod
-    def call(self, inputs):
+    def forward(self, *inputs):
         """
         Sample from the distribution.
 
@@ -27,7 +28,7 @@ class BaseDistribution(tf.keras.layers.Layer, ABC):
 
         Returns
         -------
-        tuple or tf.Tensor
+        tuple or torch.Tensor
             Samples (and optionally auxiliary statistics).
         """
         pass
@@ -39,7 +40,7 @@ class BaseDistribution(tf.keras.layers.Layer, ABC):
 
         Returns
         -------
-        tf.Tensor
+        torch.Tensor
             Scalar KL divergence.
         """
         pass
@@ -97,7 +98,9 @@ class BaseDistribution(tf.keras.layers.Layer, ABC):
         array-like
             Scale (exp(log_scale)).
         """
-        return tf.exp(log_scale)
+        if isinstance(log_scale, torch.Tensor):
+            return torch.exp(log_scale)
+        return np.exp(log_scale)
 
     def plot(self, mean, scale, ax=None):
         """
@@ -115,6 +118,11 @@ class BaseDistribution(tf.keras.layers.Layer, ABC):
         if ax is None:
             ax = plt.gca()
         variance = self.variance(scale)
+        # convert tensors to numpy for plotting
+        if isinstance(mean, torch.Tensor):
+            mean = mean.detach().cpu().numpy()
+        if isinstance(variance, torch.Tensor):
+            variance = variance.detach().cpu().numpy()
         x = (np.linspace(-1*variance, 1*variance, 3000) + mean)
         # find first positive value
         try:
@@ -123,12 +131,7 @@ class BaseDistribution(tf.keras.layers.Layer, ABC):
         except IndexError:
             pass
 
-        if isinstance(x, tf.Tensor):
-            x = x.numpy().squeeze()
-        x = x.squeeze()
-        # plt.figure()
-        # get current axis
+        x = np.asarray(x).squeeze()
         ax.plot(x, self.prob_density_fcn(x, mean, scale))
         # fill area under curve
         ax.fill_between(x, self.prob_density_fcn(x, mean, scale), alpha=0.3)
-        # plt.show()

@@ -14,14 +14,11 @@ readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
     "matplotlib>=3.8",
-    "numpy>=1.26,<2.0",
+    "numpy>=1.26",
     "scikit_learn>=1.2",
     "scipy>=1.13",
     "sympy>=1.12",
-    "tensorflow>=2.15,<2.19",
-    "tensorflow_probability>=0.23",
-    "tensorflow_model_optimization>=0.8",
-    "tf-keras>=2.15",
+    "torch>=2.0",
     "imageio>=2.30",
 ]
 keywords = [
@@ -45,6 +42,12 @@ gui = [
 ]
 interfaces = [
 ]
+test = [
+    "pytest>=7.0",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
 
 [tool.setuptools]
 # If there are data files included in your packages that need to be

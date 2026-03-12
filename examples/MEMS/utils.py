@@ -3,6 +3,7 @@ import os
 import matplotlib.pyplot as plt
 from sklearn.decomposition import PCA
 import pickle
+import torch
 import numpy as np
 from vindy.utils import get_config
 config = get_config()
@@ -155,6 +156,22 @@ def preprocess_data(noise_level=0.02, reduced_order=32, plots=False):
         plt.semilogy(pca.singular_values_)
 
 
+
+def to_tensor(x, device=None, dtype=torch.float32):
+    """Convert numpy/array-like to torch.Tensor (or pass-through if already tensor)."""
+    if x is None:
+        return None
+    if torch.is_tensor(x):
+        t = x
+    elif isinstance(x, np.ndarray):
+        t = torch.from_numpy(x)
+    else:
+        t = torch.tensor(x)
+    t = t.to(dtype)
+    if device is not None:
+        t = t.to(device)
+    return t
+
 def load_mems_data(
     data_paths,
     nth_time_step=1,
@@ -200,6 +217,15 @@ def load_mems_data(
 
         n_timesteps = data["n_timesteps"]
         n_sims = data["n_sims"]
+
+    params = to_tensor(param)
+    x = to_tensor(x)
+    dx_dt = to_tensor(dx_dt)
+    dx_ddt = to_tensor(dx_ddt)
+    params_test = to_tensor(params_test)
+    x_test = to_tensor(x_test)
+    dx_dt_test = to_tensor(dx_dt_test)
+    dx_ddt_test = to_tensor(dx_ddt_test)
 
     if end_time_step is None:
         end_time_step = n_timesteps

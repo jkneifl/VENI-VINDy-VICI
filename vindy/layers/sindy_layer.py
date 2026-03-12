@@ -1,4 +1,5 @@
-import tensorflow as tf
+import torch
+import torch.nn as nn
 import numpy as np
 import scipy
 import inspect
@@ -10,7 +11,7 @@ logging.basicConfig()
 logging.getLogger().setLevel(logging.INFO)
 
 
-class SindyLayer(tf.keras.layers.Layer):
+class SindyLayer(nn.Module):
     """
     Sparse Identification of Nonlinear Dynamics (SINDy) layer.
 
@@ -29,8 +30,10 @@ class SindyLayer(tf.keras.layers.Layer):
         Feature libraries applied to parameters (mu).
     second_order : bool, optional
         If True, enforce second-order structure for dynamics (include z_dot features).
-    kernel_regularizer : tf.keras.regularizers.Regularizer, optional
-        Regularizer applied to the learned coefficient kernel.
+    l1 : float, optional
+        L1 regularization weight for the kernel.
+    l2 : float, optional
+        L2 regularization weight for the kernel.
     x_mu_interaction : bool, optional
         If True, include interaction features between state and parameters.
     mask : array-like, optional
@@ -39,8 +42,6 @@ class SindyLayer(tf.keras.layers.Layer):
         Values for coefficients that are fixed (applied after masking).
     dtype : str, optional
         Data type used by the layer (e.g. 'float32').
-    **kwargs
-        Additional keyword arguments passed to ``tf.keras.layers.Layer``.
     """
 
     def __init__(
@@ -50,7 +51,8 @@ class SindyLayer(tf.keras.layers.Layer):
         feature_libraries=None,
         param_feature_libraries=None,
         second_order=True,
-        kernel_regularizer=tf.keras.regularizers.L1L2(l1=1e-3, l2=0),
+        l1=1e-3,
+        l2=0.0,
         x_mu_interaction=True,
         mask=None,
         fixed_coeffs=None,
@@ -62,12 +64,6 @@ class SindyLayer(tf.keras.layers.Layer):
 
         Feature libraries are applied to the latent variable and its time derivative,
         and a sparse regression is performed to obtain the governing coefficients.
-
-        Notes
-        -----
-        This initializer validates arguments, constructs default feature libraries
-        when none are provided and prepares internal bookkeeping variables used
-        by the layer (masks, coefficient shapes, etc.).
         """
         super(SindyLayer, self).__init__(**kwargs)
 
@@ -81,6 +77,7 @@ class SindyLayer(tf.keras.layers.Layer):
         self.assert_arguments(locals())
 
         self.dtype_ = dtype
+        self.torch_dtype = torch.float32 if dtype == "float32" else torch.float64
         # default library
         if len(feature_libraries) == 0:
             feature_libraries = [PolynomialLibrary(degree=3)]
@@ -97,7 +94,7 @@ class SindyLayer(tf.keras.layers.Layer):
         else:
             self.output_dim = state_dim
         self.n_bases_functions = self.features(
-            tf.ones((1, self.output_dim + param_dim))
+            torch.ones((1, self.output_dim + param_dim), dtype=self.torch_dtype)
         ).shape[1]
 
         # set certain values of kernel
@@ -106,38 +103,43 @@ class SindyLayer(tf.keras.layers.Layer):
         self.second_order = second_order
         if second_order:
             # enforcing the structure of the 2nd order model
-            #   the feature library will look like this [1, z1, ..., zn, z1_dot, ..., zn_dot, ...]
-            #   consequently we enforce 2nd order structure [0_(n x n+1) I_(n x n) 0_(n x ...)]
-            zero_matrix = tf.zeros(
-                shape=[self.state_dim, self.state_dim + 1], dtype=self.dtype_
+            zero_matrix = torch.zeros(
+                self.state_dim, self.state_dim + 1, dtype=self.torch_dtype
             )
-            eye_matrix = tf.eye(self.state_dim, dtype=self.dtype_)
-            zero_matrix2 = tf.zeros(
-                shape=[self.state_dim, self.n_bases_functions - int(state_dim * 2) - 1],
-                dtype=self.dtype_,
+            eye_matrix = torch.eye(self.state_dim, dtype=self.torch_dtype)
+            zero_matrix2 = torch.zeros(
+                self.state_dim, self.n_bases_functions - int(state_dim * 2) - 1,
+                dtype=self.torch_dtype,
             )
             # apply the structure of the 2nd order model
-            fixed_kernel = tf.concat([zero_matrix, eye_matrix, zero_matrix2], axis=1)
-            self.mask = tf.concat(
-                [tf.zeros(fixed_kernel.shape, dtype=self.dtype_), self.mask], axis=0
+            fixed_kernel = torch.cat([zero_matrix, eye_matrix, zero_matrix2], dim=1)
+            self.mask = torch.cat(
+                [torch.zeros_like(fixed_kernel), self.mask], dim=0
             )
-            self.fixed_coeffs = tf.concat([fixed_kernel, self.fixed_coeffs], axis=0)
+            self.fixed_coeffs = torch.cat([fixed_kernel, self.fixed_coeffs], dim=0)
+
+        # register mask and fixed_coeffs as buffers (not trainable, move with model)
+        self.register_buffer('_mask', self.mask)
+        self.register_buffer('_fixed_coeffs', self.fixed_coeffs)
+        # update references to use registered buffers
+        self.mask = self._mask
+        self.fixed_coeffs = self._fixed_coeffs
 
         # initialize sindy coefficients
-        self.init_weigths(kernel_regularizer)
+        self.l1, self.l2 = l1, l2
+        self.init_weigths()
 
     @property
     def loss_trackers(self):
         """
-        Return loss trackers used by the layer.
+        Return loss tracker names used by the layer.
 
         Returns
         -------
-        dict
-            Mapping of loss names to Keras Metric objects. By default the SINDy
-            layer does not add separate loss trackers and returns an empty dict.
+        list
+            List of loss tracker name strings. By default empty for SINDy layer.
         """
-        return dict()
+        return []
 
     def _init_to_config(self, init_locals):
         """
@@ -167,22 +169,20 @@ class SindyLayer(tf.keras.layers.Layer):
         assert arguments["dtype"] in [
             "float32",
             "float64",
-            tf.float32,
-            tf.float64,
         ], "dtype must be either float32 or float64"
         assert isinstance(arguments["state_dim"], int), "state_dim must be an integer"
         assert isinstance(arguments["param_dim"], int), "param_dim must be an integer"
         # assert that mask and fixed_coeffs have the right shape
         assert (
             isinstance(arguments["mask"], np.ndarray)
-            or isinstance(arguments["mask"], tf.Tensor)
+            or isinstance(arguments["mask"], torch.Tensor)
             or arguments["mask"] is None
-        ), "mask must be either None, a numpy array or a tensorflow tensor"
+        ), "mask must be either None, a numpy array or a torch tensor"
         assert (
             isinstance(arguments["fixed_coeffs"], np.ndarray)
-            or isinstance(arguments["fixed_coeffs"], tf.Tensor)
+            or isinstance(arguments["fixed_coeffs"], torch.Tensor)
             or arguments["fixed_coeffs"] is None
-        ), "fixed_coeffs must be either None, a numpy array or a tensorflow tensor"
+        ), "fixed_coeffs must be either None, a numpy array or a torch tensor"
         if arguments["mask"] is not None:
             assert (
                 arguments["mask"].shape[0] == arguments["state_dim"]
@@ -214,9 +214,8 @@ class SindyLayer(tf.keras.layers.Layer):
         assert isinstance(
             arguments["x_mu_interaction"], bool
         ), "x_mu_interaction must be a boolean"
-        assert isinstance(
-            arguments["kernel_regularizer"], tf.keras.regularizers.Regularizer
-        ), "kernel_regularizer must be a tf.keras.regularizers.Regularizer object"
+        assert isinstance(arguments["l1"], (float, int)), "l1 must be a float or int"
+        assert isinstance(arguments["l2"], (float, int)), "l2 must be a float or int"
 
     @property
     def coefficient_matrix_shape(self):
@@ -234,21 +233,32 @@ class SindyLayer(tf.keras.layers.Layer):
         """
         return (self.n_dofs, 1)
 
-    def init_weigths(self, kernel_regularizer):
+    def init_weigths(self):
 
         # get amount of dofs (equals the number of ones in the mask)
-        self.n_dofs = int(tf.reduce_sum(self.mask))
+        self.n_dofs = int(torch.sum(self.mask).item())
         # get ids of dofs
-        self.dof_ids = tf.where(tf.equal(self.mask, 1))
+        self.dof_ids = torch.nonzero(self.mask == 1)
+        self.register_buffer('_dof_ids', self.dof_ids)
 
-        init = tf.random_uniform_initializer(minval=-1, maxval=1)
-        self.kernel = self.add_weight(
-            name="SINDy_coefficents",
-            initializer=init,
-            shape=self.kernel_shape,
-            dtype=self.dtype_,
-            regularizer=kernel_regularizer,
-        )
+        self.kernel = nn.Parameter(torch.empty(self.kernel_shape, dtype=self.torch_dtype))
+        nn.init.uniform_(self.kernel, -1, 1)
+
+    def regularization_loss(self):
+        """
+        Compute L1/L2 regularization loss for the kernel.
+
+        Returns
+        -------
+        torch.Tensor
+            Regularization loss.
+        """
+        reg = torch.tensor(0.0, dtype=self.torch_dtype, device=self.kernel.device)
+        if self.l1 > 0:
+            reg = reg + self.l1 * torch.sum(torch.abs(self.kernel))
+        if self.l2 > 0:
+            reg = reg + self.l2 * torch.sum(self.kernel ** 2)
+        return reg
 
     def set_mask(self, mask, fixed_coeffs=None):
         """
@@ -268,26 +278,30 @@ class SindyLayer(tf.keras.layers.Layer):
             proper coefficient matrix shape.
         """
         if mask is None:
-            mask = tf.ones([self.state_dim, self.n_bases_functions])
+            mask = torch.ones(self.state_dim, self.n_bases_functions, dtype=self.torch_dtype)
         if fixed_coeffs is None:
-            fixed_coeffs = tf.zeros([self.state_dim, self.n_bases_functions])
+            fixed_coeffs = torch.zeros(self.state_dim, self.n_bases_functions, dtype=self.torch_dtype)
 
-        mask = tf.cast(mask, dtype=self.dtype_)
-        if mask.shape != self.coefficient_matrix_shape:
+        if isinstance(mask, np.ndarray):
+            mask = torch.tensor(mask, dtype=self.torch_dtype)
+        else:
+            mask = mask.to(dtype=self.torch_dtype)
+        if mask.shape != (self.state_dim, self.n_bases_functions):
             # bring mask to the right shape by padding ones
-            mask = tf.pad(
-                mask,
-                [[0, 0], [0, self.coefficient_matrix_shape[1] - mask.shape[1]]],
-                constant_values=1,
-            )
-        fixed_coeffs = tf.cast(fixed_coeffs, dtype=self.dtype_)
-        if fixed_coeffs.shape != self.coefficient_matrix_shape:
-            # bring mask to the right shape by padding zeros
-            fixed_coeffs = tf.pad(
-                fixed_coeffs,
-                [[0, 0], [0, self.coefficient_matrix_shape[1] - fixed_coeffs.shape[1]]],
-                constant_values=0,
-            )
+            pad_size = self.n_bases_functions - mask.shape[1]
+            if pad_size > 0:
+                mask = torch.nn.functional.pad(mask, (0, pad_size), value=1.0)
+
+        if isinstance(fixed_coeffs, np.ndarray):
+            fixed_coeffs = torch.tensor(fixed_coeffs, dtype=self.torch_dtype)
+        else:
+            fixed_coeffs = fixed_coeffs.to(dtype=self.torch_dtype)
+        if fixed_coeffs.shape != (self.state_dim, self.n_bases_functions):
+            # bring fixed_coeffs to the right shape by padding zeros
+            pad_size = self.n_bases_functions - fixed_coeffs.shape[1]
+            if pad_size > 0:
+                fixed_coeffs = torch.nn.functional.pad(fixed_coeffs, (0, pad_size), value=0.0)
+
         return mask, fixed_coeffs
 
     @property
@@ -297,7 +311,7 @@ class SindyLayer(tf.keras.layers.Layer):
 
         Returns
         -------
-        tf.Tensor
+        torch.Tensor
             Coefficient matrix with shape (output_dim, n_bases_functions).
         """
         # fill the coefficient matrix with the trainable coefficients
@@ -306,19 +320,15 @@ class SindyLayer(tf.keras.layers.Layer):
         return coeffs
 
     def get_sindy_coeffs(self):
-        return self._coeffs.numpy()
+        return self._coeffs.detach().cpu().numpy()
 
     def get_prunable_weights(self):
-        # Prune bias also, though that usually harms model accuracy too much.
         return [self.kernel]
 
     def prune_weights(self, threshold=0.01, training=False):
-        mask = tf.math.greater(
-            tf.math.abs(self.kernel),
-            threshold * tf.ones_like(self.kernel, dtype=self.kernel.dtype),
-        )
-        mask = tf.cast(mask, dtype=self.kernel.dtype)
-        self.kernel.assign(tf.multiply(self.kernel, mask))
+        mask = torch.abs(self.kernel) > threshold
+        mask = mask.to(dtype=self.kernel.dtype)
+        self.kernel.data.copy_(self.kernel.data * mask)
 
     def fill_coefficient_matrix(self, trainable_coeffs):
         """
@@ -331,41 +341,37 @@ class SindyLayer(tf.keras.layers.Layer):
 
         Returns
         -------
-        tf.Tensor
+        torch.Tensor
             Full coefficient matrix with fixed coefficients applied.
         """
         # create a zero matrix for the coefficients with the correct shape
-        coeffs = tf.zeros(self.coefficient_matrix_shape)
+        coeffs = torch.zeros(self.coefficient_matrix_shape, dtype=self.torch_dtype,
+                             device=trainable_coeffs.device)
         # put the coefficients into the coefficient matrix Xi at the correct positions
-        coeffs = tf.tensor_scatter_nd_update(
-            coeffs, self.dof_ids, trainable_coeffs[:, 0]
-        )
+        coeffs[self._dof_ids[:, 0], self._dof_ids[:, 1]] = trainable_coeffs[:, 0]
 
-        # apply the mask7
-        if self.fixed_coeffs is not None:
-            coeffs += self.fixed_coeffs
+        # apply the mask
+        if self._fixed_coeffs is not None:
+            coeffs = coeffs + self._fixed_coeffs
 
         return coeffs
 
-    @tf.function
-    def call(self, inputs, training=False):
+    def forward(self, inputs):
         """
         Forward pass of the SINDy layer: evaluate features and compute prediction.
 
         Parameters
         ----------
-        inputs : tf.Tensor
+        inputs : torch.Tensor
             Latent variables, shape ``(batch_size, latent_dim)``.
-        training : bool, optional
-            Whether the call is in training mode.
 
         Returns
         -------
-        tf.Tensor
+        torch.Tensor
             Predicted derivatives with shape ``(batch_size, output_dim)``.
         """
         z_features = self.features(inputs)
-        z_dot = z_features @ tf.transpose(self._coeffs)
+        z_dot = z_features @ self._coeffs.t()
         return z_dot
 
     def features(self, inputs):
@@ -374,12 +380,12 @@ class SindyLayer(tf.keras.layers.Layer):
 
         Parameters
         ----------
-        inputs : tf.Tensor
+        inputs : torch.Tensor
             Input tensor that contains state and (optionally) parameter values.
 
         Returns
         -------
-        tf.Tensor
+        torch.Tensor
             Concatenated feature matrix for the SINDy regression.
         """
         # in case we want interaction between parameters and states
@@ -395,7 +401,7 @@ class SindyLayer(tf.keras.layers.Layer):
                 param_feat = self.concat_features(
                     inputs[:, self.output_dim :], self.param_feature_libraries
                 )
-                return tf.concat([z_feat, param_feat], axis=1)
+                return torch.cat([z_feat, param_feat], dim=1)
             return z_feat
 
     def concat_features(self, z, libraries):
@@ -404,18 +410,18 @@ class SindyLayer(tf.keras.layers.Layer):
 
         Parameters
         ----------
-        z : tf.Tensor
+        z : torch.Tensor
             Input to the feature libraries.
         libraries : list
             Iterable of library objects that are callable on ``z``.
 
         Returns
         -------
-        tf.Tensor
+        torch.Tensor
             Concatenated feature outputs along the last axis.
         """
         features = [library(z) for library in libraries]
-        z_feat = tf.concat(features, axis=-1)
+        z_feat = torch.cat(features, dim=-1)
         return z_feat
 
     def get_feature_names(self, z=None, mu=None):
@@ -517,8 +523,6 @@ class SindyLayer(tf.keras.layers.Layer):
                         str += f"+ {np.abs(c_[j]):.{precision}f}*{features[j]} "
                     else:
                         str += f"- {np.abs(c_[j]):.{precision}f}*{features[j]} "
-                    # if j < len(c_) - 1:
-                    #     print(' + ', end='')
             str += "\n"
         return str
 
@@ -545,15 +549,21 @@ class SindyLayer(tf.keras.layers.Layer):
             The object returned by scipy.integrate.solve_ivp.
         """
 
-        # tensorflow tensor form numpy
-        z0 = tf.cast(z0, dtype=self.dtype_)
-        t = tf.cast(t, dtype=self.dtype_)
+        # convert to numpy for scipy
+        if isinstance(z0, torch.Tensor):
+            z0 = z0.detach().cpu().numpy()
+        if isinstance(t, torch.Tensor):
+            t = t.detach().cpu().numpy()
+        z0 = np.asarray(z0, dtype=np.float64)
+        t = np.asarray(t, dtype=np.float64)
 
         if sindy_fcn is None:
             sindy_fcn = self.rhs_
         if mu is not None:
             if not callable(mu):
-                mu = tf.cast(mu, dtype=self.dtype_)
+                if isinstance(mu, torch.Tensor):
+                    mu = mu.detach().cpu().numpy()
+                mu = np.asarray(mu, dtype=np.float64)
                 mu_fun = scipy.interpolate.interp1d(
                     t, mu, axis=0, kind="cubic", fill_value="extrapolate"
                 )
@@ -580,10 +590,10 @@ class SindyLayer(tf.keras.layers.Layer):
             t_eval=t,
             y0=z0,
             method=method,
-            # rtol=1e-6
         )
         return sol
 
+    @torch.no_grad()
     def rhs_(self, t, inputs):
         """
         Evaluate the right-hand side z'(t) = f(z, mu) for provided inputs.
@@ -597,9 +607,12 @@ class SindyLayer(tf.keras.layers.Layer):
 
         Returns
         -------
-        tf.Tensor or ndarray
+        ndarray
             Time derivative evaluated at the given inputs.
         """
+        if not isinstance(inputs, torch.Tensor):
+            inputs = torch.tensor(inputs, dtype=self.torch_dtype)
         if len(inputs.shape) == 1:
-            inputs = tf.expand_dims(inputs, 0)
-        return self(inputs)
+            inputs = inputs.unsqueeze(0)
+        result = self(inputs)
+        return result.detach().cpu().numpy()

@@ -1,8 +1,8 @@
-import tensorflow as tf
 import webbrowser
+from .base_callback import Callback
 
 
-class SpotifyCallback(tf.keras.callbacks.Callback):
+class SpotifyCallback(Callback):
 
     def __init__(
         self,
@@ -15,7 +15,6 @@ class SpotifyCallback(tf.keras.callbacks.Callback):
         self.n_epochs = n_epochs
         self.epoch_counter = 0
         self.finished = False
-        # super init
         super(SpotifyCallback, self).__init__()
 
     def on_epoch_end(self, epoch, logs=None):

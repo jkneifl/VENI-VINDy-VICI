@@ -1,7 +1,5 @@
-import matplotlib.pyplot as plt
 import numpy as np
-import tensorflow as tf
-import tensorflow_probability as tfp
+import torch
 from .base_distribution import BaseDistribution
 
 class Laplace(BaseDistribution):
@@ -23,7 +21,7 @@ class Laplace(BaseDistribution):
         prior_scale : float, default=1.0
             Scale factor of the prior distribution.
         **kwargs
-            Additional keyword arguments passed to ``tf.keras.layers.Layer``.
+            Additional keyword arguments passed to ``nn.Module``.
         """
         super(Laplace, self).__init__(**kwargs)
         assert isinstance(prior_mean, float), "prior mean must be a float"
@@ -32,7 +30,7 @@ class Laplace(BaseDistribution):
         self.prior_scale = prior_scale
 
 
-    def call(self, inputs):
+    def forward(self, loc, log_scale):
         """
         Draw a sample from a Laplace distribution using the reparameterization trick.
 
@@ -41,23 +39,19 @@ class Laplace(BaseDistribution):
 
         Parameters
         ----------
-        inputs : list of tf.Tensor
-            [loc, log_scale] where loc is the location and log_scale is the
-            log scale of the distribution.
+        loc : torch.Tensor
+            Location parameter.
+        log_scale : torch.Tensor
+            Log scale of the distribution.
 
         Returns
         -------
-        tf.Tensor
+        torch.Tensor
             Samples from the Laplace distribution.
         """
-
-        loc, log_scale = inputs
-        dim = tf.shape(loc)[1]
-        batch = tf.shape(loc)[0]
-
         # create random Laplacian distributed coefficients with mean 0 and scale 1
-        laplace_dist = tfp.distributions.Laplace(0, 1)
-        epsilon = laplace_dist.sample(sample_shape=(batch, dim))
+        laplace_dist = torch.distributions.Laplace(0, 1)
+        epsilon = laplace_dist.sample(loc.shape).to(loc.device, loc.dtype)
         return loc + self.reverse_log(log_scale) * epsilon
 
     def KL_divergence(self, mean, log_scale):
@@ -72,22 +66,22 @@ class Laplace(BaseDistribution):
 
         Parameters
         ----------
-        mean : tf.Tensor
+        mean : torch.Tensor
             Mean (location) of the first Laplace distribution.
-        log_scale : tf.Tensor
+        log_scale : torch.Tensor
             Log scale of the first Laplace distribution.
 
         Returns
         -------
-        tf.Tensor
+        torch.Tensor
             KL divergence.
         """
         mu1 = mean
         mu2 = self.prior_mean
         s1 = self.reverse_log(log_scale)
         s2 = self.prior_scale
-        mu_diff = tf.math.abs(mu1 - mu2)
-        kl = tf.math.log(s2/s1) + (s1*tf.math.exp(-mu_diff/s1) + mu_diff)/s2 - 1
+        mu_diff = torch.abs(mu1 - mu2)
+        kl = torch.log(torch.tensor(s2, dtype=mean.dtype, device=mean.device) / s1) + (s1*torch.exp(-mu_diff/s1) + mu_diff)/s2 - 1
         return kl
 
     def prob_density_fcn(self, x, loc, scale):
@@ -116,15 +110,15 @@ class Laplace(BaseDistribution):
 
         Parameters
         ----------
-        variance : tf.Tensor
+        variance : torch.Tensor
             Variance of the distribution.
 
         Returns
         -------
-        tf.Tensor
+        torch.Tensor
             Log scale.
         """
-        return tf.math.log(tf.math.sqrt(0.5 * variance))
+        return torch.log(torch.sqrt(0.5 * variance))
 
     def variance(self, log_scale):
         """

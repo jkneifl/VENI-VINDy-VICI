@@ -51,11 +51,11 @@ def coefficient_distributions_to_csv(sindy_layer, outdir, var_names=[], param_na
     n_features = len(feature_names)
     _, mean, log_scale = sindy_layer._coeffs
     # reverse log_scale
-    scale = sindy_layer.priors.reverse_log(log_scale.numpy())
+    scale = sindy_layer.priors.reverse_log(log_scale.detach().cpu().numpy())
 
     mean_values, scale_values = (
-        mean.numpy().reshape(n_vars, n_features).T,
-        scale.numpy().reshape(n_vars, n_features).T,
+        mean.detach().cpu().numpy().reshape(n_vars, n_features).T,
+        scale.reshape(n_vars, n_features).T if isinstance(scale, np.ndarray) else scale.detach().cpu().numpy().reshape(n_vars, n_features).T,
     )
 
     # minimum scale value for which Laplacian dist can be plotted in pgfplots is 1e-4
@@ -104,14 +104,11 @@ def coefficient_distribution_gif(
     for i, (mean_, scale_) in enumerate(zip(mean_over_epochs, scale_over_epochs)):
         if i >= max_frames:
             break
-        x_range = 1.5  # - (1.5 * i / len(mean_over_epochs))
-        # dont show figure
+        x_range = 1.5
         fig = sindy_layer._visualize_coefficients(
             mean_, scale_, x_range=[-x_range, x_range], y_range=[0, 6]
         )
-        # fig title
         fig.suptitle(f"Epoch {i}")
-        # save fig as frame for gif
         fig.savefig(os.path.join(outdir, "coefficients", f"coeffs_{i}.png"))
         plt.close(fig)
     # make gif from frames
@@ -133,7 +130,7 @@ def plot_train_history(history, outdir, validation: bool = True):
 
     Parameters
     ----------
-    history : dict or keras.callbacks.History
+    history : dict
         Training history object or dictionary.
     outdir : str
         Output directory path for saving plots.
@@ -141,7 +138,6 @@ def plot_train_history(history, outdir, validation: bool = True):
         Whether to plot validation metrics.
     """
     os.makedirs(outdir, exist_ok=True)
-    # plot training history
     fig, ax = plt.subplots(1, 1, figsize=(6, 4))
     for loss_term, loss_values in history.items():
         if (
@@ -172,7 +168,6 @@ def plot_coefficients_train_history(history, outdir):
     mean_over_epochs = np.array(history["coeffs_mean"]).squeeze()
     scale_over_epochs = np.array(history["coeffs_scale"]).squeeze()
     os.makedirs(outdir, exist_ok=True)
-    # plot training history
     fig, ax = plt.subplots(2, 1, figsize=(6, 4))
     ax[0].plot(mean_over_epochs)
     ax[0].set_xlabel("Epoch")
@@ -198,16 +193,11 @@ def switch_data_format(
         * 5D: (n_sims, n_timesteps, Nx, Ny, channels)
     - n_sims: int, number of simulations
     - n_timesteps: int, timesteps per simulation
-    - spatial_shape: optional tuple describing spatial dims. Accepts (Nx, Ny, channels) or (N, channels) or (Nx, Ny).
-      When converting to/from 5D, this is required unless it can be inferred unambiguously from feature size.
-    - target_format: 'auto' (default), '2d', '3d', or '5d'. When 'auto', the function chooses a sensible target based on input.
+    - spatial_shape: optional tuple describing spatial dims.
+    - target_format: 'auto' (default), '2d', '3d', or '5d'.
 
     Returns
     - Converted np.ndarray in requested format.
-
-    Examples
-    - 2D -> 5D: provide spatial_shape=(Nx,Ny,channels) and target_format='5d'
-    - 5D -> 2D: target_format='2d' or rely on 'auto' to get 3D flattened by default
     """
     if data is None:
         return None
@@ -225,13 +215,10 @@ def switch_data_format(
                 raise ValueError(
                     "spatial_shape (Nx,Ny,channels) is required to reshape to 5D"
                 )
-            # accept (Nx,Ny,channels) or (N,channels)
             if len(spatial_shape) == 3:
                 Nx, Ny, channels = spatial_shape
             elif len(spatial_shape) == 2:
-                # (N, channels)
                 N, channels = spatial_shape
-                # try to factor N into Nx,Ny by assuming square grid
                 Nx = int(np.sqrt(N))
                 if Nx * Nx != N:
                     raise ValueError(
@@ -259,7 +246,6 @@ def switch_data_format(
         # convert to 5D
         features = data.shape[2]
         if spatial_shape is None:
-            # try infer square grid and single channel
             Nx = int(np.sqrt(features))
             if Nx * Nx == features:
                 Ny = Nx
@@ -289,23 +275,17 @@ def switch_data_format(
     if data.ndim == 5 and data.shape[0] == n_sims and data.shape[1] == n_timesteps:
         if target_format == "5d" or (target_format == "auto" and data.ndim == 5):
             return data
-        # flatten to 3D
         flat3 = data.reshape(n_sims, n_timesteps, -1)
         if target_format == "3d" or (target_format == "auto"):
             return flat3
-        # flatten to 2D
         return flat3.reshape(-1, flat3.shape[-1])
 
-    # If none matched, raise
     raise ValueError(
         f'Data shape {getattr(data, "shape", None)} not compatible with n_sims={n_sims}, n_timesteps={n_timesteps}'
     )
 
 """
 Shared utility functions for examples.
-
-This module contains common functions used across different example scripts
-(MEMS, reaction_diffusion, etc.) to avoid code duplication.
 """
 
 import os
@@ -313,16 +293,12 @@ import random
 import logging
 import datetime
 import numpy as np
-import tensorflow as tf
+import torch
 import matplotlib.pyplot as plt
 
 def get_config():
     """
     Import and return the config module.
-
-    This function handles the import of the examples config module with proper
-    fallbacks so the examples can be run both when `examples` is a package and
-    when it's just a directory with `config.py` next to the example scripts.
 
     Returns
     -------
@@ -335,43 +311,29 @@ def get_config():
         If config.py doesn't exist or can't be imported.
     """
 
-    # 1) Preferred: examples is a package (examples/__init__.py exists)
     try:
         import examples.config as config
-
         return config
     except Exception:
         pass
 
-    # 2) If running the example from inside the examples folder, a top-level
-    #    `import config` may work (e.g. python MEMS.py when cwd is examples/MEMS)
     try:
         import config as config
-
         return config
     except Exception:
         pass
 
-    # 3) Fallback: try to locate examples/config.py on disk and import it by path
     import importlib.util
     from pathlib import Path
 
     candidates = []
-
-    # a) examples/config.py relative to project root (assume repo layout)
     try:
         repo_root = Path(__file__).resolve().parents[2]
         candidates.append(repo_root / "examples" / "config.py")
     except Exception:
         pass
-
-    # b) examples/config.py relative to current working directory
     candidates.append(Path.cwd() / "examples" / "config.py")
-
-    # c) examples/config.py next to this utils file (edge case)
     candidates.append(Path(__file__).resolve().parent.parent / "examples" / "config.py")
-
-    # d) direct config.py in cwd
     candidates.append(Path.cwd() / "config.py")
 
     for candidate in candidates:
@@ -386,10 +348,8 @@ def get_config():
                 spec.loader.exec_module(module)
                 return module
             except Exception:
-                # try next candidate
                 continue
 
-    # Nothing worked: raise a helpful error
     raise ImportError(
         "Could not import examples config. Please ensure that there is a file named 'config.py' in the examples/ folder. "
         "You can copy examples/config.py.template to examples/config.py and customize it with the correct data paths and parameters for your setup. "
@@ -399,17 +359,17 @@ def get_config():
     )
 
 
-
 def set_seed(seed: int):
     """
-    Set seed for reproducibility in TensorFlow, NumPy, and Python's random module.
+    Set seed for reproducibility in PyTorch, NumPy, and Python's random module.
 
     Parameters
     ----------
     seed : int
         The seed value to set.
     """
-    tf.random.set_seed(seed)
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed_all(seed)
     np.random.seed(seed)
     random.seed(seed)
 
@@ -423,7 +383,7 @@ def validate_data_path(data_path: str, zenodo_doi: str = "10.5281/zenodo.1831384
     data_path : str
         Path to the data file.
     zenodo_doi : str, optional
-        Zenodo DOI for downloading the data (default is "10.5281/zenodo.18313843").
+        Zenodo DOI for downloading the data.
 
     Raises
     ------
@@ -438,154 +398,47 @@ def validate_data_path(data_path: str, zenodo_doi: str = "10.5281/zenodo.1831384
         )
 
 
-def plot_train_history(trainhist, result_dir, validation=True):
+def log_model_summary(model, result_dir: str = None):
     """
-    Plot training history including loss curves.
+    Log a summary of the model architecture.
 
     Parameters
     ----------
-    trainhist : dict
-        Training history dictionary containing loss values.
-    result_dir : str
-        Directory to save the plot.
-    validation : bool, optional
-        Whether to include validation loss in the plot (default is True).
-    """
-    try:
-        os.makedirs(result_dir, exist_ok=True)
-
-        fig, ax = plt.subplots(figsize=(10, 6))
-
-        # Plot training loss
-        if "loss" in trainhist:
-            ax.plot(trainhist["loss"], label="Training Loss", linewidth=2)
-
-        # Plot validation loss if requested and available
-        if validation and "val_loss" in trainhist:
-            ax.plot(trainhist["val_loss"], label="Validation Loss", linewidth=2)
-
-        ax.set_xlabel("Epoch", fontsize=12)
-        ax.set_ylabel("Loss", fontsize=12)
-        ax.set_title("Training History", fontsize=14, fontweight="bold")
-        ax.legend()
-        ax.grid(True, alpha=0.3)
-        ax.set_yscale("log")
-
-        plt.tight_layout()
-        plt.show()
-
-        # Save figure
-        suffix = "_val" if validation else "_train"
-        save_path = os.path.join(result_dir, f"training_history{suffix}.png")
-        plt.savefig(save_path, dpi=300, bbox_inches="tight")
-        logging.info(f"Saved training history plot to {save_path}")
-
-        plt.close(fig)
-    except Exception as e:
-        logging.warning(f"Failed to plot training history: {e}")
-
-
-def plot_coefficients_train_history(trainhist, result_dir):
-    """
-    Plot the evolution of SINDy coefficients during training.
-
-    Parameters
-    ----------
-    trainhist : dict
-        Training history dictionary.
-    result_dir : str
-        Directory to save the plot.
-    """
-    os.makedirs(result_dir, exist_ok=True)
-
-    # Check if coefficient history is available
-    if "coeffs_mean" not in trainhist:
-        logging.warning("No SINDy coefficients found in training history")
-        return
-
-    coeffs = np.array(trainhist["coeffs_mean"])
-
-    # Plot coefficient evolution
-    fig, ax = plt.subplots(figsize=(12, 6))
-
-    n_coeffs = coeffs.shape[1] if coeffs.ndim > 1 else 1
-    for i in range(n_coeffs):
-        if coeffs.ndim > 1:
-            ax.plot(coeffs[:, i], label=f"Coeff {i}", linewidth=1.5)
-        else:
-            ax.plot(coeffs, label=f"Coeff {i}", linewidth=1.5)
-
-    ax.set_xlabel("Epoch", fontsize=12)
-    ax.set_ylabel("Coefficient Value", fontsize=12)
-    ax.set_title("SINDy Coefficient Evolution", fontsize=14, fontweight="bold")
-    ax.legend(bbox_to_anchor=(1.05, 1), loc="upper left")
-    ax.grid(True, alpha=0.3)
-
-    plt.tight_layout()
-    plt.show()
-
-    save_path = os.path.join(result_dir, "coefficients_history.png")
-    plt.savefig(save_path, dpi=300, bbox_inches="tight")
-    logging.info(f"Saved coefficient history plot to {save_path}")
-
-    plt.close(fig)
-
-
-def create_result_directory(base_dir: str, model_name: str) -> str:
-    """
-    Create a result directory for saving model outputs.
-
-    Parameters
-    ----------
-    base_dir : str
-        Base directory for results.
-    model_name : str
-        Name of the model/experiment.
-
-    Returns
-    -------
-    str
-        Path to the created result directory.
-    """
-    result_dir = os.path.join(base_dir, model_name)
-    os.makedirs(result_dir, exist_ok=True)
-    logging.info(f"Result directory: {result_dir}")
-    return result_dir
-
-
-def log_model_summary(veni, result_dir: str = None):
-    """
-    Log a summary of the VENI model architecture.
-
-    Parameters
-    ----------
-    veni : VENI
-        The VENI model instance.
+    model : nn.Module
+        The model instance.
     result_dir : str, optional
-        Directory to save the summary text file (default is None).
+        Directory to save the summary text file.
     """
     try:
         logging.info("=" * 60)
         logging.info("Model Summary:")
         logging.info("=" * 60)
 
-        # Log key parameters
-        logging.info(f"Reduced order: {veni.reduced_order}")
-        logging.info(f"Second order: {veni.second_order}")
-        logging.info(f"Scaling method: {veni.scaling}")
+        if hasattr(model, 'reduced_order'):
+            logging.info(f"Reduced order: {model.reduced_order}")
+        if hasattr(model, 'second_order'):
+            logging.info(f"Second order: {model.second_order}")
+        if hasattr(model, 'scaling'):
+            logging.info(f"Scaling method: {model.scaling}")
 
-        # Get model summary
-        summary_lines = []
-        veni.summary(print_fn=lambda x: summary_lines.append(x))
+        # Parameter count
+        total_params = sum(p.numel() for p in model.parameters())
+        trainable_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
+        logging.info(f"Total parameters: {total_params:,}")
+        logging.info(f"Trainable parameters: {trainable_params:,}")
 
-        for line in summary_lines:
-            logging.info(line)
+        summary_lines = [
+            f"Total parameters: {total_params:,}",
+            f"Trainable parameters: {trainable_params:,}",
+        ]
 
         # Save to file if directory provided
         if result_dir:
             os.makedirs(result_dir, exist_ok=True)
             summary_path = os.path.join(result_dir, "model_summary.txt")
             with open(summary_path, "w") as f:
+                f.write(str(model))
+                f.write("\n\n")
                 f.write("\n".join(summary_lines))
             logging.info(f"Model summary saved to {summary_path}")
 
@@ -598,21 +451,18 @@ def get_latent_initial_conditions(veni, x, dxdt, dxddt, mean_or_sample):
     """
     Compute the initial conditions in latent space for integration.
 
-    Computes initial conditions based on the provided state and its derivatives.
-
     Parameters
     ----------
-    veni : VENI
-        The VENI model instance.
+    veni : model
+        The model instance.
     x : array-like
         The state data array.
     dxdt : array-like
-        The first time derivative of the state data array.
+        The first time derivative.
     dxddt : array-like or None
-        The second time derivative of the state data array (can be None if not available).
+        The second time derivative.
     mean_or_sample : str
-        Whether to compute the mean initial condition or sample from the distribution
-        ("mean" or "sample").
+        Whether to compute mean or sample ("mean" or "sample").
 
     Returns
     -------
@@ -623,14 +473,12 @@ def get_latent_initial_conditions(veni, x, dxdt, dxddt, mean_or_sample):
         z0, dz0, _ = veni.calc_latent_time_derivatives(
             x, dxdt, dxddt, mean_or_sample=mean_or_sample
         )
-        ic = np.concatenate(
-            [z0[0], dz0[0]], axis=-1
-        )  # remove batch dimension and concatenate
+        ic = np.concatenate([z0[0], dz0[0]], axis=-1)
     else:
         z0, dz0 = veni.calc_latent_time_derivatives(
             x, dxdt, None, mean_or_sample=mean_or_sample
         )
-        ic = z0[0]  # remove batch dimension
+        ic = z0[0]
 
     return ic
 
@@ -646,34 +494,32 @@ def perform_inference(
     params=None,
 ):
     """
-    Perform inference on test trajectories and plot the results.
+    Perform inference on test trajectories.
 
     Parameters
     ----------
-    veni : VENI
-        The trained VENI model.
+    veni : model
+        The trained model.
     sim_ids : list of int
-        List of test trajectory indices.
+        Test trajectory indices.
     n_sims : int
         Number of simulations.
     n_timesteps : int
-        Number of timesteps in each test trajectory.
+        Number of timesteps.
     t : array-like
         Test time steps.
     x : array-like
         Scaled test data.
     dxdt : array-like, optional
-        Scaled test data derivatives (default is None).
+        Test data derivatives.
     params : array-like, optional
-        Test parameters (default is None).
+        Test parameters.
 
     Returns
     -------
     tuple
-        Tuple containing (t_preds, z_preds) - predicted trajectories and their
-        corresponding time steps.
+        (Z, z_preds, t_preds)
     """
-    # Reshape data into simulation-wise format
     T = switch_data_format(t, n_sims, n_timesteps, target_format="3d")
     z, dzdt = veni.calc_latent_time_derivatives(x, dxdt)
     Z = switch_data_format(z, n_sims, n_timesteps, target_format="3d")
@@ -685,7 +531,6 @@ def perform_inference(
     start_time = datetime.datetime.now()
     for i, j in enumerate(sim_ids):
         logging.info(f"Processing trajectory {i+1}/{len(sim_ids)}")
-        # Perform integration
         ic = np.concatenate([Z[j, 0], DZDT[j, 0]]) if veni.second_order else Z[j, 0]
         sol = veni.integrate(
             ic,
@@ -699,7 +544,6 @@ def perform_inference(
         f"Inference time: {(end_time - start_time).total_seconds()/len(sim_ids):.2f} seconds per trajectory"
     )
 
-    # Convert predictions to arrays
     z_preds = np.array(z_preds)
     t_preds = np.array(t_preds)
 
@@ -713,20 +557,18 @@ def plot_inference_results(t_preds, z_preds, T, Z, sim_ids, state_id=0):
     Parameters
     ----------
     t_preds : list of array-like
-        Predicted time steps for each trajectory.
+        Predicted time steps.
     z_preds : list of array-like
-        Predicted latent states for each trajectory.
+        Predicted latent states.
     T : array-like
         True time steps.
     Z : array-like
         True latent states.
     sim_ids : list of int
-        List of simulation indices to plot.
+        Simulation indices to plot.
     state_id : int, optional
-        Index of the state variable to plot (default is 0).
+        State variable index to plot.
     """
-
-    # Plot inference results
     fig, axs = plt.subplots(len(sim_ids), 1, figsize=(12, 12), sharex=True)
     fig.suptitle(f"Inference of Test Trajectories")
     for i, j in enumerate(sim_ids):
@@ -762,52 +604,45 @@ def perform_forward_uq(
     """
     Perform forward uncertainty quantification by sampling trajectories.
 
-    Samples trajectories from the SINDy model. The function is flexible with optional
-    `dxddt` and `params` (pass None if not available).
-
     Parameters
     ----------
-    veni : VENI
-        The VENI model instance.
+    veni : model
+        The model instance.
     sim_ids : list of int
-        List of simulation indices to process.
+        Simulation indices.
     n_traj : int
-        Number of trajectories to sample for each simulation.
+        Number of trajectories to sample.
     n_sims : int
-        Total number of simulations in the dataset.
+        Total number of simulations.
     n_timesteps : int
-        Number of timesteps in each simulation.
+        Timesteps per simulation.
     t : array-like
         Time vector.
     x : array-like
         State data.
     dxdt : array-like
-        First time derivative of state data.
+        First time derivative.
     dxddt : array-like, optional
-        Second time derivative of state data (default is None).
+        Second time derivative.
     params : array-like, optional
-        Additional parameters for integration (default is None).
+        Additional parameters.
     sigma : float, optional
-        Number of standard deviations for confidence intervals (default is 3).
+        Number of standard deviations for confidence intervals.
 
     Returns
     -------
     dict
-        Dictionary with keys: sampled_times, latent_trajectories_samples,
-        mean_latent_samples, std_latent_samples, mean_latent, lower_bound_latent,
-        upper_bound_latent, z, dzdt.
+        Dictionary with UQ results.
     """
 
     second_order = veni.second_order
 
-    # Accept tensors or numpy arrays
     def _to_numpy(a):
         if a is None:
             return None
-        try:
-            return a.numpy()
-        except Exception:
-            return np.asarray(a)
+        if isinstance(a, torch.Tensor):
+            return a.detach().cpu().numpy()
+        return np.asarray(a)
 
     x = _to_numpy(x)
     dxdt = _to_numpy(dxdt)
@@ -815,7 +650,6 @@ def perform_forward_uq(
     params = _to_numpy(params)
     t = _to_numpy(t)
 
-    # Switch to simulation-wise 3D arrays if needed
     X = switch_data_format(x, n_sims, n_timesteps, target_format="3d")
     DXDT = switch_data_format(dxdt, n_sims, n_timesteps, target_format="3d")
     DXDDT = (
@@ -830,21 +664,17 @@ def perform_forward_uq(
         else None
     )
 
-    # compute latent derivatives from the provided (possibly vectorized) arrays
     if second_order:
         z, dzdt, _ = veni.calc_latent_time_derivatives(x, dxdt, dxddt)
     else:
         z, dzdt = veni.calc_latent_time_derivatives(x, dxdt, None)
 
-    # ensure z and dzdt have simulation-wise shapes (n_sims, n_timesteps, n_states)
     Z = switch_data_format(_to_numpy(z), n_sims, n_timesteps, target_format="3d")
     DZDT = switch_data_format(_to_numpy(dzdt), n_sims, n_timesteps, target_format="3d")
 
     # Save kernel state
-    kernel_orig, kernel_scale_orig = (
-        veni.sindy_layer.kernel,
-        veni.sindy_layer.kernel_scale,
-    )
+    kernel_orig = veni.sindy_layer.kernel.data.clone()
+    kernel_scale_orig = veni.sindy_layer.kernel_scale.data.clone()
 
     sampled_times = []
     latent_trajectories_samples = []
@@ -853,26 +683,20 @@ def perform_forward_uq(
     for i in sim_ids:
         logging.info("Processing trajectory %d/%d", i + 1, len(sim_ids))
 
-        # mu parameter for SINDy integration
         mu = Params[i] if params is not None else None
-
-        # time vector for integration
         tvec = T[i].squeeze()
 
-        # Get initial conditions in physical space for the first timestep of each simulation
         x0, dx0dt0, dx0ddt0 = (
             X[i, 0:1],
             DXDT[i, 0:1],
             DXDDT[i, 0:1] if second_order else None,
         )
 
-        # sampling
         traj_samples = []
         traj_times = []
         for traj in range(n_traj):
             logging.info("\tSampling model %d/%d", traj + 1, n_traj)
 
-            # sample initial condition
             ic = get_latent_initial_conditions(
                 veni, x0, dx0dt0, dx0ddt0, mean_or_sample="sample"
             )
@@ -885,12 +709,10 @@ def perform_forward_uq(
         sampled_times.append(traj_times)
         latent_trajectories_samples.append(traj_samples)
 
-        # Mean / nominal integration (using original kernel)
-        veni.sindy_layer.kernel, veni.sindy_layer.kernel_scale = (
-            kernel_orig,
-            kernel_scale_orig,
-        )
-        # mean initial condition (using mean prediction from encoder)
+        # Restore kernel state for mean integration
+        veni.sindy_layer.kernel.data.copy_(kernel_orig)
+        veni.sindy_layer.kernel_scale.data.copy_(kernel_scale_orig)
+
         ic = get_latent_initial_conditions(
             veni, x0, dx0dt0, dx0ddt0, mean_or_sample="mean"
         )
@@ -898,19 +720,14 @@ def perform_forward_uq(
         sol_mean = veni.integrate(ic, tvec, mu=mu)
         mean_latent_trajectories.append(np.asarray(sol_mean.y))
 
-    # convert lists to arrays
     latent_trajectories_samples = np.array(latent_trajectories_samples)
-
-    # expected shape: (ns, n_traj, n_states, n_timesteps) -> transpose to (ns, n_traj, n_timesteps, n_states)
     latent_trajectories_samples = np.transpose(
         latent_trajectories_samples, (0, 1, 3, 2)
     )
 
-    # statistics across sampled trajectories: mean/std over axis=1 (samples)
     mean_latent_samples = np.mean(latent_trajectories_samples, axis=1)
     std_latent_samples = np.std(latent_trajectories_samples, axis=1)
 
-    # mean trajectories: convert list to array and ensure shape (ns, n_timesteps, n_states)
     mean_latent = np.array(mean_latent_trajectories)
     mean_latent = np.transpose(mean_latent, (0, 2, 1))
 
@@ -945,10 +762,10 @@ def uq_plots(
 
     Parameters
     ----------
-    sampled_times : list of array-like
+    sampled_times : list
         Time points for sampled UQ trajectories.
     mean_latent : array-like
-        Mean trajectories from deterministic integration.
+        Mean trajectories.
     mean_latent_samples : array-like
         Mean of sampled trajectories.
     std_latent_samples : array-like
@@ -958,17 +775,15 @@ def uq_plots(
     z_test : array-like
         Latent states for test data.
     test_ids : list of int
-        List of test trajectory indices to plot.
+        Test trajectory indices.
     state_id : int, optional
-        Index of the state variable to plot (default is 0).
+        State variable index to plot.
     """
     n_test = len(test_ids)
-    # plot the mean and 3*std of the trajectories
     fig, axs = plt.subplots(n_test, 1, figsize=(12, 12), sharex=True)
     fig.suptitle(f"Integrated Test Trajectories")
     for i, i_test in enumerate(test_ids):
         axs[i].set_title(f"Test Trajectory {i_test + 1}")
-        # for i in range(2):
         axs[i].plot(t_test[i_test], z_test[i_test][:, state_id], color="blue")
         axs[i].plot(
             sampled_times[i][0],

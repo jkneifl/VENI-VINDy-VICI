@@ -1,7 +1,7 @@
-import tensorflow as tf
 from vindy.layers import SindyLayer
+from .base_callback import Callback
 
-class ThresholdPruneCallback(tf.keras.callbacks.Callback):
+class ThresholdPruneCallback(Callback):
 
     def __init__(self, freq=1, threshold=0.01, on_train_end=False, start_epoch=0):
         """
@@ -25,7 +25,6 @@ class ThresholdPruneCallback(tf.keras.callbacks.Callback):
         self.threshold = threshold
         self.on_train_end_ = on_train_end
         self.start_epoch = start_epoch
-        # super init
         super(ThresholdPruneCallback, self).__init__()
 
 
@@ -41,11 +40,11 @@ class ThresholdPruneCallback(tf.keras.callbacks.Callback):
     def prune_weights(self):
         sindy_layer = self.model.sindy_layer
         if isinstance(sindy_layer, SindyLayer):
-            tf.print(
+            print(
                 f"Thresholding coefficients below {self.threshold}"
             )
             sindy_layer.prune_weights(self.threshold)
         else:
-            tf.print(
+            print(
                 "Thresholding coefficients is only implemented for SINDy layer use pdf thresholding for VINDy"
             )

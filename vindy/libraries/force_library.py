@@ -1,13 +1,12 @@
-import tensorflow as tf
+import torch
 from .base_library import BaseLibrary
 
 
 class ForceLibrary(BaseLibrary):
 
-    def __init__(self, functions=[tf.sin, tf.cos]):
+    def __init__(self, functions=[torch.sin, torch.cos]):
         self.functions = functions
 
-    @tf.function
     def __call__(self, x):
         """
         Transform input x to force features following force = amplitude * sin(omega * t).
@@ -19,14 +18,14 @@ class ForceLibrary(BaseLibrary):
 
         Returns
         -------
-        x_force : tf.Tensor
+        x_force : torch.Tensor
             Force features.
         """
         x_force = []
         for func in self.functions:
             x_force += [x[:, 2:] * func(x[:, 1:2] * x[:, 0:1])]
 
-        x_force = tf.concat(x_force, axis=1)
+        x_force = torch.cat(x_force, dim=1)
         return x_force
 
     def get_names(self, x):

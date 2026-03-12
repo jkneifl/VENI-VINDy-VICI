@@ -1,4 +1,4 @@
-import tensorflow as tf
+import torch
 from .base_library import BaseLibrary
 
 
@@ -6,10 +6,9 @@ class FourierLibrary(BaseLibrary):
 
     def __init__(self, freqs=[1]):
         self.freqs = freqs
-        self.fcn = [tf.sin, tf.cos, tf.math.sigmoid]
+        self.fcn = [torch.sin, torch.cos, torch.sigmoid]
         self.fcn_names = ["sin", "cos", "sigmoid"]
 
-    @tf.function
     def __call__(self, x):
         """
         Transform input x to trigonometric features of order self.poly_order.
@@ -21,14 +20,14 @@ class FourierLibrary(BaseLibrary):
 
         Returns
         -------
-        x_fourier : tf.Tensor
+        x_fourier : torch.Tensor
             Fourier/trigonometric features.
         """
         x_fourier = []
         for f in self.freqs:
             for fcn in self.fcn:
                 x_fourier += [fcn(f * x)]
-        x_fourier = tf.concat(x_fourier, axis=1)
+        x_fourier = torch.cat(x_fourier, dim=1)
         return x_fourier
 
     def get_names(self, x):
@@ -54,4 +53,3 @@ class FourierLibrary(BaseLibrary):
                 for x_ in x:
                     x_fourier += [f'{fcn}({f} * {x_})']
         return x_fourier
-

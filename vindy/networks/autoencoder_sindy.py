@@ -1,10 +1,40 @@
 import numpy as np
 import logging
-import tensorflow as tf
+import torch
+import torch.nn as nn
 from .base_model import BaseModel
+from vindy.utils.jacobian import batch_jacobian, batch_hessian
 
 logging.basicConfig()
 logging.getLogger().setLevel(logging.INFO)
+
+
+# Map activation name strings to PyTorch activation modules
+_ACTIVATION_MAP = {
+    "relu": nn.ReLU,
+    "selu": nn.SELU,
+    "elu": nn.ELU,
+    "tanh": nn.Tanh,
+    "sigmoid": nn.Sigmoid,
+    "leaky_relu": nn.LeakyReLU,
+    "linear": nn.Identity,
+    "gelu": nn.GELU,
+    "swish": nn.SiLU,
+    "silu": nn.SiLU,
+}
+
+
+def _get_activation(activation):
+    """Return an nn.Module activation from a string or callable."""
+    if isinstance(activation, str):
+        act_cls = _ACTIVATION_MAP.get(activation.lower())
+        if act_cls is None:
+            raise ValueError(f"Unknown activation: {activation}. "
+                             f"Available: {list(_ACTIVATION_MAP.keys())}")
+        return act_cls()
+    if isinstance(activation, nn.Module):
+        return activation
+    raise TypeError(f"activation must be a string or nn.Module, got {type(activation)}")
 
 
 class AutoencoderSindy(BaseModel):
@@ -32,22 +62,17 @@ class AutoencoderSindy(BaseModel):
         """
         Autoencoder with SINDy dynamics in the latent space.
 
-        This model learns a reduced-order representation using an
-        autoencoder and identifies latent dynamics using a provided
-        SINDy layer.
-
         Parameters
         ----------
         sindy_layer : SindyLayer
-            Instance of a SINDy-compatible layer that computes latent
-            dynamics and associated losses.
+            Instance of a SINDy-compatible layer.
         reduced_order : int
             Dimensionality of the latent space.
         x : array-like
             Example input data used to infer shapes and build the model.
         mu : array-like, optional
-            Optional parameter/control inputs associated with the data.
-        scaling : {'individual', ...}, optional
+            Optional parameter/control inputs.
+        scaling : str, optional
             Method used to scale inputs before encoding.
         layer_sizes : list of int, optional
             Hidden layer sizes for the encoder/decoder networks.
@@ -56,16 +81,15 @@ class AutoencoderSindy(BaseModel):
         second_order : bool, optional
             If True, the model treats dynamics as second-order.
         l1, l2 : float, optional
-            Kernel regularization coefficients.
+            Kernel regularization coefficients for encoder/decoder.
         l_rec, l_dz, l_dx, l_int : float, optional
-            Weights for different loss components (reconstruction, derivative,
-            state derivative, integration consistency).
+            Weights for different loss components.
         dt : float, optional
-            Time-step used for finite-difference approximations.
+            Time-step used for integration loss.
         dtype : str, optional
-            Floating point precision used by Keras backend.
+            Floating point precision.
         **kwargs
-            Additional keyword arguments forwarded to the base model.
+            Additional keyword arguments.
         """
 
         # set default layer sizes to avoid mutable default argument
@@ -75,16 +99,15 @@ class AutoencoderSindy(BaseModel):
         # assert that input arguments are valid
         self.assert_arguments(locals())
 
-        tf.keras.backend.set_floatx(dtype)
         self.dtype_ = dtype
+        self.torch_dtype = torch.float32 if dtype == "float32" else torch.float64
         super(AutoencoderSindy, self).__init__(**kwargs)
 
-        if not hasattr(self, "config"):
-            self._init_to_config(locals())
+        self._init_to_config(locals())
 
         self.sindy_layer = sindy_layer
         self.layer_sizes = layer_sizes
-        self.activation = tf.keras.activations.get(activation)
+        self.activation_name = activation
         self.reduced_order = reduced_order
         self.second_order = second_order
         self.scaling = scaling
@@ -92,11 +115,12 @@ class AutoencoderSindy(BaseModel):
         self.l_rec, self.l_dz, self.l_dx, self.l_int = l_rec, l_dz, l_dx, l_int
         self.dt = dt
 
-        # kernel regularization weights
+        # kernel regularization weights for encoder/decoder
         self.l1, self.l2 = l1, l2
-        self.kernel_regularizer = tf.keras.regularizers.l1_l2(l1=l1, l2=l2)
 
         # create the model
+        if isinstance(x, np.ndarray):
+            x = torch.tensor(x, dtype=self.torch_dtype)
         self.x_shape = x.shape[1:]
         if len(self.x_shape) == 1:
             self.flatten, self.unflatten = self.flatten_dummy, self.flatten_dummy
@@ -104,13 +128,7 @@ class AutoencoderSindy(BaseModel):
             self.flatten, self.unflatten = self.flatten3d, self.unflatten3d
 
         x = self.flatten(x)
-        # some subclasses initialize weights before building the model
-        if hasattr(self, "init_weights"):
-            self.init_weights()
         self.build_model(x, mu)
-
-        # create loss tracker
-        self.create_loss_trackers()
 
     def assert_arguments(self, arguments):
         """
@@ -119,7 +137,7 @@ class AutoencoderSindy(BaseModel):
         Parameters
         ----------
         arguments : dict
-            Mapping of argument names to values (locals() from initializer).
+            Mapping of argument names to values.
         """
         # base class asserts
         super(AutoencoderSindy, self).assert_arguments(arguments)
@@ -143,54 +161,43 @@ class AutoencoderSindy(BaseModel):
                 int,
             ), f"{scale_factor} must be of type int/float"
 
-    def create_loss_trackers(self):
-        """
-        Initialize Keras metric objects for logging losses during training.
-
-        Adds trackers depending on which loss components are enabled.
-        """
-        self.loss_trackers = dict()
-        self.loss_trackers["loss"] = tf.keras.metrics.Mean(name="loss")
-        self.loss_trackers["rec"] = tf.keras.metrics.Mean(name="rec")
-        if self.l_dz > 0:
-            self.loss_trackers["dz"] = tf.keras.metrics.Mean(name="dz")
-        if self.l_dx > 0:
-            self.loss_trackers["dx"] = tf.keras.metrics.Mean(name="dx")
-        if self.l_int > 0:
-            self.loss_trackers["int"] = tf.keras.metrics.Mean(name="int")
-        self.loss_trackers["reg"] = tf.keras.metrics.Mean(name="reg")
-        # update dict with sindy layer loss trackers
-        if self.l_dx > 0 or self.l_dz > 0:
-            self.loss_trackers.update(self.sindy_layer.loss_trackers)
-
     def compile(
         self,
-        optimizer=tf.keras.optimizers.Adam(learning_rate=1e-3),
-        loss=tf.keras.losses.BinaryCrossentropy(),
+        optimizer=None,
+        loss=None,
         sindy_optimizer=None,
         **kwargs,
     ):
         """
-        Compile the model and optionally configure a separate optimizer for the SINDy part.
+        Configure optimizers for training.
 
         Parameters
         ----------
-        optimizer : tf.keras.optimizers.Optimizer or compatible, optional
-            Optimizer for the autoencoder parameters.
-        loss : tf.keras.losses.Loss or callable, optional
-            Loss function for reconstruction.
-        sindy_optimizer : tf.keras.optimizers.Optimizer or compatible, optional
-            Optimizer for the SINDy parameters. If None, the main optimizer
-            will be used to build a SINDy optimizer with the same configuration.
+        optimizer : torch.optim.Optimizer class or instance, optional
+            Optimizer for the autoencoder parameters. Defaults to Adam(lr=1e-3).
+        loss : callable, optional
+            Loss function (unused, kept for API compatibility).
+        sindy_optimizer : torch.optim.Optimizer class or instance, optional
+            Optimizer for the SINDy parameters. If None, uses same config as main optimizer.
         """
-        super(AutoencoderSindy, self).compile(optimizer=optimizer, loss=loss, **kwargs)
-        if sindy_optimizer is None:
-            self.sindy_optimizer = tf.keras.optimizers.get(optimizer)
-            # in case we call the optimizer to update different parts of the model separately we need to build it first
-            trainable_weights = self.get_trainable_weights()
-            self.sindy_optimizer.build(trainable_weights)
+        if optimizer is None:
+            ae_params = list(self.encoder.parameters()) + list(self.decoder.parameters())
+            self.ae_optimizer = torch.optim.Adam(ae_params, lr=1e-3)
+        elif isinstance(optimizer, torch.optim.Optimizer):
+            self.ae_optimizer = optimizer
         else:
-            self.sindy_optimizer = tf.keras.optimizers.get(sindy_optimizer)
+            # Assume it's a partial or factory
+            ae_params = list(self.encoder.parameters()) + list(self.decoder.parameters())
+            self.ae_optimizer = optimizer(ae_params)
+
+        if sindy_optimizer is None:
+            sindy_params = list(self.sindy_layer.parameters())
+            self.sindy_optimizer = torch.optim.Adam(sindy_params, lr=1e-3)
+        elif isinstance(sindy_optimizer, torch.optim.Optimizer):
+            self.sindy_optimizer = sindy_optimizer
+        else:
+            sindy_params = list(self.sindy_layer.parameters())
+            self.sindy_optimizer = sindy_optimizer(sindy_params)
 
     @staticmethod
     def reconstruction_loss(x, x_pred):
@@ -199,32 +206,17 @@ class AutoencoderSindy(BaseModel):
 
         Parameters
         ----------
-        x : array-like
+        x : torch.Tensor
             Ground-truth inputs.
-        x_pred : array-like
+        x_pred : torch.Tensor
             Reconstructed inputs.
 
         Returns
         -------
-        tf.Tensor
+        torch.Tensor
             Mean squared error between x and x_pred.
         """
-        return tf.reduce_mean(tf.square(x - x_pred))
-
-    def get_trainable_weights(self):
-        """
-        Return trainable variables for optimizer updates.
-
-        Returns
-        -------
-        list
-            List of trainable TensorFlow variables for encoder, decoder and SINDy.
-        """
-        return (
-            self.encoder.trainable_weights
-            + self.decoder.trainable_weights
-            + self.sindy.trainable_weights
-        )
+        return torch.mean((x - x_pred) ** 2)
 
     def build_model(self, x, mu):
         """
@@ -232,142 +224,151 @@ class AutoencoderSindy(BaseModel):
 
         Parameters
         ----------
-        x : array-like
+        x : torch.Tensor
             Example input used to determine shapes.
         mu : array-like, optional
-            Parameter inputs for the SINDy layer.
+            Parameter inputs (used for shape inference only).
         """
-        x = tf.cast(x, dtype=self.dtype_)
+        input_dim = x.shape[1]
+        self.build_encoder(input_dim)
+        self.build_decoder(input_dim)
 
-        # encoder
-        x_input, z = self.build_encoder(x)
-
-        # sindy
-        z_sindy, z_dot = self.build_sindy(z, mu)
-
-        # build the decoder
-        x = self.build_decoder(z)
-
-        # build the models
-        self.encoder = tf.keras.Model(inputs=x_input, outputs=z, name="encoder")
-        self.decoder = tf.keras.Model(inputs=z, outputs=x, name="decoder")
-        self.sindy = tf.keras.Model(inputs=z_sindy, outputs=z_dot, name="sindy")
-
-    def build_encoder(self, x):
+    def build_encoder(self, input_dim):
         """
-        Build a fully connected encoder with layers of specified sizes.
+        Build a fully connected encoder.
 
         Parameters
         ----------
-        x : tf.Tensor or array-like
-            Input to the autoencoder.
-
-        Returns
-        -------
-        tuple of tf.Tensor
-            Tuple containing (x_input, z) where x_input is the input layer and z is the latent representation.
+        input_dim : int
+            Input dimension.
         """
-        x_input = tf.keras.Input(shape=(x.shape[1],), dtype=self.dtype_)
-        z = x_input
+        layers = []
+        prev_dim = input_dim
         for n_neurons in self.layer_sizes:
-            z = tf.keras.layers.Dense(
-                n_neurons,
-                activation=self.activation,
-                kernel_regularizer=self.kernel_regularizer,
-            )(z)
-        z = tf.keras.layers.Dense(
-            self.reduced_order,
-            activation="linear",
-            kernel_regularizer=self.kernel_regularizer,
-        )(z)
-        return x_input, z
+            layers.append(nn.Linear(prev_dim, n_neurons))
+            layers.append(_get_activation(self.activation_name))
+            prev_dim = n_neurons
+        layers.append(nn.Linear(prev_dim, self.reduced_order))
+        self.encoder = nn.Sequential(*layers)
 
-    def build_decoder(self, z):
+    def build_decoder(self, output_dim):
         """
         Build a fully connected decoder with reversed layer sizes.
 
         Parameters
         ----------
-        z : tf.Tensor
-            Latent representation.
+        output_dim : int
+            Output dimension (matches input dimension).
+        """
+        layers = []
+        prev_dim = self.reduced_order
+        for n_neurons in reversed(self.layer_sizes):
+            layers.append(nn.Linear(prev_dim, n_neurons))
+            layers.append(_get_activation(self.activation_name))
+            prev_dim = n_neurons
+        layers.append(nn.Linear(prev_dim, output_dim))
+        self.decoder = nn.Sequential(*layers)
+
+    def encoder_regularization_loss(self):
+        """
+        Compute L1/L2 regularization loss for encoder and decoder parameters.
 
         Returns
         -------
-        tf.Tensor
-            Reconstructed output.
+        torch.Tensor
+            Regularization loss.
         """
-        # new decoder
-        x_ = z
-        for n_neurons in reversed(self.layer_sizes):
-            x_ = tf.keras.layers.Dense(
-                n_neurons,
-                activation=self.activation,
-                kernel_regularizer=self.kernel_regularizer,
-            )(x_)
-        x = tf.keras.layers.Dense(
-            self.x_shape[0],
-            activation="linear",
-            kernel_regularizer=self.kernel_regularizer,
-        )(x_)
-        return x
+        reg = torch.tensor(0.0, dtype=self.torch_dtype, device=next(self.parameters()).device)
+        if self.l1 == 0 and self.l2 == 0:
+            return reg
+        for module in [self.encoder, self.decoder]:
+            for param in module.parameters():
+                if self.l1 > 0:
+                    reg = reg + self.l1 * torch.sum(torch.abs(param))
+                if self.l2 > 0:
+                    reg = reg + self.l2 * torch.sum(param ** 2)
+        return reg
+
+    def _train_step(self, inputs):
+        """
+        Perform one training step.
+
+        Parameters
+        ----------
+        inputs : list
+            Input data for the training step.
+
+        Returns
+        -------
+        dict
+            Dictionary of loss values.
+        """
+        losses = self.build_loss(inputs)
+        return losses
+
+    def _eval_step(self, inputs):
+        """
+        Perform one evaluation step.
+
+        Parameters
+        ----------
+        inputs : list
+            Input data for the validation step.
+
+        Returns
+        -------
+        dict
+            Dictionary of loss values.
+        """
+        # second order systems dx_ddt = f(x, dx_dt, mu)
+        x, dx_dt, dx_ddt, x_int, dx_int, mu, mu_int = self.split_inputs(inputs)
+
+        # only perform reconstruction if no identification loss is used
+        if self.l_dx == 0 and self.l_dz == 0:
+            losses = self._get_loss_rec(x)
+        elif self.second_order:
+            losses = self._get_loss_2nd_eval(x, dx_dt, dx_ddt, mu)
+        else:
+            losses = self._get_loss_eval(x, dx_dt, mu)
+
+        return losses
 
     def build_loss(self, inputs):
         """
-        Build and compute the loss for the autoencoder-SINDy model.
-
-        Splits input into state, its derivative and the parameters, performs the forward pass,
-        calculates the loss, and updates the weights.
+        Build and compute the loss, then update weights.
 
         Parameters
         ----------
         inputs : list of array-like
-            List of input arrays containing states, derivatives, and parameters.
+            List of input arrays.
 
         Returns
         -------
         dict
             Dictionary of computed losses.
         """
-
         # second order systems dx_ddt = f(x, dx_dt, mu)
         x, dx_dt, dx_ddt, x_int, dx_int, mu, mu_int = self.split_inputs(inputs)
 
-        # forward pass
-        with tf.GradientTape() as tape:
-            # only perform reconstruction if no identification loss is used
-            if self.l_dx == 0 and self.l_dz == 0:
-                losses = self.get_loss_rec(x)
-            # calculate loss for second order systems (includes two time derivatives)
-            elif self.second_order:
-                losses = self.get_loss_2nd(x, dx_dt, dx_ddt, mu, x_int, dx_int, mu_int)
-            # calculate loss for first order systems
-            else:
-                losses = self.get_loss(x, dx_dt, mu, x_int, mu_int)
+        self.ae_optimizer.zero_grad()
+        self.sindy_optimizer.zero_grad()
 
-            # split trainable variables for autoencoder and dynamics so that you can use separate optimizers
-            trainable_weights = self.get_trainable_weights()
-            # grads = tape.gradient(losses["loss"], trainable_weights)
-            # self.optimizer.apply_gradients(zip(grads, trainable_weights))
+        # only perform reconstruction if no identification loss is used
+        if self.l_dx == 0 and self.l_dz == 0:
+            losses = self._get_loss_rec(x)
+        # calculate loss for second order systems (includes two time derivatives)
+        elif self.second_order:
+            losses = self.get_loss_2nd(x, dx_dt, dx_ddt, mu, x_int, dx_int, mu_int)
+        # calculate loss for first order systems
+        else:
+            losses = self.get_loss(x, dx_dt, mu, x_int, mu_int)
 
-            n_ae_weights = len(self.encoder.trainable_weights) + len(
-                self.decoder.trainable_weights
-            )
-            grads = tape.gradient(losses["loss"], trainable_weights)
-            grads_autoencoder = grads[:n_ae_weights]
-            grads_sindy = grads[n_ae_weights:]
+        losses["loss"].backward()
+        self.ae_optimizer.step()
+        if self.l_dx > 0 or self.l_dz > 0:
+            self.sindy_optimizer.step()
 
-            # adjust weights for autoencoder
-            self.optimizer.apply_gradients(
-                zip(grads_autoencoder, trainable_weights[:n_ae_weights])
-            )
-            # in case of only reconstructing the data without dynamics there won't be gradients for the dynamics
-            if self.l_dx > 0 or self.l_dz > 0:
-                # adjust sindy weights with separate optimizer
-                self.sindy_optimizer.apply_gradients(
-                    zip(grads_sindy, trainable_weights[n_ae_weights:])
-                )
-
-        return losses
+        return {k: v.detach() for k, v in losses.items()}
 
     def calc_latent_time_derivatives(
         self, x, dx_dt, dx_ddt=None, mean_or_sample="mean"
@@ -378,75 +379,73 @@ class AutoencoderSindy(BaseModel):
         Parameters
         ----------
         x : array-like
-            Full state of shape ``(n_samples, n_features, ...)``.
+            Full state.
         dx_dt : array-like
             First time derivative of the full state.
         dx_ddt : array-like, optional
-            Second time derivative of the full state, if available.
+            Second time derivative of the full state.
         mean_or_sample : {'mean', 'sample'}, optional
             Whether to use the mean or a sample from the encoder distribution.
 
         Returns
         -------
         tuple
-            ``(z, dz_dt[, dz_ddt])`` where the last item is returned only if ``dx_ddt`` is provided.
+            ``(z, dz_dt[, dz_ddt])`` as numpy arrays.
         """
-        # in case the variables are not vectorized but in their physical geometrical description flatten them
+        if isinstance(x, np.ndarray):
+            x = torch.tensor(x, dtype=self.torch_dtype)
+        if isinstance(dx_dt, np.ndarray):
+            dx_dt = torch.tensor(dx_dt, dtype=self.torch_dtype)
+        if dx_ddt is not None and isinstance(dx_ddt, np.ndarray):
+            dx_ddt = torch.tensor(dx_ddt, dtype=self.torch_dtype)
+
+        # in case the variables are not vectorized flatten them
         if len(x.shape) > 2:
             if dx_ddt is not None:
-                x, dx_dt, dx_ddt = [self.flatten(x) for x in [x, dx_dt, dx_ddt]]
-                dx_ddt = tf.expand_dims(tf.cast(dx_ddt, dtype=self.dtype_), axis=-1)
+                x, dx_dt, dx_ddt = [self.flatten(v) for v in [x, dx_dt, dx_ddt]]
+                dx_ddt = dx_ddt.to(dtype=self.torch_dtype).unsqueeze(-1)
             else:
-                x, dx_dt = [self.flatten(x) for x in [x, dx_dt]]
+                x, dx_dt = [self.flatten(v) for v in [x, dx_dt]]
 
-        x = tf.cast(x, self.dtype_)
-        dx_dt = tf.expand_dims(tf.cast(dx_dt, dtype=self.dtype_), axis=-1)
+        x = x.to(dtype=self.torch_dtype)
+        dx_dt = dx_dt.to(dtype=self.torch_dtype).unsqueeze(-1)
         if dx_ddt is not None:
-            dx_ddt = tf.expand_dims(tf.cast(dx_ddt, dtype=self.dtype_), axis=-1)
+            dx_ddt = dx_ddt.to(dtype=self.torch_dtype)
+            if dx_ddt.dim() == 2:
+                dx_ddt = dx_ddt.unsqueeze(-1)
+
+        x.requires_grad_(True)
 
         # forward pass of encoder and time derivative of latent variable
-        if dx_ddt is not None:
-            with tf.GradientTape() as t11:
-                with tf.GradientTape() as t12:
-                    t12.watch(x)
-                    z = self.encode(x, mean_or_sample=mean_or_sample)
-                dz_dx = t12.batch_jacobian(z, x)
-            dz_ddx = t11.batch_jacobian(dz_dx, x)
-        else:
-            with tf.GradientTape() as t12:
-                t12.watch(x)
-                z = self.encode(x, mean_or_sample=mean_or_sample)
-            dz_dx = t12.batch_jacobian(z, x)
+        z = self.encode(x, mean_or_sample=mean_or_sample)
+        dz_dx = batch_jacobian(z, x, create_graph=dx_ddt is not None)
 
-        # calculate first time derivative of the latent variable by application of the chain rule
-        #   dz_dt  = dz_dx @ dx_dt
-        #           = dz_dxr @ (V^T @ dx_dt)
+        # calculate first time derivative
         dz_dt = dz_dx @ dx_dt
-        dz_dt = tf.squeeze(dz_dt, axis=2)
+        dz_dt = dz_dt.squeeze(2)
 
-        # calculate second time derivative of the latent variable
-        #   dz_ddt  = dz_ddz @ (V^T @ dx_dt) + dz_dx @ dx_ddt
-        #           = dz_ddxr @ (V^T @ dx_dt) @ (V^T @ dx_dt) + dz_dxr @ (V^T @ dx_ddt)
+        # calculate second time derivative if needed
         if dx_ddt is not None:
-            dz_ddt = tf.squeeze(
-                dz_ddx @ tf.expand_dims(dx_dt, axis=1), axis=3
-            ) @ dx_dt + dz_dx @ tf.expand_dims(tf.squeeze(dx_ddt, axis=-1), axis=-1)
-            dz_ddt = tf.squeeze(dz_ddt, axis=2)
-            return z.numpy(), dz_dt.numpy(), dz_ddt.numpy()
+            # We need the Hessian for second-order derivatives
+            # dz_ddt = dz_ddx @ dx_dt @ dx_dt + dz_dx @ dx_ddt
+            dz_ddx = batch_hessian(dz_dx, x, create_graph=False)
+
+            dz_ddt = (
+                torch.squeeze(dz_ddx @ dx_dt.unsqueeze(1), dim=3) @ dx_dt
+                + dz_dx @ dx_ddt
+            )
+            dz_ddt = dz_ddt.squeeze(2)
+            return z.detach().cpu().numpy(), dz_dt.detach().cpu().numpy(), dz_ddt.detach().cpu().numpy()
         else:
-            return z.numpy(), dz_dt.numpy()
+            return z.detach().cpu().numpy(), dz_dt.detach().cpu().numpy()
 
     def _training_encoding(self, x, losses):
         """
         Encode input to latent representation during training.
 
-        For compatibility with the class, this method only returns the latent variable
-        but not the mean and log variance. The mean and log variance are stored in the
-        class attributes so that they can be accessed by the get_loss method.
-
         Parameters
         ----------
-        x : tf.Tensor or array-like
+        x : torch.Tensor
             Input data.
         losses : dict
             Dictionary to store losses.
@@ -454,37 +453,35 @@ class AutoencoderSindy(BaseModel):
         Returns
         -------
         tuple
-            Tuple containing (z, losses) where z is the latent representation.
+            (z, losses)
         """
         z = self.encoder(x)
         return z, losses
 
-    def get_loss_rec(self, x):
+    def _get_loss_rec(self, x):
         """
         Calculate reconstruction loss of autoencoder.
 
         Parameters
         ----------
-        x : array-like of shape (n_samples, n_features)
+        x : torch.Tensor
             Full state.
 
         Returns
         -------
         dict
-            Dictionary of losses including 'rec', 'reg', and 'loss'.
+            Dictionary of losses.
         """
-        losses = dict(loss=0)
+        losses = dict(loss=torch.tensor(0.0, dtype=self.torch_dtype, device=x.device))
         z, losses = self._training_encoding(x, losses)
         x_pred = self.decoder(z)
 
         # calculate losses
-        rec_loss = self.l_rec * self.reconstruction_loss(
-            x, x_pred
-        )  # reconstruction loss
+        rec_loss = self.l_rec * self.reconstruction_loss(x, x_pred)
         losses["rec"] = rec_loss
-        reg_loss = tf.reduce_sum(self.losses)  # regularization loss
+        reg_loss = self.encoder_regularization_loss() + self.sindy_layer.regularization_loss()
         losses["reg"] = reg_loss
-        losses["loss"] += rec_loss + reg_loss  # total loss
+        losses["loss"] = losses["loss"] + rec_loss + reg_loss
 
         return losses
 
@@ -494,82 +491,85 @@ class AutoencoderSindy(BaseModel):
 
         Parameters
         ----------
-        x : array-like of shape (n_samples, n_features)
+        x : torch.Tensor
             Full state.
-        dx_dt : array-like of shape (n_samples, n_features)
+        dx_dt : torch.Tensor
             Time derivative of state.
-        mu : array-like of shape (n_samples, n_features)
+        mu : torch.Tensor, optional
             Control input.
-        x_int : array-like of shape (n_samples, n_features, n_integrationsteps), optional
-            Full state at {t+1,...,t+n_integrationsteps}.
-        mu_int : array-like of shape (n_samples, n_param, n_integrationsteps), optional
-            Control input at {t+1,...,t+n_integrationsteps}.
+        x_int : torch.Tensor, optional
+            Integration state trajectory.
+        mu_int : torch.Tensor, optional
+            Integration control trajectory.
 
         Returns
         -------
         dict
-            Dictionary of individual losses (rec_loss, dz_loss, dx_loss, int_loss, loss).
+            Dictionary of individual losses.
         """
-        losses = dict(loss=0)
+        losses = dict(loss=torch.tensor(0.0, dtype=self.torch_dtype, device=x.device))
 
-        x = tf.cast(x, self.dtype_)
-        dx_dt = tf.expand_dims(tf.cast(dx_dt, dtype=self.dtype_), axis=-1)
+        x = x.to(dtype=self.torch_dtype)
+        dx_dt = dx_dt.to(dtype=self.torch_dtype).unsqueeze(-1)
 
         # forward pass of encoder and time derivative of latent variable
-        with tf.GradientTape() as t12:
-            t12.watch(x)
-            z, losses = self._training_encoding(x, losses)
-            dz_dx = t12.batch_jacobian(z, x)
+        x = x.requires_grad_(True)
+        z, losses = self._training_encoding(x, losses)
+        dz_dx = batch_jacobian(z, x, create_graph=True)
 
         # calculate first time derivative of the latent variable by application of the chain rule
-        #   dz_ddt  = dz_dx @ dx_dt
         dz_dt = dz_dx @ dx_dt
 
         # sindy approximation of the time derivative of the latent variable
         sindy_pred, sindy_mean, sindy_log_var = self.evaluate_sindy_layer(z, None, mu)
-        dz_dt_sindy = tf.expand_dims(sindy_pred, -1)
+        dz_dt_sindy = sindy_pred.unsqueeze(-1)
 
         # forward pass of decoder and time derivative of reconstructed variable
-        with tf.GradientTape() as t22:
-            t22.watch(z)
-            x_ = self.decoder(z)
+        x_ = self.decoder(z)
         if self.l_dx > 0:
-            dx_dz = t22.batch_jacobian(x_, z)
-            # calculate first time derivative of the reconstructed state by application of the chain rule
+            dx_dz = batch_jacobian(x_, z, create_graph=True)
+            # calculate first time derivative of the reconstructed state
             dxf_dt = dx_dz @ dz_dt_sindy
-            dx_loss = self.l_dx * self.compute_loss(
-                None, tf.concat([dxf_dt], axis=1), tf.concat([dx_dt], axis=1)
+            dx_loss = self.l_dx * torch.mean(
+                (torch.cat([dxf_dt], dim=1) - torch.cat([dx_dt], dim=1)) ** 2
             )
             losses["dx"] = dx_loss
-            losses["loss"] += dx_loss
+            losses["loss"] = losses["loss"] + dx_loss
 
         # SINDy consistency loss
-        if self.l_int:
+        if self.l_int and x_int is not None:
             int_loss = self.get_int_loss([x_int, mu_int])
             losses["int"] = int_loss
-            losses["loss"] += int_loss
+            losses["loss"] = losses["loss"] + int_loss
 
         # calculate losses
-        reg_loss = tf.reduce_sum(self.losses)
+        reg_loss = self.encoder_regularization_loss() + self.sindy_layer.regularization_loss()
         rec_loss = self.l_rec * self.reconstruction_loss(x, x_)
-        # dz_loss = self.l_dz * self.compute_loss(None, tf.concat([dz_dt], axis=1),
-        # tf.concat([dz_dt_sindy], axis=1))
-        dz_loss = tf.math.log(
-            2 * np.pi * tf.reduce_mean(tf.keras.losses.mse(dz_dt, dz_dt_sindy)) + 1
+        dz_loss = torch.log(
+            2 * np.pi * torch.mean((dz_dt - dz_dt_sindy) ** 2) + 1
         )
 
-        losses["loss"] += rec_loss + dz_loss + reg_loss
+        losses["loss"] = losses["loss"] + rec_loss + dz_loss + reg_loss
 
         # calculate kl divergence for variational sindy
         if sindy_mean is not None:
             kl_loss_sindy = self.sindy_layer.kl_loss(sindy_mean, sindy_log_var)
             losses["kl_sindy"] = kl_loss_sindy
-            losses["loss"] += kl_loss_sindy
+            losses["loss"] = losses["loss"] + kl_loss_sindy
 
         losses["reg"] = reg_loss
         losses["rec"] = rec_loss
         losses["dz"] = dz_loss
 
+        return losses
+
+    def _get_loss_eval(self, x, dx_dt, mu):
+        """Evaluation-only loss for first order (no gradients through encoder)."""
+        with torch.no_grad():
+            z = self.encoder(x)
+            x_ = self.decoder(z)
+        rec_loss = self.l_rec * self.reconstruction_loss(x, x_)
+        losses = dict(loss=rec_loss, rec=rec_loss)
         return losses
 
     def get_loss_2nd(
@@ -580,149 +580,138 @@ class AutoencoderSindy(BaseModel):
 
         Parameters
         ----------
-        x : array-like of shape (n_samples, n_features)
+        x : torch.Tensor
             Full state.
-        dx_dt : array-like of shape (n_samples, n_features)
+        dx_dt : torch.Tensor
             Time derivative of state.
-        dx_ddt : array-like of shape (n_samples, n_features)
+        dx_ddt : torch.Tensor
             Second time derivative of state.
-        mu : array-like of shape (n_samples, n_param)
+        mu : torch.Tensor, optional
             Control input.
-        x_int : array-like of shape (n_samples, n_features, n_integrationsteps), optional
-            Full state at {t+1,...,t+n_integrationsteps}.
-        dx_dt_int : array-like of shape (n_samples, n_features, n_integrationsteps), optional
-            Time derivative of state at {t+1,...,t+n_integrationsteps}.
-        mu_int : array-like of shape (n_samples, n_param, n_integrationsteps), optional
-            Control input at {t+1,...,t+n_integrationsteps}.
+        x_int, dx_dt_int, mu_int : torch.Tensor, optional
+            Integration data.
 
         Returns
         -------
         dict
-            Dictionary of individual losses (rec_loss, dz_loss, dx_loss, int_loss, loss).
+            Dictionary of individual losses.
         """
-        losses = dict(loss=0)
+        losses = dict(loss=torch.tensor(0.0, dtype=self.torch_dtype, device=x.device))
 
-        x = tf.cast(x, self.dtype_)
-        dx_dt = tf.expand_dims(tf.cast(dx_dt, dtype=self.dtype_), axis=-1)
-        dx_ddt = tf.expand_dims(tf.cast(dx_ddt, dtype=self.dtype_), axis=-1)
+        x = x.to(dtype=self.torch_dtype)
+        dx_dt = dx_dt.to(dtype=self.torch_dtype).unsqueeze(-1)
+        dx_ddt = dx_ddt.to(dtype=self.torch_dtype).unsqueeze(-1)
 
         # forward pass of encoder and time derivative of latent variable
-        with tf.GradientTape() as t11:
-            with tf.GradientTape() as t12:
-                t12.watch(x)
-                z, losses = self._training_encoding(x, losses)
-            t11.watch(x)
-            dz_dx = t12.batch_jacobian(z, x)
-        dz_ddx = t11.batch_jacobian(dz_dx, x)
+        x = x.requires_grad_(True)
+        z, losses = self._training_encoding(x, losses)
+        dz_dx = batch_jacobian(z, x, create_graph=True)
 
-        # calculate first time derivative of the latent variable by application of the chain rule
-        #   dz_ddt  = dz_dx @ dx_dt
+        # Compute Hessian: dz_ddx (batch, m, n, n)
+        dz_ddx = batch_hessian(dz_dx, x, create_graph=True)
+
+        # calculate first time derivative
         dz_dt = dz_dx @ dx_dt
 
-        # calculate second time derivative of the latent variable
-        #   dz_ddt  = dz_ddz @ dx_dt + dz_dx @ dx_ddt
+        # calculate second time derivative
         dz_ddt = (
-            tf.squeeze(dz_ddx @ tf.expand_dims(dx_dt, axis=1), axis=3) @ dx_dt
+            torch.squeeze(dz_ddx @ dx_dt.unsqueeze(1), dim=3) @ dx_dt
             + dz_dx @ dx_ddt
         )
 
-        # sindy approximation of the time derivative of the latent variable
+        # sindy approximation
         sindy_pred, sindy_mean, sindy_log_var = self.evaluate_sindy_layer(z, dz_dt, mu)
-        dz_dt_sindy = tf.expand_dims(sindy_pred[:, : self.reduced_order], -1)
-        dz_ddt_sindy = tf.expand_dims(sindy_pred[:, self.reduced_order :], -1)
+        dz_dt_sindy = sindy_pred[:, : self.reduced_order].unsqueeze(-1)
+        dz_ddt_sindy = sindy_pred[:, self.reduced_order :].unsqueeze(-1)
 
         # forward pass of decoder and time derivative of reconstructed variable
-        with tf.GradientTape() as t21:
-            t21.watch(z)
-            with tf.GradientTape() as t22:
-                t22.watch(z)
-                x_ = self.decoder(z)
-                if self.l_dx > 0:
-                    dx_dz = t22.batch_jacobian(x_, z)
-            if self.l_dx > 0:
-                dx_ddz = t21.batch_jacobian(dx_dz, z)
+        x_ = self.decoder(z)
+        if self.l_dx > 0:
+            dx_dz = batch_jacobian(x_, z, create_graph=True)
+            dx_ddz = batch_hessian(dx_dz, z, create_graph=True)
 
-                # calculate first time derivative of the reconstructed state by application of the chain rule
-                dxf_dt = dx_dz @ dz_dt_sindy
+            dxf_dt = dx_dz @ dz_dt_sindy
+            dxf_ddt = (
+                torch.squeeze(dx_ddz @ dz_dt_sindy.unsqueeze(1), dim=3) @ dz_dt_sindy
+            ) + dx_dz @ dz_ddt_sindy
 
-                # calculate second time derivative of the reconstructed state by application of the chain rule
-                dxf_ddt = (
-                    tf.squeeze((dx_ddz @ tf.expand_dims(dz_dt_sindy, axis=1)), axis=3)
-                    @ dz_dt_sindy
-                ) + dx_dz @ dz_ddt_sindy
-
-                dx_loss = self.l_dx * self.compute_loss(
-                    None,
-                    tf.concat([dxf_dt, dxf_ddt], axis=1),
-                    tf.concat([dx_dt, dx_ddt], axis=1),
-                )
-                losses["dx"] = dx_loss
-                losses["loss"] += dx_loss
+            dx_loss = self.l_dx * torch.mean(
+                (torch.cat([dxf_dt, dxf_ddt], dim=1) - torch.cat([dx_dt, dx_ddt], dim=1)) ** 2
+            )
+            losses["dx"] = dx_loss
+            losses["loss"] = losses["loss"] + dx_loss
 
         # SINDy consistency loss
-        if self.l_int:
+        if self.l_int and x_int is not None:
             int_loss = self.get_int_loss([x_int, dx_dt_int, mu_int])
             losses["int"] = int_loss
-            losses["loss"] += int_loss
+            losses["loss"] = losses["loss"] + int_loss
 
         # calculate kl divergence for variational sindy
         if sindy_mean is not None:
             kl_loss_sindy = self.sindy_layer.kl_loss(sindy_mean, sindy_log_var)
             losses["kl_sindy"] = kl_loss_sindy
-            losses["loss"] += kl_loss_sindy
+            losses["loss"] = losses["loss"] + kl_loss_sindy
 
         # calculate losses
-        reg_loss = tf.reduce_sum(self.losses)
+        reg_loss = self.encoder_regularization_loss() + self.sindy_layer.regularization_loss()
         rec_loss = self.l_rec * self.reconstruction_loss(x, x_)
-        dz_loss = self.l_dz * self.compute_loss(
-            None,
-            tf.concat([dz_dt, dz_ddt], axis=1),
-            tf.concat([dz_dt_sindy, dz_ddt_sindy], axis=1),
+        dz_loss = self.l_dz * torch.mean(
+            (torch.cat([dz_dt, dz_ddt], dim=1) - torch.cat([dz_dt_sindy, dz_ddt_sindy], dim=1)) ** 2
         )
 
-        losses["loss"] += rec_loss + dz_loss + reg_loss
+        losses["loss"] = losses["loss"] + rec_loss + dz_loss + reg_loss
         losses["reg"] = reg_loss
         losses["rec"] = rec_loss
         losses["dz"] = dz_loss
 
         return losses
 
-    # @tf.function
+    def _get_loss_2nd_eval(self, x, dx_dt, dx_ddt, mu):
+        """Evaluation-only loss for second order (no gradients)."""
+        with torch.no_grad():
+            z = self.encoder(x)
+            x_ = self.decoder(z)
+        rec_loss = self.l_rec * self.reconstruction_loss(x, x_)
+        losses = dict(loss=rec_loss, rec=rec_loss)
+        return losses
+
     def encode(self, x, training=False, mean_or_sample="mean"):
         """
         Encode full state to latent variables.
 
         Parameters
         ----------
-        x : array-like
-            Full state input of shape ``(n_samples, n_features, ...)``.
+        x : array-like or torch.Tensor
+            Full state input.
         training : bool, optional
-            If True, run under training mode.
+            Unused, for API compatibility.
         mean_or_sample : {'mean', 'sample'}, optional
-            Return either the posterior mean or a sampled latent vector.
+            Unused for deterministic encoder.
 
         Returns
         -------
-        tf.Tensor
-            Latent representation with shape ``(n_samples, reduced_order)``.
+        torch.Tensor
+            Latent representation.
         """
+        if isinstance(x, np.ndarray):
+            x = torch.tensor(x, dtype=self.torch_dtype)
         x = self.flatten(x)
         z = self.encoder(x)
         return z
 
-    # @tf.function
     def decode(self, z):
         """
         Decode latent variable to full state.
 
         Parameters
         ----------
-        z : array-like of shape (n_samples, reduced_order)
+        z : torch.Tensor
             Latent variable.
 
         Returns
         -------
-        array-like of shape (n_samples, n_features, n_dof_per_feature)
+        torch.Tensor
             Reconstructed full state.
         """
         x_rec = self.decoder(z)
@@ -735,14 +724,12 @@ class AutoencoderSindy(BaseModel):
         Parameters
         ----------
         x : array-like
-            Full state input of shape ``(n_samples, n_features, ...)``.
-        _ : optional
-            Placeholder for API compatibility.
+            Full state input.
 
         Returns
         -------
-        array-like
-            Reconstructed full state with the original shape.
+        torch.Tensor
+            Reconstructed full state.
         """
         z = self.encode(x)
         x_rec = self.decode(z)

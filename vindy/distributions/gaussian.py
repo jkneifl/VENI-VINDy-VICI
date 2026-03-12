@@ -1,5 +1,5 @@
 import numpy as np
-import tensorflow as tf
+import torch
 from .base_distribution import BaseDistribution
 
 
@@ -24,7 +24,7 @@ class Gaussian(BaseDistribution):
         prior_variance : float, optional
             Variance of the prior distribution (default is 1.0).
         **kwargs
-            Additional arguments passed to tensorflow.keras.layers.Layer.
+            Additional arguments passed to nn.Module.
         """
         super(Gaussian, self).__init__(**kwargs)
         assert isinstance(prior_mean, float), "prior mean must be a float"
@@ -33,40 +33,28 @@ class Gaussian(BaseDistribution):
         ), "prior variance must be a float > 0"
         self.prior_mean = prior_mean
         self.prior_variance = prior_variance
-        self.prior_deviation = tf.math.sqrt(self.prior_variance)
+        self.prior_deviation = float(np.sqrt(self.prior_variance))
 
-    def call(self, inputs):
+    def forward(self, z_mean, z_log_var):
         """
         Draw a sample from a normal distribution using the reparameterization trick.
 
         Sample y ~ N(z_mean, exp(z_log_var)) from a normal distribution with mean z_mean and
-        log variance z_log_var using the reparameterization trick. Log variance is used to
-        ensure numerical stability.
-
-        The variance relationship: variance = measurement_noise_factor^2
-
-        Sampling formula:
-            x = mu + measurement_noise_factor * epsilon, where epsilon ~ N(0, 1)
-
-        Rewritten with log variance:
-            x = mu + exp(0.5 * log_var) * epsilon = mu + (measurement_noise_factor^2)^0.5 * epsilon
+        log variance z_log_var using the reparameterization trick.
 
         Parameters
         ----------
-        inputs : tuple of tf.Tensor
-            Tuple containing (z_mean, z_log_var) where z_mean is the mean and
-            z_log_var is the log variance.
+        z_mean : torch.Tensor
+            Mean of the distribution.
+        z_log_var : torch.Tensor
+            Log variance of the distribution.
 
         Returns
         -------
-        tf.Tensor
+        torch.Tensor
             Sampled values from the normal distribution.
         """
-        z_mean, z_log_var = inputs
-        batch = tf.shape(z_mean)[0]
-        dim = tf.shape(z_mean)[1]
-        # create random normal distributed coefficients with mean 0 and std 1
-        epsilon = tf.keras.backend.random_normal(shape=(batch, dim))
+        epsilon = torch.randn_like(z_mean)
         return z_mean + self.log_var_to_deviation(z_log_var) * epsilon
 
     def KL_divergence(self, mean, log_var):
@@ -77,29 +65,23 @@ class Gaussian(BaseDistribution):
         and q(x) ~ N(mu2, sigma2) following:
             KL(p,q) = log(sigma2/sigma1) + (sigma1^2 + (mu1-mu2)^2) / (2*sigma2^2) - 1/2
 
-        In case of a unitary Gaussian q(x) = N(0,1) the KL divergence simplifies to:
-            KL(p,q) = log(1/sigma1) + (sigma1^2 + mu1^2 -1) / 2
-
-        Which can be rewritten using the log variance log_var1 = log(sigma1**2) as:
-            KL(p,q) = -0.5 * (1 + log_var1 - mu1^2 - exp(log_var1))
-
         Parameters
         ----------
-        mean : tf.Tensor
+        mean : torch.Tensor
             Mean of the first normal distribution.
-        log_var : tf.Tensor
+        log_var : torch.Tensor
             Log variance of the first normal distribution.
 
         Returns
         -------
-        tf.Tensor
+        torch.Tensor
             KL divergence value.
         """
         sigma1 = self.log_var_to_deviation(log_var)
         sigma2 = self.prior_deviation
 
         kl = (
-            tf.math.log(sigma2 / sigma1)
+            torch.log(torch.tensor(sigma2, dtype=mean.dtype, device=mean.device) / sigma1)
             + (sigma1**2 + (mean - self.prior_mean) ** 2) / (2 * sigma2**2)
             - 1 / 2
         )
@@ -109,20 +91,17 @@ class Gaussian(BaseDistribution):
         """
         Convert log variance to standard deviation.
 
-        Converts the log variance to standard deviation (variance = measurement_noise_factor^2) following:
-            measurement_noise_factor = exp(0.5 * log(measurement_noise_factor^2)) = (measurement_noise_factor^2)^0.5
-
         Parameters
         ----------
-        log_var : tf.Tensor
+        log_var : torch.Tensor
             Log variance.
 
         Returns
         -------
-        tf.Tensor
+        torch.Tensor
             Standard deviation.
         """
-        return tf.exp(0.5 * log_var)
+        return torch.exp(0.5 * log_var)
 
     def variance_to_log_scale(self, variance):
         """
@@ -130,15 +109,15 @@ class Gaussian(BaseDistribution):
 
         Parameters
         ----------
-        variance : tf.Tensor
+        variance : torch.Tensor
             Variance.
 
         Returns
         -------
-        tf.Tensor
+        torch.Tensor
             Log variance.
         """
-        return tf.math.log(variance)
+        return torch.log(variance)
 
     def prob_density_fcn(self, x, mean, variance):
         """

@@ -1,4 +1,4 @@
-import tensorflow as tf
+import torch
 import scipy
 from sympy import sympify, symbols
 from .base_library import BaseLibrary
@@ -32,7 +32,6 @@ class PolynomialLibrary(BaseLibrary):
         self.n = n
         self.l = l
 
-    # @tf.function
     def __call__(self, x):
         """
         Transform input x to polynomial features of order self.poly_order.
@@ -44,10 +43,9 @@ class PolynomialLibrary(BaseLibrary):
 
         Returns
         -------
-        x_poly : tf.Tensor
+        x_poly : torch.Tensor
             Polynomial features.
         """
-        # x_old = x
         if self.interaction:
             # faster way for one or two dimensional input
             if x.shape[1] <= 2:
@@ -56,8 +54,8 @@ class PolynomialLibrary(BaseLibrary):
                 for i in range(1, self.degree):
                     interactions = x[:, 0:1] * x_new
                     sec = x[:, 1:2] ** (i + 1)
-                    x_new = tf.concat([interactions, sec], axis=1)
-                    x_poly = tf.concat([x_poly, x_new], axis=1)
+                    x_new = torch.cat([interactions, sec], dim=1)
+                    x_poly = torch.cat([x_poly, x_new], dim=1)
             # for higher dimensional input
             else:
                 x_poly = self.poly_higher_order(x)
@@ -67,34 +65,33 @@ class PolynomialLibrary(BaseLibrary):
             x_poly = x
             for i in range(1, self.degree):
                 x_new = x ** (i + 1)
-                x_poly = tf.concat([x_poly, x_new], axis=1)
+                x_poly = torch.cat([x_poly, x_new], dim=1)
 
         # add ones to the input
         if self.include_bias:
-            ones = 0 * x[:, 0:1] + 1
-            x_poly = tf.concat([ones, x_poly], axis=1)
+            ones = torch.ones(x.shape[0], 1, dtype=x.dtype, device=x.device)
+            x_poly = torch.cat([ones, x_poly], dim=1)
 
         return x_poly
 
-    @tf.function
     def poly_higher_order(self, x):
         """
         Compute polynomial features for higher dimensional input x.
 
         Parameters
         ----------
-        x : tf.Tensor
+        x : torch.Tensor
             Input tensor.
 
         Returns
         -------
-        x_poly : tf.Tensor
+        x_poly : torch.Tensor
             Polynomial features for higher dimensional input.
         """
         x_poly = []
         for d in range(1, self.degree + 1):
             x_poly += self.loop_rec(x, 1, 0, x.shape[1], d)
-        x_poly = tf.concat(x_poly, axis=1)
+        x_poly = torch.cat(x_poly, dim=1)
         return x_poly
 
     def get_names(self, x):
@@ -123,7 +120,6 @@ class PolynomialLibrary(BaseLibrary):
             l[i] = str(sympify(l[i])).replace("**", "^")
         return l
 
-    @tf.function
     def loop_rec(self, x, x_i, i, n, d):
         if d > 1:
             feat = []

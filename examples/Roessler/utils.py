@@ -175,9 +175,9 @@ def data_plot(t, x, dxdt, x_test):
 def training_plot(sindy_layer, trainhist, var_names):
     plt.figure()
     plt.title("Loss over epochs")
-    plt.semilogy(trainhist.history["loss"])
-    plt.semilogy(trainhist.history["dz"])
-    plt.semilogy(trainhist.history["kl_sindy"])
+    plt.semilogy(trainhist["loss"])
+    plt.semilogy(trainhist["dz"])
+    plt.semilogy(trainhist["kl_sindy"])
     plt.legend(["loss", "dz", "kl_sindy"])
     plt.xlabel("Epoch")
     plt.ylabel("Loss")
@@ -185,7 +185,7 @@ def training_plot(sindy_layer, trainhist, var_names):
 
     plt.figure()
     plt.title("VINDy Coefficients over epochs")
-    plt.plot(np.array(trainhist.history["coeffs_mean"]).squeeze())
+    plt.plot(np.array(trainhist["coeffs_mean"]).squeeze())
     plt.xlabel("Epoch")
     plt.ylabel("Coefficient")
     plt.show(block=False)

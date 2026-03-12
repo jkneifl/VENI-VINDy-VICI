@@ -1,6 +1,7 @@
 import numpy as np
 import logging
-import tensorflow as tf
+import torch
+import torch.nn as nn
 import matplotlib.pyplot as plt
 from .sindy_layer import SindyLayer
 from vindy.distributions import Gaussian, BaseDistribution
@@ -32,7 +33,6 @@ class VindyLayer(SindyLayer):
         self.assert_additional_args(beta, priors)
         self.priors = priors
         self.beta = beta
-        self.kl_loss_tracker = tf.keras.metrics.Mean(name="kl_sindy")
 
     def assert_additional_args(self, beta, priors):
         """
@@ -61,24 +61,46 @@ class VindyLayer(SindyLayer):
                 priors, BaseDistribution
             ), "priors must be a class inheriting from BaseDistribution"
 
-    def init_weigths(self, kernel_regularizer):
-        super(VindyLayer, self).init_weigths(kernel_regularizer)
+    def init_weigths(self):
+        super(VindyLayer, self).init_weigths()
 
         # initialize the log variance of the coefficients
-        init = tf.random_uniform_initializer(minval=-1, maxval=1)
-        l1, l2 = kernel_regularizer.l1, kernel_regularizer.l2
-        scale_regularizer = LogVarL1L2Regularizer(l1=l1, l2=l2, dtype=self.dtype_)
-        self.kernel_scale = self.add_weight(
-            name="SINDy_log_scale",
-            initializer=init,
-            shape=self.kernel_shape,
-            dtype=self.dtype_,
-            regularizer=scale_regularizer,
-        )
+        self.kernel_scale = nn.Parameter(torch.empty(self.kernel_shape, dtype=self.torch_dtype))
+        nn.init.uniform_(self.kernel_scale, -1, 1)
 
     @property
     def loss_trackers(self):
-        return dict(kl_sindy=self.kl_loss_tracker)
+        return ["kl_sindy"]
+
+    def scale_regularization_loss(self):
+        """
+        Compute regularization loss on the scale parameter.
+
+        Computes l1 * sum(abs(exp(0.5 * kernel_scale))) + l2 * sum(exp(0.5 * kernel_scale)**2)
+
+        Returns
+        -------
+        torch.Tensor
+            Scale regularization loss.
+        """
+        reg = torch.tensor(0.0, dtype=self.torch_dtype, device=self.kernel_scale.device)
+        exp_half = torch.exp(0.5 * self.kernel_scale)
+        if self.l1 > 0:
+            reg = reg + self.l1 * torch.sum(torch.abs(exp_half))
+        if self.l2 > 0:
+            reg = reg + self.l2 * torch.sum(exp_half ** 2)
+        return reg
+
+    def regularization_loss(self):
+        """
+        Compute combined regularization loss for kernel and scale.
+
+        Returns
+        -------
+        torch.Tensor
+            Total regularization loss.
+        """
+        return super().regularization_loss() + self.scale_regularization_loss()
 
     @property
     def _coeffs(self):
@@ -90,21 +112,21 @@ class VindyLayer(SindyLayer):
 
         Returns
         -------
-        tuple of tf.Tensor
+        tuple of torch.Tensor
             Tuple containing (coeffs, coeffs_mean, coeffs_log_scale).
         """
         # split the kernel into mean and log variance
         coeffs_mean, coeffs_log_scale = self.kernel, self.kernel_scale
-        # draw samples from the normal distribution
+        # draw samples from the distribution
         if isinstance(self.priors, list):
             trainable_coeffs = []
             for i, prior in enumerate(self.priors):
                 trainable_coeffs.append(
-                    prior([coeffs_mean[i : i + 1], coeffs_log_scale[i : i + 1]])
+                    prior(coeffs_mean[i : i + 1], coeffs_log_scale[i : i + 1])
                 )
-            trainable_coeffs = tf.concat(trainable_coeffs, axis=0)
+            trainable_coeffs = torch.cat(trainable_coeffs, dim=0)
         else:
-            trainable_coeffs = self.priors([coeffs_mean, coeffs_log_scale])
+            trainable_coeffs = self.priors(coeffs_mean, coeffs_log_scale)
 
         # fill the coefficient matrix with the trainable coefficients
         coeffs = self.fill_coefficient_matrix(trainable_coeffs)
@@ -117,61 +139,57 @@ class VindyLayer(SindyLayer):
 
         Parameters
         ----------
-        mean : tf.Tensor
+        mean : torch.Tensor
             Mean of the coefficient distributions.
-        scale : tf.Tensor
+        scale : torch.Tensor
             Scale (log variance) of the coefficient distributions.
 
         Returns
         -------
-        tf.Tensor
+        torch.Tensor
             Scaled KL divergence loss.
         """
         if isinstance(self.priors, list):
-            kl_loss = tf.cast(0, self.dtype_)
+            kl_loss = torch.tensor(0.0, dtype=self.torch_dtype, device=mean.device)
             for prior in self.priors:
-                kl_loss += prior.KL_divergence(mean, scale)
+                kl_loss = kl_loss + prior.KL_divergence(mean, scale)
         else:
             kl_loss = self.priors.KL_divergence(mean, scale)
 
-        return self.beta * tf.reduce_sum(kl_loss)
+        return self.beta * torch.sum(kl_loss)
 
     def get_sindy_coeffs(self):
         _, coeffs_mean, _ = self._coeffs
         coeffs = self.fill_coefficient_matrix(coeffs_mean)
-        return coeffs.numpy()
+        return coeffs.detach().cpu().numpy()
 
-    @tf.function
-    def call(self, inputs, training=False):
+    def forward(self, inputs):
         """
         Apply the VINDy layer to the inputs.
 
         Applies the feature libraries to the inputs, samples the coefficients from a
-        normal distribution parametrized by the layer's kernel (weights), and computes
+        distribution parametrized by the layer's kernel (weights), and computes
         the dot product of the features and the coefficients.
 
         Parameters
         ----------
-        inputs : tf.Tensor
+        inputs : torch.Tensor
             Input tensor.
-        training : bool, default=False
-            Whether the model is in training mode.
 
         Returns
         -------
-        tf.Tensor or list of tf.Tensor
+        torch.Tensor or list of torch.Tensor
             If training: [z_dot, coeffs_mean, coeffs_log_var]
             If not training: z_dot
         """
-        # todo: think about whether we want to have deterministic coefficients during inference (after training) or not
         z_features = self.features(inputs)
         coeffs, coeffs_mean, coeffs_log_var = self._coeffs
-        if training:
-            z_dot = z_features @ tf.transpose(coeffs)
+        if self.training:
+            z_dot = z_features @ coeffs.t()
             return [z_dot, coeffs_mean, coeffs_log_var]
         else:
             # in case of evaluation, we use the mean of the coefficients
-            z_dot = z_features @ tf.transpose(self.fill_coefficient_matrix(coeffs_mean))
+            z_dot = z_features @ self.fill_coefficient_matrix(coeffs_mean).t()
             return z_dot
 
     def visualize_coefficients(self, x_range=None, z=None, mu=None):
@@ -190,7 +208,7 @@ class VindyLayer(SindyLayer):
         # get coefficient parameterization
         _, mean, log_scale = self._coeffs
         _ = self._visualize_coefficients(
-            mean.numpy(), log_scale.numpy(), x_range=x_range, z=z, mu=mu
+            mean.detach().cpu().numpy(), log_scale.detach().cpu().numpy(), x_range=x_range, z=z, mu=mu
         )
         plt.show()
 
@@ -212,8 +230,7 @@ class VindyLayer(SindyLayer):
         n_plots = int(self.n_dofs / n_variables)
         mean = mean.reshape(n_variables, n_plots).T
         log_scale = log_scale.reshape(n_variables, n_plots).T
-        # create a plot with one subplot for each (trainablie) coefficient
-        # for j in range(n_figures):
+        # create a plot with one subplot for each (trainable) coefficient
         if figsize is None:
             figsize = (n_variables * 10, 10)
         fig, axs = plt.subplots(n_plots, n_variables, figsize=figsize, sharex=True)
@@ -271,14 +288,16 @@ class VindyLayer(SindyLayer):
                 distribution = self.priors[i]
             else:
                 distribution = self.priors
-            scale = distribution.reverse_log(log_scale_)
-            zero_density = distribution.prob_density_fcn(x=0, loc=loc_, scale=scale)
+            loc_val = loc_.detach().cpu().numpy()
+            log_scale_val = log_scale_.detach().cpu().numpy()
+            scale = distribution.reverse_log(log_scale_val)
+            zero_density = distribution.prob_density_fcn(x=0, loc=loc_val, scale=scale)
             if zero_density > threshold:
                 # cancel the coefficient
-                loc[i].assign(0)
-                log_scale[i].assign(-10)
+                self.kernel.data[i] = 0
+                self.kernel_scale.data[i] = -10
                 logging.info(
-                    f"Canceling coefficient {feature_names[i]} with pdf(0)={zero_density[0]}"
+                    f"Canceling coefficient {feature_names[i]} with pdf(0)={zero_density}"
                 )
         self.print()
 
@@ -295,54 +314,27 @@ class VindyLayer(SindyLayer):
             sampled_coeffs,
         )
 
-    @tf.function
+    @torch.no_grad()
     def call_uq(self, inputs, coeffs):
         """
         Apply the VINDy layer with given coefficients for uncertainty quantification.
 
-        Applies the VINDy layer for given coefficients so that not the mean coefficients
-        of the distribution are taken.
-
         Parameters
         ----------
-        inputs : tf.Tensor
+        inputs : array-like or torch.Tensor
             Input tensor.
-        coeffs : tf.Tensor
+        coeffs : torch.Tensor
             Coefficients to use for the computation.
 
         Returns
         -------
-        tf.Tensor
+        ndarray
             Time derivative z_dot.
         """
+        if not isinstance(inputs, torch.Tensor):
+            inputs = torch.tensor(inputs, dtype=self.torch_dtype)
         if len(inputs.shape) == 1:
-            inputs = tf.expand_dims(inputs, 0)
-        inputs = tf.cast(inputs, dtype=self.dtype_)
+            inputs = inputs.unsqueeze(0)
         features = self.features(inputs)
-        z_dot = features @ tf.transpose(coeffs)
-        return z_dot
-
-
-class LogVarL1L2Regularizer(tf.keras.regularizers.Regularizer):
-    """
-    Regularizer for the log variance of the coefficients in the VINDy layer
-    """
-
-    def __init__(self, l1=0.0, l2=0.0, dtype=tf.float32):
-        # The default value for l1 and l2 are different from the value in l1_l2
-        # for backward compatibility reason. Eg, L1L2(l2=0.1) will only have l2
-        # and no l1 penalty.
-        l1 = 0.0 if l1 is None else l1
-        l2 = 0.0 if l2 is None else l2
-        self.dtype_ = dtype
-        self.l1 = tf.convert_to_tensor(l1, dtype=dtype)
-        self.l2 = tf.convert_to_tensor(l2, dtype=dtype)
-
-    def __call__(self, x):
-        regularization = tf.convert_to_tensor(0, dtype=self.dtype_)
-        if self.l1:
-            regularization += self.l1 * tf.reduce_sum(tf.abs(tf.exp(0.5 * x)))
-        if self.l2:
-            # equivalent to "self.l2 * tf.reduce_sum(tf.square(x))"
-            regularization += 2.0 * self.l2 * tf.nn.l2_loss(tf.exp(0.5 * x))
-        return regularization
+        z_dot = features @ coeffs.t()
+        return z_dot.detach().cpu().numpy()

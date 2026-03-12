@@ -1,4 +1,3 @@
-# from . import base_model, sindy_network, autoencoder_sindy, variational_autoencoder_sindy
 from .base_model import BaseModel
 from .identification_network import IdentificationNetwork
 from .autoencoder_sindy import AutoencoderSindy
@@ -11,4 +10,3 @@ SindyNetwork = IdentificationNetwork
 # Also expose via old module path for pickle compatibility
 from . import variational_autoencoder_sindy
 from . import sindy_network
-

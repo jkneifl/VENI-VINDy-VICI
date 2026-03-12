@@ -14,7 +14,8 @@ Model:
 import os
 import logging
 import numpy as np
-import tensorflow as tf
+import torch
+from functools import partial
 import datetime
 import matplotlib.pyplot as plt
 
@@ -24,7 +25,7 @@ from vindy.layers import SindyLayer, VindyLayer
 from vindy.distributions import Laplace
 from vindy.callbacks import SaveCoefficientsCallback
 from vindy.utils import switch_data_format, coefficient_distribution_gif
-from utils import load_mems_data
+from utils import load_mems_data, to_tensor
 
 # Import shared utilities
 from vindy.utils import (
@@ -66,28 +67,32 @@ PDF_THRESHOLD = 5  # PDF threshold for coefficient sparsification
 SEED = 42  # random seed for reproducibility
 
 
+# Replace the existing visualize_sample_data with this updated version
 def visualize_sample_data(t, x, dxdt, dxddt, params, n_timesteps):
     """
-    Visualize a sample of the training data.
-
-    Args:
-        t (np.ndarray): Time steps.
-        x (np.ndarray): State data.
-        dxdt (np.ndarray): State derivatives.
-        dxddt (np.ndarray): State second derivatives.
-        params (np.ndarray): Parameters.
-        n_timesteps (int): Number of time steps per simulation.
+    Visualize a sample of the training data. Accepts numpy arrays or torch tensors.
     """
+    # Convert tensors to numpy for matplotlib plotting
+    def to_numpy(arr):
+        if torch.is_tensor(arr):
+            return arr.detach().cpu().numpy()
+        return np.array(arr)
+
     fig, axes = plt.subplots(2, 3, figsize=(12, 8))
     fig.suptitle("MEMS Beam Training Data Sample", fontsize=14, fontweight="bold")
 
     # Select first simulation for visualization
     sim_length = n_timesteps
     sample_time = t[:sim_length]
-    sample_x = x[:sim_length, 0]  # First PCA component
-    sample_dxdt = dxdt[:sim_length, 0]
-    sample_dxddt = dxddt[:sim_length, 0]
-    sample_params = params[:sim_length] if params.shape[1] > 0 else None
+    x_np = to_numpy(x)
+    dxdt_np = to_numpy(dxdt)
+    dxddt_np = to_numpy(dxddt)
+    params_np = to_numpy(params) if params is not None else None
+
+    sample_x = x_np[:sim_length, 0]  # First PCA component
+    sample_dxdt = dxdt_np[:sim_length, 0]
+    sample_dxddt = dxddt_np[:sim_length, 0]
+    sample_params = params_np[:sim_length] if (params_np is not None and params_np.shape[1] > 0) else None
 
     # Position vs time
     axes[0, 0].plot(sample_time, sample_x, "b-", linewidth=1.5)
@@ -112,12 +117,8 @@ def visualize_sample_data(t, x, dxdt, dxddt, params, n_timesteps):
 
     # Phase portrait
     axes[1, 0].plot(sample_x, sample_dxdt, "g-", linewidth=1, alpha=0.7)
-    axes[1, 0].scatter(
-        sample_x[0], sample_dxdt[0], color="green", s=50, label="Start", zorder=5
-    )
-    axes[1, 0].scatter(
-        sample_x[-1], sample_dxdt[-1], color="red", s=50, label="End", zorder=5
-    )
+    axes[1, 0].scatter(sample_x[0], sample_dxdt[0], color="green", s=50, label="Start", zorder=5)
+    axes[1, 0].scatter(sample_x[-1], sample_dxdt[-1], color="red", s=50, label="End", zorder=5)
     axes[1, 0].set_title("Phase Portrait")
     axes[1, 0].set_xlabel("Position")
     axes[1, 0].set_ylabel("Velocity")
@@ -125,9 +126,11 @@ def visualize_sample_data(t, x, dxdt, dxddt, params, n_timesteps):
     axes[1, 0].grid(True, alpha=0.3)
 
     # forcing function is u(t) = F*cos(omega*t)
-    forcing = ForceLibrary(functions=[tf.cos])(sample_params)
-    # Parameter forcing (if available)
+    # Ensure ForceLibrary receives a tensor
+    force_lib = ForceLibrary(functions=[torch.cos])
     if sample_params is not None:
+        forcing_t = force_lib(to_tensor(sample_params))  # returns tensor
+        forcing = forcing_t.detach().cpu().numpy()
         axes[1, 1].plot(sample_time, forcing, "m-", linewidth=1.5)
         axes[1, 1].set_title("External Forcing")
         axes[1, 1].set_xlabel("Time [s]")
@@ -162,7 +165,7 @@ def create_model(x, params, dt, n_dof):
     """
     logging.info("Creating model...")
     libraries = [PolynomialLibrary(3)]
-    param_libraries = [ForceLibrary(functions=[tf.cos])]
+    param_libraries = [ForceLibrary(functions=[torch.cos])]
 
     layer_params = dict(
         state_dim=REDUCED_ORDER,
@@ -171,7 +174,8 @@ def create_model(x, params, dt, n_dof):
         second_order=SECOND_ORDER,
         param_feature_libraries=param_libraries,
         x_mu_interaction=False,
-        kernel_regularizer=tf.keras.regularizers.L1L2(l1=1e-8, l2=0),
+        l1=1e-8,
+        l2=0,
         mask=None,
         fixed_coeffs=None,
     )
@@ -215,18 +219,10 @@ def train_model(veni, x_input, x_input_val, weights_path, log_dir, train_histdir
     os.makedirs(log_dir, exist_ok=True)
     if LOAD_MODEL:
         logging.info("Loading model...")
-        veni.load_weights(os.path.join(weights_path))
+        veni.load(weights_path)
     else:
         logging.info("Training model...")
         callbacks = [
-            tf.keras.callbacks.ModelCheckpoint(
-                filepath=weights_path,
-                save_weights_only=True,
-                save_best_only=True,
-                monitor="val_loss",
-                verbose=0,
-            ),
-            tf.keras.callbacks.TensorBoard(log_dir=log_dir, histogram_freq=1),
             SaveCoefficientsCallback(),
         ]
 
@@ -237,23 +233,21 @@ def train_model(veni, x_input, x_input_val, weights_path, log_dir, train_histdir
             x=x_input,
             validation_data=(x_input_val, None),
             callbacks=callbacks,
-            y=None,
             epochs=EPOCHS,
             batch_size=BATCH_SIZE,
-            verbose=2,
         )
         end_time = time.time()
         logging.info(f"time per epoch: {(end_time - start_time)/EPOCHS:.2f} seconds")
         # Save training history
         np.save(
             train_histdir,
-            trainhist.history,
+            trainhist,
         )
 
         veni.print(precision=4)
 
         # save model
-        veni.load_weights(weights_path)
+        veni.save(weights_path)
 
     # load trainhist
     trainhist = np.load(
@@ -330,16 +324,12 @@ def main():
 
     # Scale data
     veni.define_scaling(x)
-    x_train_scaled, dxdt_train_scaled, dxddt_train_scaled = (
-        veni.scale(x).numpy(),
-        veni.scale(dxdt).numpy(),
-        veni.scale(dxddt).numpy(),
-    )
-    x_test_scaled, dxdt_test_scaled, dxddt_test_scaled = (
-        veni.scale(x_test).numpy(),
-        veni.scale(dxdt_test).numpy(),
-        veni.scale(dxddt_test).numpy(),
-    )
+    x_train_scaled = veni.scale(x).detach().cpu().numpy()
+    dxdt_train_scaled = veni.scale(dxdt).detach().cpu().numpy()
+    dxddt_train_scaled = veni.scale(dxddt).detach().cpu().numpy()
+    x_test_scaled = veni.scale(x_test).detach().cpu().numpy()
+    dxdt_test_scaled = veni.scale(dxdt_test).detach().cpu().numpy()
+    dxddt_test_scaled = veni.scale(dxddt_test).detach().cpu().numpy()
 
     x_input = [
         x_train_scaled[: 24 * n_timesteps],
@@ -354,12 +344,10 @@ def main():
         params[24 * n_timesteps :],
     ]
 
-    # Compile and build model
+    # Compile model
     veni.compile(
-        optimizer=tf.keras.optimizers.AdamW(learning_rate=LEARNING_RATE),
-        loss="mse",
+        optimizer=partial(torch.optim.AdamW, lr=LEARNING_RATE),
     )
-    veni.build(input_shape=([input.shape for input in x_input], None))
 
     # Train model
     result_dir = os.path.join(os.path.dirname(__file__), "results")
@@ -369,7 +357,7 @@ def main():
     )
     weights_path = os.path.join(
         result_dir,
-        f"{MODEL_NAME}/{MODEL_NAME}_{REDUCED_ORDER}_{veni.__class__.__name__}_{IDENTIFICATION_LAYER}.weights.h5",
+        f"{MODEL_NAME}/{MODEL_NAME}_{REDUCED_ORDER}_{veni.__class__.__name__}_{IDENTIFICATION_LAYER}.pt",
     )
     train_hist_dir = os.path.join(
         result_dir, f"{MODEL_NAME}/trainhist_{IDENTIFICATION_LAYER}.npy"

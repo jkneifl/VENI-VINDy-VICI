@@ -1,8 +1,8 @@
-import tensorflow as tf
 from vindy.layers.vindy_layer import VindyLayer
+from .base_callback import Callback
 
 
-class PDFThresholdCallback(tf.keras.callbacks.Callback):
+class PDFThresholdCallback(Callback):
 
     def __init__(self, freq=1, threshold=1, on_train_end=False, **kwargs):
         """
@@ -20,12 +20,12 @@ class PDFThresholdCallback(tf.keras.callbacks.Callback):
         on_train_end : bool, default=False
             Perform thresholding at end of training.
         **kwargs
-            Additional keyword arguments passed to tf.keras.callbacks.Callback.
+            Additional keyword arguments.
         """
         self.freq = freq
         self.threshold = threshold
         self.on_train_end_ = on_train_end
-        super().__init__(**kwargs)
+        super().__init__()
 
     def on_epoch_end(self, epoch, logs=None):
         # only save coefficients every freq epochs
@@ -50,6 +50,6 @@ class PDFThresholdCallback(tf.keras.callbacks.Callback):
             # get current
             sindy_layer.pdf_thresholding(threshold=self.threshold)
         else:
-            tf.print(
+            print(
                 "Canceling coefficients is only implemented for variational SINDy"
             )

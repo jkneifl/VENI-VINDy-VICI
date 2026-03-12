@@ -17,7 +17,7 @@ callbacks
 distributions
     Probability distributions used in the variational encoder/decoder.
 layers
-    Custom Keras layers for SINDy and related operations.
+    Custom PyTorch layers for SINDy and related operations.
 
 Notes
 -----

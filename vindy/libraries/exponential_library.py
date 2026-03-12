@@ -1,4 +1,4 @@
-import tensorflow as tf
+import torch
 from .base_library import BaseLibrary
 
 
@@ -7,7 +7,6 @@ class ExponentialLibrary(BaseLibrary):
     def __init__(self, coeff=[1]):
         self.coeff = coeff
 
-    @tf.function
     def __call__(self, x):
         """
         Transform input x to exponential features.
@@ -19,13 +18,13 @@ class ExponentialLibrary(BaseLibrary):
 
         Returns
         -------
-        x_exp : tf.Tensor
+        x_exp : torch.Tensor
             Exponential features.
         """
         x_exp = []
         for c in self.coeff:
-            x_exp += [tf.exp(c * x)]
-        x_exp = tf.concat(x_exp, axis=1)
+            x_exp += [torch.exp(c * x)]
+        x_exp = torch.cat(x_exp, dim=1)
         return x_exp
 
     def get_names(self, x):

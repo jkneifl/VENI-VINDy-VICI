@@ -1,8 +1,9 @@
 import logging
-import tensorflow as tf
+import torch
+import torch.nn as nn
 import numpy as np
 from vindy.distributions import Gaussian
-from .autoencoder_sindy import AutoencoderSindy
+from .autoencoder_sindy import AutoencoderSindy, _get_activation
 
 logging.basicConfig()
 logging.getLogger().setLevel(logging.INFO)
@@ -25,83 +26,76 @@ class VENI(AutoencoderSindy):
 
     def __init__(self, beta, **kwargs):
         # assert that input arguments are valid
-        if not hasattr(self, "config"):
-            self._init_to_config(locals())
         assert isinstance(beta, float) or isinstance(beta, int), "beta must be a float"
         self.beta = beta
         super(VENI, self).__init__(**kwargs)
 
-    def create_loss_trackers(self):
-        """Create loss trackers used during training.
-
-        Extends the base trackers by adding a tracker for the KL loss.
-        """
-        super(VENI, self).create_loss_trackers()
-        self.loss_trackers["kl"] = tf.keras.metrics.Mean(name="kl_loss")
-
-    def build_encoder(self, x):
+    def build_encoder(self, input_dim):
         """Build the variational encoder network.
 
         Parameters
         ----------
-        x : array-like
-            Example input array used to infer input shapes.
+        input_dim : int
+            Input dimension.
+        """
+        layers = []
+        prev_dim = input_dim
+        for n_neurons in self.layer_sizes:
+            layers.append(nn.Linear(prev_dim, n_neurons))
+            layers.append(_get_activation(self.activation_name))
+            prev_dim = n_neurons
+
+        self.encoder_backbone = nn.Sequential(*layers)
+        self.z_mean_layer = nn.Linear(prev_dim, self.reduced_order)
+        self.z_log_var_layer = nn.Linear(prev_dim, self.reduced_order)
+        # initialize z_log_var_layer weights to zeros
+        nn.init.zeros_(self.z_log_var_layer.weight)
+        nn.init.zeros_(self.z_log_var_layer.bias)
+        self.gaussian_sampling = Gaussian()
+
+        # Create a wrapper encoder that outputs the sampled z
+        self.encoder = _VariationalEncoder(
+            self.encoder_backbone, self.z_mean_layer, self.z_log_var_layer, self.gaussian_sampling
+        )
+
+    def variational_encode(self, x):
+        """
+        Variational encoding: returns (z_mean, z_log_var, z).
+
+        Parameters
+        ----------
+        x : torch.Tensor
+            Input tensor.
 
         Returns
         -------
-        x_input : tf.keras.Input
-            The encoder input tensor.
-        z : tf.Tensor
-            Sampled latent variable from the learned Gaussian.
+        tuple
+            (z_mean, z_log_var, z)
         """
-        x_input = tf.keras.Input(shape=(x.shape[1],), dtype=self.dtype_)
-        z_ = x_input
-        for n_neurons in self.layer_sizes:
-            z_ = tf.keras.layers.Dense(
-                n_neurons,
-                activation=self.activation,
-                kernel_regularizer=self.kernel_regularizer,
-            )(z_)
-
-        zero_initializer = tf.keras.initializers.Zeros()
-        z_mean = tf.keras.layers.Dense(
-            self.reduced_order,
-            name="z_mean",
-            kernel_regularizer=self.kernel_regularizer,
-        )(z_)
-
-        z_log_var = tf.keras.layers.Dense(
-            self.reduced_order,
-            name="z_log_var",
-            kernel_initializer=zero_initializer,
-            kernel_regularizer=self.kernel_regularizer,
-        )(z_)
-
-        z = Gaussian()([z_mean, z_log_var])
-        self.variational_encoder = tf.keras.Model(
-            x_input, [z_mean, z_log_var, z], name="encoder"
-        )
-        return x_input, z
+        h = self.encoder_backbone(x)
+        z_mean = self.z_mean_layer(h)
+        z_log_var = self.z_log_var_layer(h)
+        z = self.gaussian_sampling(z_mean, z_log_var)
+        return z_mean, z_log_var, z
 
     def kl_loss(self, mean, log_var):
         """Compute the KL divergence between the learned Gaussian and the unit Gaussian.
 
         Parameters
         ----------
-        mean : tf.Tensor
+        mean : torch.Tensor
             Mean of the approximate posterior.
-        log_var : tf.Tensor
+        log_var : torch.Tensor
             Log-variance of the approximate posterior.
 
         Returns
         -------
-        tf.Tensor
+        torch.Tensor
             Scalar KL divergence loss scaled by ``self.beta``.
         """
-        kl_loss = -0.5 * (1 + log_var - tf.square(mean) - tf.exp(log_var))
-        # sum over the latent dimension is correct as it reflects the kl divergence for a multivariate isotropic Gaussian
-        kl_loss = self.beta * tf.reduce_mean(tf.reduce_sum(kl_loss, axis=1))
-
+        kl_loss = -0.5 * (1 + log_var - torch.square(mean) - torch.exp(log_var))
+        # sum over the latent dimension
+        kl_loss = self.beta * torch.mean(torch.sum(kl_loss, dim=1))
         return kl_loss
 
     def _training_encoding(self, x, losses):
@@ -109,7 +103,7 @@ class VENI(AutoencoderSindy):
 
         Parameters
         ----------
-        x : array-like
+        x : torch.Tensor
             Input observations.
         losses : dict
             Mutable dict where computed losses are stored/accumulated.
@@ -117,13 +111,12 @@ class VENI(AutoencoderSindy):
         Returns
         -------
         tuple
-            (z, losses) where ``z`` is the sampled latent variable and
-            ``losses`` includes the KL contribution.
+            (z, losses)
         """
-        z_mean, z_log_var, z = self.variational_encoder(x)
+        z_mean, z_log_var, z = self.variational_encode(x)
         kl_loss = self.kl_loss(z_mean, z_log_var)
         losses["kl"] = kl_loss
-        losses["loss"] += kl_loss
+        losses["loss"] = losses["loss"] + kl_loss
         return z, losses
 
     def encode(self, x, training=False, mean_or_sample="mean"):
@@ -131,20 +124,22 @@ class VENI(AutoencoderSindy):
 
         Parameters
         ----------
-        x : array-like
-            Full state observations with shape ``(n_samples, n_features, ...)``.
+        x : array-like or torch.Tensor
+            Full state observations.
         training : bool, optional
-            If True, run in training mode (unused here).
+            Unused.
         mean_or_sample : {'mean', 'sample'}, optional
             Return the mean of the posterior or a sample from it.
 
         Returns
         -------
-        tf.Tensor
-            Latent representation (mean or sample) of shape ``(n_samples, reduced_order)``.
+        torch.Tensor
+            Latent representation.
         """
+        if isinstance(x, np.ndarray):
+            x = torch.tensor(x, dtype=self.torch_dtype)
         x = self.flatten(x)
-        z_mean, _, z = self.variational_encoder(x)
+        z_mean, _, z = self.variational_encode(x)
         if mean_or_sample == "mean":
             return z_mean
         elif mean_or_sample == "sample":
@@ -152,30 +147,40 @@ class VENI(AutoencoderSindy):
         else:
             raise ValueError("mean_or_sample must be either 'mean' or 'sample'")
 
-    def call(self, inputs, _=None):
-        z_mean, z_log_var, z = self.encode(inputs)
-        reconstruction = self.decode(z)
-        return reconstruction
-
     @staticmethod
     def reconstruction_loss(x, x_reconstruction):
         """Reconstruction loss used for the variational autoencoder.
 
-        The implementation follows the log-MSE variant referenced in the
-        VINDy paper.
-
         Parameters
         ----------
-        x : array-like
+        x : torch.Tensor
             Original inputs.
-        x_reconstruction : array-like
+        x_reconstruction : torch.Tensor
             Reconstructed inputs from the decoder.
 
         Returns
         -------
-        tf.Tensor
+        torch.Tensor
             Scalar reconstruction loss.
         """
-        return tf.math.log(
-            2 * np.pi * tf.reduce_mean(tf.keras.losses.mse(x, x_reconstruction)) + 1
+        return torch.log(
+            2 * np.pi * torch.mean((x - x_reconstruction) ** 2) + 1
         )
+
+
+class _VariationalEncoder(nn.Module):
+    """Wrapper module that outputs sampled z from the variational encoder."""
+
+    def __init__(self, backbone, z_mean_layer, z_log_var_layer, gaussian_sampling):
+        super().__init__()
+        self.backbone = backbone
+        self.z_mean_layer = z_mean_layer
+        self.z_log_var_layer = z_log_var_layer
+        self.gaussian_sampling = gaussian_sampling
+
+    def forward(self, x):
+        h = self.backbone(x)
+        z_mean = self.z_mean_layer(h)
+        z_log_var = self.z_log_var_layer(h)
+        z = self.gaussian_sampling(z_mean, z_log_var)
+        return z
